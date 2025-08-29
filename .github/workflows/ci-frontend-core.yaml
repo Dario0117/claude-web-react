@@ -1,0 +1,46 @@
+name: Frontend core pipeline [React with Vite]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - ./**
+jobs:
+  Run-all-tests:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Identifying required node version
+      id: node-version
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./.node-version
+    - name: Identifying required pnpm version
+      id: pnpm-version
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./.pnpm-version
+    - name: Set up pnpm ${{ steps.pnpm-version.outputs.content }}
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ steps.pnpm-version.outputs.content }}
+    - name: Set up Node ${{ steps.node-version.outputs.content }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ steps.node-version.outputs.content }}
+    - name: Install Dependencies
+      run: |
+        pnpm install --frozen-lockfile
+    - name: Run linter and formatter
+      run: |
+        pnpm format-and-lint:check
+    - name: Run Tests
+      run: |
+        pnpm test
+    - name: Generate coverage report
+      run: |
+        pnpm coverage

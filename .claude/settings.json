@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm format-and-lint:fix:*)",
+      "Bash(pnpm test:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm format-and-lint:check:*)",
+      "Bash(pnpm storybook:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(kill:*)"
+    ],
+    "deny": []
+  }
+}
