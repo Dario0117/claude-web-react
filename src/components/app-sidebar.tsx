@@ -67,7 +67,7 @@ function SidebarLogo() {
         className="group/logo inline-flex"
         to="/"
       >
-        <span className="sr-only">Logo</span>
+        <span className="sr-only">Logo2</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="36"
