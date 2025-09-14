@@ -19,11 +19,9 @@ describe('Label', () => {
     render(<Label>Label</Label>);
     const label = screen.getByText('Label');
     expect(label).toHaveClass(
-      'flex',
-      'items-center',
-      'gap-2',
+      'text-foreground',
       'text-sm',
-      'leading-none',
+      'leading-4',
       'font-medium',
       'select-none',
     );

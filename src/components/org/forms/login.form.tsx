@@ -77,13 +77,9 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
           {(errorMap) => {
             const error =
               errorMap && typeof errorMap === 'object' && 'form' in errorMap
-                ? (errorMap as { form: CoreHTTPError<unknown> }).form
+                ? (errorMap as { form: CoreHTTPError }).form
                 : null;
-            return (
-              <FormErrorDisplay
-                error={error as CoreHTTPError<unknown> | null}
-              />
-            );
+            return <FormErrorDisplay error={error as CoreHTTPError | null} />;
           }}
         </form.Subscribe>
 

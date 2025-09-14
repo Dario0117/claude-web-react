@@ -8,7 +8,7 @@ import type {
   RegisterResponse,
   ResetPasswordRequest,
   UpdatePasswordRequest,
-} from '@/types/api';
+} from '@/types/api-types';
 
 // Re-export types for convenience
 export type {
@@ -21,7 +21,7 @@ export type {
   RegisterResponse,
   ResetPasswordRequest as ResetPasswordForm,
   UpdatePasswordRequest as UpdatePasswordForm,
-} from '@/types/api';
+} from '@/types/api-types';
 
 export async function register(
   formValues: RegisterRequest,
@@ -43,7 +43,7 @@ export async function register(
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }
@@ -73,7 +73,7 @@ export async function resetPassword(
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }
@@ -103,7 +103,7 @@ export async function updatePassword(
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }
@@ -133,7 +133,7 @@ export async function login(
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }
@@ -170,7 +170,7 @@ export async function me(): Promise<CoreHTTPResponse<MeResponse>> {
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }
@@ -205,7 +205,7 @@ export async function logout(): Promise<CoreHTTPResponse<LogoutResponse>> {
       data: null,
       errors: {
         message: 'Something went wrong, please try again later.',
-        details: error,
+        details: error instanceof Error ? error.message : String(error),
       },
     };
   }

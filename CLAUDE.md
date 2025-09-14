@@ -5,21 +5,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Core Development
+
 - `pnpm dev` - Start development server
 - `pnpm dev:debug` - Start development server with VSCode debugging support (disables code splitting)
 - `pnpm build` - Build for production (runs TypeScript compilation + Vite build)
 - `pnpm preview` - Preview production build
 
 ### Code Quality
+
 - `pnpm format-and-lint:fix` - Format and lint code (auto-fix issues)
 - `pnpm format-and-lint:check` - Check formatting and linting without fixing
 - `pnpm check-ts` - TypeScript type checking without emitting files
+- `pnpm open-api` - Generate OpenAPI schema for API
 
 ### Testing
+
 - `pnpm test` - Run tests with Vitest
 - `pnpm coverage` - Run tests with coverage report (outputs to `/coverage`)
 
 ### Storybook
+
 - `pnpm storybook` - Start Storybook development server on port 6006
 - `pnpm build-storybook` - Build Storybook for production
 
@@ -28,6 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a React frontend template using modern tooling and patterns:
 
 ### Tech Stack
+
 - **React 19** with TypeScript
 - **TanStack Router** for file-based routing with type-safe navigation
 - **TanStack Query** for server state management
@@ -73,25 +79,18 @@ This is a React frontend template using modern tooling and patterns:
 **State Management**: Zustand with Immer middleware for immutable updates. TanStack Query handles server state with React Query DevTools in development.
 
 ### Alias Configuration
+
 - `@/` maps to `/src/` directory for clean imports
 
 ### Development Notes
+
 - Auto-generated route tree at `/src/routeTree.gen.ts` (excluded from linting)
 - TypeScript strict mode enabled with multiple tsconfig files for different contexts
 - Biome configured with strict rules including no `console` statements (except `console.log`)
 - Coverage reports generated to `/coverage` directory with HTML output
 
-## STRICT RULES, DON'T BREAK THEM, ASK FIRST
-- Don't install any new dependencies, respect the Tech Stack, ask first if you need to add a new library and explain why
-- Only use pnpm scripts to run checks and tests, if you need to add a new script, ask first and explain why
-- Always write unit tests for any piece of code, even if it's a simple function or class
-- Always follow the project's architecture and conventions, if you need to change something, ask first
-- Always follow SOLID principles
-- If there's a design system, always use it, if not you can use Tailwind CSS to build new components that match the style pattern of the existing components
-- Don't try to analyze code from the installed dependencies
+###  Development checklist
 
-
-## Development checklist
 - Components follow Atomic Design principles
 - TypeScript strict mode enabled
 - Accessibility WCAG 2.1 AA compliant
@@ -104,7 +103,8 @@ This is a React frontend template using modern tooling and patterns:
 - Storybook documentation for each react component, this file must be placed alongside the component file
 - When finished with the code, run `pnpm format-and-lint:fix`, `pnpm check-ts` and `pnpm test` to ensure all tests pass and code is formatted correctly, execute this commands until no errors or issues are found.
 
-## Component requirements
+### Component requirements
+
 - Only a single component per file
 - Component-first thinking - reusable, composable UI pieces
 - Semantic HTML structure
@@ -117,7 +117,8 @@ This is a React frontend template using modern tooling and patterns:
 - Internationalization ready
 - Optimistic updates for better UX
 
-## Style methodologies
+### Style methodologies
+
 - Tailwind CSS for utility-first development
 - Mobile-first breakpoint strategy
 - Fluid typography with clamp()
@@ -127,13 +128,15 @@ This is a React frontend template using modern tooling and patterns:
 - Responsive images with srcset
 - Orientation change handling
 
-## State management approach
+### State management approach
+
 - Zustand for global state
 - Local state for component-specific data
 - Proper state normalization
 - For components like filters or search, prioritize URL query parameters over local state for better UX and shareability
 
-## Testing approach
+### Testing approach
+
 - Unit tests for all new code
 - All test files follow the naming convention of `[file_tested_name].test.ts` and must be placed alongside the file being tested
 - Comprehensive test coverage (>85%) on each component but aim for 100% if possible
@@ -147,11 +150,13 @@ This is a React frontend template using modern tooling and patterns:
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
 
-## Storybook approach
+### Storybook approach
+
 - Storybook is used for component documentation and development
 - Storybook should never be used for writing tests, only for component documentation and interactions
 
-## Error handling strategy
+### Error handling strategy
+
 - Error boundaries at strategic levels
 - Graceful degradation for failures
 - User-friendly error messages
@@ -159,7 +164,8 @@ This is a React frontend template using modern tooling and patterns:
 - State recovery mechanisms
 - Fallback UI components
 
-## TypeScript approach
+### TypeScript approach
+
 - Strongly-typed TypeScript with comprehensive interfaces
 - Generic functions and classes with proper constraints
 - Types must be placed on `d.ts` files alongside the code they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder
@@ -167,3 +173,14 @@ This is a React frontend template using modern tooling and patterns:
 - Use generics and utility types for maximum type safety
 - Prefer type inference over explicit annotations when clear
 - Type declaration files (.d.ts) for external libraries
+
+##  STRICT RULES, DON'T BREAK THEM, ASK FIRST
+
+- Don't install any new dependencies, respect the Tech Stack, ask first if you need to add a new library and explain why
+- Only use pnpm scripts to run checks and tests, if you need to add a new script, ask first and explain why
+- Always write unit tests for any piece of code, even if it's a simple function or class
+- Always follow the project's architecture and conventions, if you need to change something, ask first
+- Always follow SOLID principles
+- If there's a design system, always use it, if not you can use Tailwind CSS to build new components that match the style pattern of the existing components
+- Don't try to analyze code from the installed dependencies
+- Don't add unsafe modifications from biome

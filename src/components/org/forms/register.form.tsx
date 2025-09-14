@@ -12,7 +12,7 @@ interface RegisterFormProps {
     password: string,
     email: string,
     // biome-ignore lint/suspicious/noExplicitAny: WIP
-  ): Promise<CoreHTTPResponse<any, any>>;
+  ): Promise<CoreHTTPResponse<any>>;
   handleSuccess(): void;
 }
 
@@ -140,8 +140,7 @@ export function RegisterForm({
                     <div className="mt-4">
                       <Alert variant="destructive">
                         <AlertTitle>
-                          {/** biome-ignore lint/suspicious/noExplicitAny: WIP */}
-                          {(errors as CoreHTTPError<any>).message}
+                          {(errors as CoreHTTPError).message}
                         </AlertTitle>
                       </Alert>
                     </div>

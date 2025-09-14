@@ -31,7 +31,7 @@ const mockHandleResetError = async (
     errors: {
       message:
         'No account found with this email address. Please check your email and try again.',
-      details: null,
+      details: 'Test error details',
     },
   };
 };
@@ -47,7 +47,7 @@ const mockHandleResetRateLimit = async (
     errors: {
       message:
         'Too many reset attempts. Please wait 15 minutes before trying again.',
-      details: null,
+      details: 'Test error details',
     },
   };
 };
@@ -132,7 +132,7 @@ export const Interactive: Story = {
           data: null,
           errors: {
             message: 'Please enter a valid email address.',
-            details: null,
+            details: 'Test error details',
           },
         };
       }

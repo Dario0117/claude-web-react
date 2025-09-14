@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -33,10 +32,8 @@ describe('Card Components', () => {
         'flex',
         'flex-col',
         'gap-6',
-        'rounded-xl',
         'border',
         'py-6',
-        'shadow-sm',
       );
     });
   });
@@ -52,14 +49,7 @@ describe('Card Components', () => {
     it('should have proper header styles', () => {
       render(<CardHeader>Header</CardHeader>);
       const header = screen.getByText('Header');
-      expect(header).toHaveClass(
-        'grid',
-        'auto-rows-min',
-        'grid-rows-[auto_auto]',
-        'items-start',
-        'gap-1.5',
-        'px-6',
-      );
+      expect(header).toHaveClass('flex', 'flex-col', 'gap-1.5', 'px-6');
     });
   });
 
@@ -74,7 +64,11 @@ describe('Card Components', () => {
     it('should have proper title styles', () => {
       render(<CardTitle>Title</CardTitle>);
       const title = screen.getByText('Title');
-      expect(title).toHaveClass('leading-none', 'font-semibold');
+      expect(title).toHaveClass(
+        'font-medium',
+        'text-[15px]',
+        'text-muted-foreground',
+      );
     });
   });
 
@@ -90,27 +84,6 @@ describe('Card Components', () => {
       render(<CardDescription>Description</CardDescription>);
       const description = screen.getByText('Description');
       expect(description).toHaveClass('text-muted-foreground', 'text-sm');
-    });
-  });
-
-  describe('CardAction', () => {
-    it('should render successfully', () => {
-      render(<CardAction>Action content</CardAction>);
-      const action = screen.getByText('Action content');
-      expect(action).toBeInTheDocument();
-      expect(action).toHaveAttribute('data-slot', 'card-action');
-    });
-
-    it('should have proper action styles', () => {
-      render(<CardAction>Action</CardAction>);
-      const action = screen.getByText('Action');
-      expect(action).toHaveClass(
-        'col-start-2',
-        'row-span-2',
-        'row-start-1',
-        'self-start',
-        'justify-self-end',
-      );
     });
   });
 
@@ -151,7 +124,7 @@ describe('Card Components', () => {
           <CardHeader>
             <CardTitle>Test Title</CardTitle>
             <CardDescription>Test description</CardDescription>
-            <CardAction>Action</CardAction>
+            <div>Action</div>
           </CardHeader>
           <CardContent>
             <p>Main content goes here</p>

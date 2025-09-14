@@ -9,7 +9,7 @@ export function LoginPage() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate({ to: '/app/d' });
+      navigate({ to: '/app/projects' });
     }
   }, [isLoggedIn, navigate]);
   return (

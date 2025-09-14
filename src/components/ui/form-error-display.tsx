@@ -1,8 +1,8 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
-import type { CoreHTTPError } from '@/services/users.service';
+import type { CoreHTTPError } from '@/types/api-types';
 
 interface FormErrorDisplayProps {
-  error: CoreHTTPError<unknown> | null;
+  error: CoreHTTPError | null;
 }
 
 export function FormErrorDisplay({ error }: FormErrorDisplayProps) {

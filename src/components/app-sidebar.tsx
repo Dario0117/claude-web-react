@@ -74,7 +74,9 @@ function SidebarLogo() {
           height="36"
           viewBox="0 0 36 36"
           className="size-9 group-data-[collapsible=icon]:size-8 transition-[width,height] duration-200 ease-in-out"
+          aria-labelledby={`logo-title-${id}`}
         >
+          <title id={`logo-title-${id}`}>Logo</title>
           <path
             fill={`url(#${id})`}
             fillRule="evenodd"

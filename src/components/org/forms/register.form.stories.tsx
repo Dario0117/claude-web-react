@@ -19,7 +19,6 @@ const mockHandleRegisterSuccess = async (
   return {
     data: {
       success: true,
-      message: 'Account created successfully!',
     },
     errors: null,
   };

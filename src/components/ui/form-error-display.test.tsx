@@ -9,9 +9,9 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should render error message when error is provided', () => {
-    const error: CoreHTTPError<unknown> = {
+    const error: CoreHTTPError = {
       message: 'Invalid credentials',
-      details: null,
+      details: 'Test error details',
     };
 
     render(<FormErrorDisplay error={error} />);
@@ -20,9 +20,9 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should render error with destructive alert variant', () => {
-    const error: CoreHTTPError<unknown> = {
+    const error: CoreHTTPError = {
       message: 'Server error occurred',
-      details: null,
+      details: 'Test error details',
     };
 
     const { container } = render(<FormErrorDisplay error={error} />);
@@ -35,7 +35,7 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should handle error with details', () => {
-    const error: CoreHTTPError<{ field: string }> = {
+    const error: CoreHTTPError = {
       message: 'Validation failed',
       details: { field: 'username' },
     };
@@ -54,9 +54,9 @@ describe('FormErrorDisplay', () => {
     ];
 
     testCases.forEach((message) => {
-      const error: CoreHTTPError<unknown> = {
+      const error: CoreHTTPError = {
         message,
-        details: null,
+        details: 'Test error details',
       };
 
       const { rerender } = render(<FormErrorDisplay error={error} />);
@@ -69,9 +69,9 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should have proper wrapper structure', () => {
-    const error: CoreHTTPError<unknown> = {
+    const error: CoreHTTPError = {
       message: 'Test error',
-      details: null,
+      details: 'Test error details',
     };
 
     const { container } = render(<FormErrorDisplay error={error} />);
@@ -81,14 +81,14 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should render multiple times with different errors', () => {
-    const error1: CoreHTTPError<unknown> = {
+    const error1: CoreHTTPError = {
       message: 'First error',
-      details: null,
+      details: 'Test error details',
     };
 
-    const error2: CoreHTTPError<unknown> = {
+    const error2: CoreHTTPError = {
       message: 'Second error',
-      details: null,
+      details: 'Test error details',
     };
 
     const { rerender } = render(<FormErrorDisplay error={error1} />);
@@ -103,9 +103,9 @@ describe('FormErrorDisplay', () => {
   });
 
   it('should handle empty error message', () => {
-    const error: CoreHTTPError<unknown> = {
+    const error: CoreHTTPError = {
       message: '',
-      details: null,
+      details: 'Test error details',
     };
 
     render(<FormErrorDisplay error={error} />);

@@ -4,7 +4,6 @@ import { MoreHorizontalIcon } from 'lucide-react';
 import { Button } from './button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -69,14 +68,12 @@ export const WithAction: Story = {
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
           <CardDescription>You have 3 unread messages.</CardDescription>
-          <CardAction>
-            <Button
-              variant="ghost"
-              size="icon"
-            >
-              <MoreHorizontalIcon />
-            </Button>
-          </CardAction>
+          <Button
+            variant="ghost"
+            size="icon"
+          >
+            <MoreHorizontalIcon />
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -108,14 +105,12 @@ export const Complete: Story = {
           <CardDescription>
             This card demonstrates all available components.
           </CardDescription>
-          <CardAction>
-            <Button
-              variant="outline"
-              size="sm"
-            >
-              Edit
-            </Button>
-          </CardAction>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Edit
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

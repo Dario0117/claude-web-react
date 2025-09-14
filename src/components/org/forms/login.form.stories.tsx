@@ -15,11 +15,12 @@ const mockHandleLoginSuccess = async (
   return {
     data: {
       success: true,
-      token: 'mock-token-123',
       user: {
-        id: 1,
+        id: '1',
         username,
         email: `${username}@example.com`,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       },
     },
     errors: null,
@@ -38,7 +39,7 @@ const mockHandleLoginError = async (
     errors: {
       message:
         'Invalid username or password. Please check your credentials and try again.',
-      details: null,
+      details: 'Test error details',
     },
   };
 };
@@ -55,7 +56,7 @@ const mockHandleLoginNetworkError = async (
     errors: {
       message:
         'Network error. Please check your internet connection and try again.',
-      details: null,
+      details: 'Test error details',
     },
   };
 };

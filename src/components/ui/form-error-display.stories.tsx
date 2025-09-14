@@ -26,7 +26,7 @@ export const SimpleError: Story = {
   args: {
     error: {
       message: 'Invalid credentials. Please check your username and password.',
-      details: null,
+      details: 'Test error details',
     } as CoreHTTPError,
   },
 };
@@ -47,7 +47,7 @@ export const ServerError: Story = {
   args: {
     error: {
       message: 'Internal server error. Please try again later.',
-      details: null,
+      details: 'Test error details',
     } as CoreHTTPError,
   },
 };
@@ -57,7 +57,7 @@ export const NetworkError: Story = {
     error: {
       message:
         'Network error. Please check your internet connection and try again.',
-      details: null,
+      details: 'Test error details',
     } as CoreHTTPError,
   },
 };
@@ -67,7 +67,7 @@ export const LongErrorMessage: Story = {
     error: {
       message:
         'Registration failed due to multiple validation errors. Please review all fields and ensure they meet the requirements. Username must be unique, password must be at least 8 characters with uppercase, lowercase, and special characters, and email must be valid.',
-      details: null,
+      details: 'Test error details',
     } as CoreHTTPError,
   },
 };
@@ -117,7 +117,7 @@ export const InFormContext: Story = {
   args: {
     error: {
       message: 'Invalid username or password. Please try again.',
-      details: null,
+      details: 'Test error details',
     } as CoreHTTPError,
   },
 };

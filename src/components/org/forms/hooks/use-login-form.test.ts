@@ -6,11 +6,12 @@ describe('useLoginForm', () => {
   const mockLoginSuccess: CoreHTTPResponse<LoginResponse> = {
     data: {
       success: true,
-      token: 'mock-token',
       user: {
-        id: 1,
+        id: '1',
         username: 'testuser',
         email: 'test@example.com',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
       },
     },
     errors: null,
@@ -20,7 +21,7 @@ describe('useLoginForm', () => {
     data: null,
     errors: {
       message: 'Invalid credentials',
-      details: null,
+      details: 'Test error details',
     },
   };
 

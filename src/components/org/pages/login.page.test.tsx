@@ -71,7 +71,7 @@ describe('LoginPage', () => {
     render(<LoginPage />);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/projects' });
     });
   });
 
@@ -164,7 +164,7 @@ describe('LoginPage', () => {
     rerender(<LoginPage />);
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/projects' });
     });
   });
 

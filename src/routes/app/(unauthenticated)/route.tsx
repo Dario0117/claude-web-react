@@ -39,7 +39,7 @@ function RouteComponent() {
           Register
         </Link>
         <Link
-          to="/app/d"
+          to="/app/projects"
           className="[&.active]:font-bold"
         >
           Dashboard

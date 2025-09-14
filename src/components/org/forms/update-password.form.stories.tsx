@@ -34,7 +34,7 @@ const mockHandleUpdateError = async (
     errors: {
       message:
         'Invalid or expired reset token. Please request a new password reset.',
-      details: null,
+      details: 'Test error details',
     },
   };
 };
