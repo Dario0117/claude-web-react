@@ -138,7 +138,7 @@ This is a React frontend template using modern tooling and patterns:
 ### Testing approach
 
 - Unit tests for all new code
-- All test files follow the naming convention of `[file_tested_name].test.ts` and must be placed alongside the file being tested
+- All test files follow the naming convention of `[file_tested_name].test.ts` or `[file_tested_name].test.tsx` and must be placed alongside the file being tested
 - Comprehensive test coverage (>85%) on each component but aim for 100% if possible
 - Don't write end to end tests, only unit and integration tests
 - Don't use mocks, stubs, or fakes, always use the real implementation, only mock external http requests using MSW, no component or function should be mocked, only external dependencies and requests.
@@ -149,11 +149,13 @@ This is a React frontend template using modern tooling and patterns:
 - Avoid testing implementation details; focus on behavior
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
+- For components inside of `src/components` directory, only add tests for the ones inside of `src/components/org` and its sub directories, the ones at the root of `src/components` and `src/components/ui` are 3rd party and they don't need to be tested.
 
 ### Storybook approach
 
 - Storybook is used for component documentation and development
 - Storybook should never be used for writing tests, only for component documentation and interactions
+- All react components must have a story file
 
 ### Error handling strategy
 

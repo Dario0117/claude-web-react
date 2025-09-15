@@ -7,7 +7,7 @@ import {
   RiStackLine,
 } from '@remixicon/react';
 import { Link, useRouterState } from '@tanstack/react-router';
-import * as React from 'react';
+import { useId } from 'react';
 import { NavUser } from '@/components/nav-user';
 import {
   Sidebar,
@@ -60,7 +60,7 @@ const data = {
 };
 
 function SidebarLogo() {
-  const id = React.useId();
+  const id = useId();
   return (
     <div className="flex gap-2 px-2 group-data-[collapsible=icon]:px-0 transition-[padding] duration-200 ease-in-out">
       <Link
