@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getCookie, setCookie } from '@/lib/cookies';
 import { cn } from '@/lib/utils';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
@@ -60,7 +61,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = true,
+  defaultOpen = getCookie(SIDEBAR_COOKIE_NAME) === 'true',
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -89,7 +90,11 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      setCookie(
+        SIDEBAR_COOKIE_NAME,
+        openState.toString(),
+        SIDEBAR_COOKIE_MAX_AGE,
+      );
     },
     [setOpenProp, open],
   );
@@ -197,6 +202,7 @@ function Sidebar({
           <SheetTitle>Sidebar</SheetTitle>
           <SheetDescription>Displays the mobile sidebar.</SheetDescription>
         </SheetHeader>
+        <SidebarTrigger />
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"

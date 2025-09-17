@@ -20,7 +20,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
 // This is sample data.
 const data = {
@@ -107,14 +110,22 @@ function SidebarLogo() {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useRouterState({ select: (s) => s.location });
+
+  const { open } = useSidebar();
   return (
     <Sidebar
       collapsible="icon"
       variant="inset"
       {...props}
     >
-      <SidebarHeader className="h-16 max-md:mt-2 mb-2 justify-center">
+      <SidebarHeader
+        className={cn('h-16 max-md:mt-2 mb-2 justify-between', {
+          'flex-row': open,
+          'flex-col mb-6': !open,
+        })}
+      >
         <SidebarLogo />
+        <SidebarTrigger />
       </SidebarHeader>
       <SidebarContent className="-mt-2">
         {data.navMain.map((item) => (
