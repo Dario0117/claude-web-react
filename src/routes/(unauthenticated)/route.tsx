@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/(unauthenticated)')({
+export const Route = createFileRoute('/(unauthenticated)')({
   component: RouteComponent,
 });
 
@@ -15,31 +15,19 @@ function RouteComponent() {
           Home
         </Link>{' '}
         <Link
-          to="/about"
-          className="[&.active]:font-bold"
-        >
-          About
-        </Link>{' '}
-        <Link
-          to="/posts"
-          className="[&.active]:font-bold"
-        >
-          Posts
-        </Link>
-        <Link
-          to="/app/login"
+          to="/login"
           className="[&.active]:font-bold"
         >
           Login
         </Link>
         <Link
-          to="/app/register"
+          to="/register"
           className="[&.active]:font-bold"
         >
           Register
         </Link>
         <Link
-          to="/app/d"
+          to="/"
           className="[&.active]:font-bold"
         >
           Dashboard

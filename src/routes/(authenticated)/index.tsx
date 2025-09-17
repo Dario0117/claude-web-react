@@ -9,24 +9,24 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-export const Route = createFileRoute('/app/(authenticated)/d')({
+export const Route = createFileRoute('/(authenticated)/')({
   beforeLoad: ({ context }) => {
     if (!context.authentication.isLoggedIn) {
       throw redirect({
-        to: '/app/login',
+        to: '/login',
       });
     }
   },
-  component: RouteComponent,
+  component: Index,
 });
 
-function RouteComponent() {
-  const navigate = useNavigate({ from: '/app/d' });
+function Index() {
+  const navigate = useNavigate({ from: '/' });
   const { logout, isLoggedIn } = useAuth();
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate({ to: '/app/login' });
+      navigate({ to: '/login' });
     }
   }, [isLoggedIn, navigate]);
   return (
@@ -34,22 +34,16 @@ function RouteComponent() {
       <div>
         <div className="p-2 flex gap-2">
           <Link
-            to="/app/register"
+            to="/register"
             className="[&.active]:font-bold"
           >
             Register
-          </Link>
-          <Link
-            to="/app/d"
-            className="[&.active]:font-bold"
-          >
-            Dashboard
           </Link>
         </div>
         <Button onClick={logout}>Logout</Button>
         <Outlet />
       </div>
-      Hello "/app/(authenticated)/d/"!
+      Hello!
       <Outlet />
     </div>
   );
