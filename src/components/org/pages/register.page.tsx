@@ -3,7 +3,7 @@ import { RegisterForm } from '@/components/org/forms/register.form';
 import { useAuth } from '@/hooks/useAuth';
 
 export function RegisterPage() {
-  const navigate = useNavigate({ from: '/app/register' });
+  const navigate = useNavigate({ from: '/register' });
   const { register } = useAuth();
   return (
     <section className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -29,7 +29,7 @@ export function RegisterPage() {
             return result;
           }}
           handleSuccess={() => {
-            navigate({ to: '/app/login' });
+            navigate({ to: '/login' });
           }}
         />
       </div>

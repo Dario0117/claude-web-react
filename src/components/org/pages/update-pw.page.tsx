@@ -8,7 +8,7 @@ type UpdatePasswordPageProps = {
 
 export function UpdatePasswordPage(props: UpdatePasswordPageProps) {
   const navigate = useNavigate({
-    from: '/app/update-password/$token',
+    from: '/update-password/$token',
   });
   const { updatePassword } = useAuth();
   return (
@@ -29,7 +29,7 @@ export function UpdatePasswordPage(props: UpdatePasswordPageProps) {
             return result;
           }}
           handleSuccess={() => {
-            navigate({ to: '/app/login' });
+            navigate({ to: '/login' });
           }}
         />
       </div>

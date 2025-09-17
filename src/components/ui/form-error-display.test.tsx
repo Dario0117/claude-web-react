@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { CoreHTTPError } from '@/services/users.service';
+import type { CoreHTTPError } from '@/types/api.d';
 import { FormErrorDisplay } from './form-error-display';
 
 describe('FormErrorDisplay', () => {

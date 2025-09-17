@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse } from '@/services/users.service';
+import type { CoreHTTPResponse } from '@/types/api.d';
 
 import { ResetPasswordForm } from './reset-password.form';
 

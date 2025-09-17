@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 
 import { LoginForm } from './login.form';
 

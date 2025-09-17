@@ -186,3 +186,5 @@ This is a React frontend template using modern tooling and patterns:
 - If there's a design system, always use it, if not you can use Tailwind CSS to build new components that match the style pattern of the existing components
 - Don't try to analyze code from the installed dependencies
 - Don't add unsafe modifications from biome
+- Never delete or update auto generated files (src/types/api.ts, src/routes/routeTree.gen.ts)
+- Never re-export imports on the same file

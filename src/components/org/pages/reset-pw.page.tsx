@@ -3,7 +3,7 @@ import { ResetPasswordForm } from '@/components/org/forms/reset-password.form';
 import { useAuth } from '@/hooks/useAuth';
 
 export function ResetPasswordPage() {
-  const navigate = useNavigate({ from: '/app/register' });
+  const navigate = useNavigate({ from: '/reset-password' });
   const { resetPassword } = useAuth();
   return (
     <section className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -21,7 +21,7 @@ export function ResetPasswordPage() {
             return result;
           }}
           handleSuccess={() => {
-            navigate({ to: '/app/login' });
+            navigate({ to: '/login' });
           }}
         />
       </div>

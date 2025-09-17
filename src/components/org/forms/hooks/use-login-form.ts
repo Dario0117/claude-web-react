@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 import { loginFormSchema } from '../validation/login-form.schema';
 
 interface UseLoginFormProps {
