@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 import { LoginForm } from './login.form';
@@ -185,7 +191,9 @@ describe('LoginForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
-    const forgotPasswordLink = screen.getByRole('link', { name: 'Forgot your password?' });
+    const forgotPasswordLink = screen.getByRole('link', {
+      name: 'Forgot your password?',
+    });
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     // Tab navigation should work
