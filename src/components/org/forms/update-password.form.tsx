@@ -43,7 +43,6 @@ export function UpdatePasswordForm({
           fields: {},
         },
       });
-      console.log('called');
       const result = await handleSubmit(value.password);
       if (result.errors) {
         formApi.setErrorMap({

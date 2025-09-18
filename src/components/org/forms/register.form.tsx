@@ -49,7 +49,6 @@ export function RegisterForm({
           fields: {},
         },
       });
-      console.log('called');
       const result = await handleSubmit(
         value.username,
         value.password,

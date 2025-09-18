@@ -1,14 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse, LoginResponse, CoreHTTPError } from '@/types/api.d';
-
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
+import type {
+  CoreHTTPError,
+  CoreHTTPResponse,
+  LoginResponse,
+} from '@/types/api.d';
 import { useLoginForm } from './hooks/use-login-form';
 
 // Mock LoginForm component to avoid router context dependencies
-function MockLoginForm({ handleLogin }: { handleLogin: (username: string, password: string) => Promise<CoreHTTPResponse<LoginResponse>> }) {
+function MockLoginForm({
+  handleLogin,
+}: {
+  handleLogin: (
+    username: string,
+    password: string,
+  ) => Promise<CoreHTTPResponse<LoginResponse>>;
+}) {
   const form = useLoginForm({ handleLogin });
 
   return (
