@@ -113,9 +113,9 @@ export const TableSkeleton: Story = {
         <Skeleton className="h-4 w-16" />
         <Skeleton className="h-4 w-20" />
       </div>
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 5 }).map(() => (
         <div
-          key={i}
+          key={crypto.randomUUID()}
           className="flex space-x-3"
         >
           <Skeleton className="h-4 w-32" />
@@ -138,9 +138,9 @@ export const TableSkeleton: Story = {
 export const ListSkeleton: Story = {
   render: () => (
     <div className="space-y-4">
-      {Array.from({ length: 4 }).map((_, i) => (
+      {Array.from({ length: 4 }).map(() => (
         <div
-          key={i}
+          key={crypto.randomUUID()}
           className="flex items-center space-x-3"
         >
           <Skeleton className="h-10 w-10 rounded-full" />

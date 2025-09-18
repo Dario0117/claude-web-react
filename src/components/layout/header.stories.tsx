@@ -20,9 +20,9 @@ function MockHeader({
           <div className="space-y-4">
             <h1 className="text-2xl font-bold">Page Content</h1>
             <p>This is sample page content to demonstrate header behavior.</p>
-            {Array.from({ length: 20 }, (_, i) => (
+            {Array.from({ length: 20 }, () => (
               <p
-                key={i}
+                key={crypto.randomUUID()}
                 className="text-gray-600"
               >
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do

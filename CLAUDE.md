@@ -149,7 +149,6 @@ This is a React frontend template using modern tooling and patterns:
 - Avoid testing implementation details; focus on behavior
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
-- For components inside of `src/components` directory, only add tests for the ones inside of `src/components/org` and its sub directories, the ones at the root of `src/components` and `src/components/ui` are 3rd party and they don't need to be tested.
 
 ### Storybook approach
 

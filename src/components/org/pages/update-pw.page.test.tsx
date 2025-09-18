@@ -43,7 +43,7 @@ describe('UpdatePasswordPage', () => {
     render(<UpdatePasswordPage token={mockToken} />);
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Update password' }),
@@ -60,7 +60,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -88,7 +88,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -116,7 +116,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -173,7 +173,7 @@ describe('UpdatePasswordPage', () => {
     for (const token of tokens) {
       const { unmount } = render(<UpdatePasswordPage token={token} />);
 
-      const passwordInput = screen.getByLabelText('Password');
+      const passwordInput = screen.getByLabelText(/^Password/);
       const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
       const submitButton = screen.getByRole('button', {
         name: 'Update password',
@@ -221,7 +221,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -254,7 +254,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -307,7 +307,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token={mockToken} />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -345,7 +345,7 @@ describe('UpdatePasswordPage', () => {
 
     render(<UpdatePasswordPage token="" />);
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',

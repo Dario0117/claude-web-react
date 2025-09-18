@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CoreHTTPResponse } from '@/types/api.d';
 import { UpdatePasswordForm } from './update-password.form';
@@ -21,7 +21,7 @@ describe('UpdatePasswordForm', () => {
     );
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Update password' }),
@@ -48,7 +48,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -70,7 +70,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -100,7 +100,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -133,7 +133,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -160,7 +160,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -179,7 +179,7 @@ describe('UpdatePasswordForm', () => {
     );
   });
 
-  it('should prevent default form submission', async () => {
+  it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
@@ -200,7 +200,9 @@ describe('UpdatePasswordForm', () => {
       event.preventDefault = mockPreventDefault;
       event.stopPropagation = mockStopPropagation;
 
-      fireEvent(form, event);
+      act(() => {
+        fireEvent(form, event);
+      });
 
       expect(mockPreventDefault).toHaveBeenCalled();
       expect(mockStopPropagation).toHaveBeenCalled();
@@ -215,7 +217,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
     expect(passwordInput).toHaveAttribute('required');
@@ -269,7 +271,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -301,7 +303,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -334,7 +336,7 @@ describe('UpdatePasswordForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',

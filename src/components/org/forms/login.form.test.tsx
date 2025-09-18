@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 import { LoginForm } from './login.form';
@@ -96,7 +96,7 @@ describe('LoginForm', () => {
     });
   });
 
-  it('should prevent default form submission', async () => {
+  it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
@@ -110,7 +110,9 @@ describe('LoginForm', () => {
       event.preventDefault = mockPreventDefault;
       event.stopPropagation = mockStopPropagation;
 
-      fireEvent(form, event);
+      act(() => {
+        fireEvent(form, event);
+      });
 
       expect(mockPreventDefault).toHaveBeenCalled();
       expect(mockStopPropagation).toHaveBeenCalled();
@@ -183,11 +185,15 @@ describe('LoginForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
+    const forgotPasswordLink = screen.getByRole('link', { name: 'Forgot your password?' });
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     // Tab navigation should work
     await user.tab();
     expect(usernameInput).toHaveFocus();
+
+    await user.tab();
+    expect(forgotPasswordLink).toHaveFocus();
 
     await user.tab();
     expect(passwordInput).toHaveFocus();

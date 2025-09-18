@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CoreHTTPResponse } from '@/types/api.d';
 import { RegisterForm } from './register.form';
@@ -23,7 +23,7 @@ describe('RegisterForm', () => {
     expect(screen.getByText('Create your account')).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Register' }),
@@ -54,7 +54,7 @@ describe('RegisterForm', () => {
       />,
     );
 
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -78,7 +78,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
@@ -114,7 +114,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
@@ -149,7 +149,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
@@ -178,7 +178,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
@@ -197,7 +197,7 @@ describe('RegisterForm', () => {
     );
   });
 
-  it('should prevent default form submission', async () => {
+  it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
@@ -218,7 +218,9 @@ describe('RegisterForm', () => {
       event.preventDefault = mockPreventDefault;
       event.stopPropagation = mockStopPropagation;
 
-      fireEvent(form, event);
+      act(() => {
+        fireEvent(form, event);
+      });
 
       expect(mockPreventDefault).toHaveBeenCalled();
       expect(mockStopPropagation).toHaveBeenCalled();
@@ -235,7 +237,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
     expect(usernameInput).toHaveAttribute('required');
@@ -291,7 +293,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
@@ -322,7 +324,7 @@ describe('RegisterForm', () => {
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
-    const passwordInput = screen.getByLabelText('Password');
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 

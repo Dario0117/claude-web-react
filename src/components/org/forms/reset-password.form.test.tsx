@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CoreHTTPResponse } from '@/types/api.d';
 import { ResetPasswordForm } from './reset-password.form';
@@ -156,7 +156,7 @@ describe('ResetPasswordForm', () => {
     );
   });
 
-  it('should prevent default form submission', async () => {
+  it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
@@ -177,7 +177,9 @@ describe('ResetPasswordForm', () => {
       event.preventDefault = mockPreventDefault;
       event.stopPropagation = mockStopPropagation;
 
-      fireEvent(form, event);
+      act(() => {
+        fireEvent(form, event);
+      });
 
       expect(mockPreventDefault).toHaveBeenCalled();
       expect(mockStopPropagation).toHaveBeenCalled();
