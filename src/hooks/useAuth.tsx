@@ -1,16 +1,18 @@
 import { useCallback, useEffect } from 'react';
 import {
   me,
-  type RegisterForm,
-  type ResetPasswordForm,
   login as serviceLogin,
   logout as serviceLogout,
   register as serviceRegister,
   resetPassword as serviceResetPassword,
   updatePassword as serviceUpdatePassword,
-  type UpdatePasswordForm,
 } from '@/services/users.service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
+import type {
+  RegisterRequest as RegisterForm,
+  ResetPasswordRequest as ResetPasswordForm,
+  UpdatePasswordRequest as UpdatePasswordForm,
+} from '@/types/api.d';
 
 export function useAuth() {
   const isLoggedIn = useAuthenticationStore((state) => state.isLoggedIn);

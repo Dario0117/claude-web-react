@@ -7,7 +7,7 @@ import type {
   CoreHTTPError,
   CoreHTTPResponse,
   LoginResponse,
-} from '@/services/users.service';
+} from '@/types/api.d';
 import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
@@ -54,7 +54,7 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
                 required
               >
                 <Link
-                  to="/app/reset-password"
+                  to="/reset-password"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
@@ -88,7 +88,7 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
         </form.Subscribe>
 
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account? <Link to="/app/register">Register</Link>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
         </div>
       </form>
     </FormCard>

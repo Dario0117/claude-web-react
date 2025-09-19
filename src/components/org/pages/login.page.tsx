@@ -4,12 +4,12 @@ import { LoginForm } from '@/components/org/forms/login.form';
 import { useAuth } from '@/hooks/useAuth';
 
 export function LoginPage() {
-  const navigate = useNavigate({ from: '/app/login' });
+  const navigate = useNavigate({ from: '/login' });
   const { isLoggedIn, login } = useAuth();
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate({ to: '/app/d' });
+      navigate({ to: '/' });
     }
   }, [isLoggedIn, navigate]);
   return (

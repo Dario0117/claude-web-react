@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPError } from '@/services/users.service';
+import type { CoreHTTPError } from '@/types/api.d';
 
 import { FormErrorDisplay } from './form-error-display';
 

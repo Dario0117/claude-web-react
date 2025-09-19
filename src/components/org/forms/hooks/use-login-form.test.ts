@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 import { useLoginForm } from './use-login-form';
 
 describe('useLoginForm', () => {

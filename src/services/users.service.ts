@@ -8,20 +8,7 @@ import type {
   RegisterResponse,
   ResetPasswordRequest,
   UpdatePasswordRequest,
-} from '@/types/api';
-
-// Re-export types for convenience
-export type {
-  CoreHTTPError,
-  CoreHTTPResponse,
-  LoginResponse,
-  LogoutResponse,
-  MeResponse,
-  RegisterRequest as RegisterForm,
-  RegisterResponse,
-  ResetPasswordRequest as ResetPasswordForm,
-  UpdatePasswordRequest as UpdatePasswordForm,
-} from '@/types/api';
+} from '@/types/api.d';
 
 export async function register(
   formValues: RegisterRequest,

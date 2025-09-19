@@ -1,5 +1,5 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
-import type { CoreHTTPError } from '@/services/users.service';
+import type { CoreHTTPError } from '@/types/api.d';
 
 interface FormErrorDisplayProps {
   error: CoreHTTPError<unknown> | null;

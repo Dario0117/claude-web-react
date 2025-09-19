@@ -4,7 +4,7 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormField } from '@/components/ui/form-field';
-import type { CoreHTTPError, CoreHTTPResponse } from '@/services/users.service';
+import type { CoreHTTPError, CoreHTTPResponse } from '@/types/api.d';
 
 interface RegisterFormProps {
   handleSubmit(
@@ -49,7 +49,6 @@ export function RegisterForm({
           fields: {},
         },
       });
-      console.log('called');
       const result = await handleSubmit(
         value.username,
         value.password,
