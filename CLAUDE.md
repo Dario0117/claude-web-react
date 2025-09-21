@@ -149,6 +149,7 @@ This is a React frontend template using modern tooling and patterns:
 - Avoid testing implementation details; focus on behavior
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
+- Don't test types
 
 ### Storybook approach
 
