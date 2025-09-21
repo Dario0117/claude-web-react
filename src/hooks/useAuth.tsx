@@ -1,6 +1,5 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import {
-  me,
   login as serviceLogin,
   logout as serviceLogout,
   register as serviceRegister,
@@ -15,74 +14,42 @@ import type {
 } from '@/types/api.d';
 
 export function useAuth() {
-  const isLoggedIn = useAuthenticationStore((state) => state.isLoggedIn);
-  const wasProfileChecked = useAuthenticationStore(
-    (state) => state.wasProfileChecked,
-  );
-  const logIn = useAuthenticationStore((state) => state.logIn);
-  const logOut = useAuthenticationStore((state) => state.logOut);
-  const checkProfile = useAuthenticationStore((state) => state.checkProfile);
-
-  useEffect(() => {
-    if (!wasProfileChecked) {
-      checkProfile();
-      me().then((checkingSessionResult) => {
-        if (checkingSessionResult.errors) {
-          logOut();
-        } else {
-          logIn();
-        }
-      });
-    }
-  }, [wasProfileChecked, logIn, logOut, checkProfile]);
+  const setUser = useAuthenticationStore((state) => state.setUser);
 
   const login = useCallback(
     async (username: string, password: string) => {
       const result = await serviceLogin(username, password);
-      if (!result.errors) {
-        logIn();
-      }
-
+      setUser({
+        id: 0,
+        username: 'test',
+        email: 'test@test.com',
+      });
       return result;
     },
-    [logIn],
+    [setUser],
   );
 
   const logout = useCallback(async () => {
     const result = await serviceLogout();
-    logOut();
     return result;
-  }, [logOut]);
+  }, []);
 
-  const register = useCallback(
-    async (form: RegisterForm) => {
-      const result = await serviceRegister(form);
-      logOut();
-      return result;
-    },
-    [logOut],
-  );
+  const register = useCallback(async (form: RegisterForm) => {
+    const result = await serviceRegister(form);
+    return result;
+  }, []);
 
-  const resetPassword = useCallback(
-    async (form: ResetPasswordForm) => {
-      const result = await serviceResetPassword(form);
-      logOut();
-      return result;
-    },
-    [logOut],
-  );
+  const resetPassword = useCallback(async (form: ResetPasswordForm) => {
+    const result = await serviceResetPassword(form);
+    return result;
+  }, []);
 
-  const updatePassword = useCallback(
-    async (form: UpdatePasswordForm) => {
-      const result = await serviceUpdatePassword(form);
-      logOut();
-      return result;
-    },
-    [logOut],
-  );
+  const updatePassword = useCallback(async (form: UpdatePasswordForm) => {
+    const result = await serviceUpdatePassword(form);
+    return result;
+  }, []);
 
   return {
-    isLoggedIn,
     login,
     logout,
     register,

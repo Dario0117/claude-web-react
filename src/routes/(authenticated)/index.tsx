@@ -1,34 +1,13 @@
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
 export const Route = createFileRoute('/(authenticated)/')({
-  beforeLoad: ({ context }) => {
-    if (!context.authentication.isLoggedIn) {
-      throw redirect({
-        to: '/login',
-      });
-    }
-  },
   component: Index,
 });
 
 function Index() {
-  const navigate = useNavigate({ from: '/' });
-  const { logout, isLoggedIn } = useAuth();
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate({ to: '/login' });
-    }
-  }, [isLoggedIn, navigate]);
+  const { logout } = useAuth();
   return (
     <div>
       <div>

@@ -48,6 +48,7 @@ describe('AlertDialog', () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Dialog Title</AlertDialogTitle>
+            <AlertDialogDescription>Dialog Description</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -72,6 +73,7 @@ describe('AlertDialog', () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Dialog Title</AlertDialogTitle>
+            <AlertDialogDescription>Dialog Description</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={actionHandler}>
@@ -151,6 +153,7 @@ describe('AlertDialog', () => {
         <AlertDialogTrigger>Open Dialog</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogTitle>Title</AlertDialogTitle>
+          <AlertDialogDescription>Description</AlertDialogDescription>
         </AlertDialogContent>
       </AlertDialog>,
     );
@@ -168,6 +171,7 @@ describe('AlertDialog', () => {
         <AlertDialogTrigger>Open Dialog</AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogTitle>Title</AlertDialogTitle>
+          <AlertDialogDescription>Description</AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction>Action</AlertDialogAction>

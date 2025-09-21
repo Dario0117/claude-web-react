@@ -1,4 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { useAuthenticationStore } from '@/stores/authentication.store';
+import type { User } from '@/types/auth';
 import { LoginPage } from './login.page';
 
 interface LinkProps {
@@ -10,6 +12,11 @@ interface LinkProps {
 // Mock the useAuth hook
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
+}));
+
+// Mock the authentication store
+vi.mock('@/stores/authentication.store', () => ({
+  useAuthenticationStore: vi.fn(),
 }));
 
 // Mock the navigation hook
@@ -26,6 +33,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
+const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
@@ -38,17 +46,19 @@ describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     mockUseAuth.mockClear();
+    mockUseAuthenticationStore.mockClear();
   });
 
   it('should render login form when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<LoginPage />);
 
@@ -59,14 +69,21 @@ describe('LoginPage', () => {
   });
 
   it('should redirect to dashboard when user is already logged in', async () => {
+    const mockUser: User = {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+    };
+
     mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(mockUser);
 
     render(<LoginPage />);
 
@@ -77,13 +94,14 @@ describe('LoginPage', () => {
 
   it('should not redirect when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<LoginPage />);
 
@@ -94,13 +112,14 @@ describe('LoginPage', () => {
     const mockLogin = vi.fn();
 
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: mockLogin,
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<LoginPage />);
 
@@ -111,13 +130,14 @@ describe('LoginPage', () => {
 
   it('should have proper page structure and styling', () => {
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     const { container } = render(<LoginPage />);
 
@@ -136,30 +156,30 @@ describe('LoginPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should handle isLoggedIn state change', async () => {
+  it('should handle user state change', async () => {
     // Start with user not logged in
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     const { rerender } = render(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
 
     // Change to logged in
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    const mockUser: User = {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+    };
+
+    mockUseAuthenticationStore.mockReturnValue(mockUser);
 
     rerender(<LoginPage />);
 
@@ -170,13 +190,14 @@ describe('LoginPage', () => {
 
   it('should use correct navigation source', () => {
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<LoginPage />);
 
@@ -187,13 +208,14 @@ describe('LoginPage', () => {
 
   it('should render accessibility landmarks', () => {
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
+
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<LoginPage />);
 

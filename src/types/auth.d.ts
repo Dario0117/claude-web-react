@@ -13,14 +13,9 @@ export interface User {
 }
 
 export interface AuthState {
-  isLoggedIn: boolean;
-  wasProfileChecked: boolean;
   user?: User;
 }
 
 export interface AuthActions {
-  logIn: () => void;
-  logOut: () => void;
-  checkProfile: () => void;
   setUser: (user: User) => void;
 }

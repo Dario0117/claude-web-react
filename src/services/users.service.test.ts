@@ -10,7 +10,6 @@ import type {
 import {
   login,
   logout,
-  me,
   register,
   resetPassword,
   updatePassword,
@@ -235,68 +234,6 @@ describe('users.service', () => {
       const result = await login('testuser', 'wrongpassword');
 
       expect(result).toEqual(mockResponse);
-    });
-  });
-
-  describe('me', () => {
-    it('should get user data successfully', async () => {
-      const mockUserData = {
-        id: '1',
-        username: 'testuser',
-        email: 'test@example.com',
-      };
-
-      server.use(
-        http.get(`${baseUrl}/users/me`, () => {
-          return HttpResponse.json(mockUserData, { status: 200 });
-        }),
-      );
-
-      const result = await me();
-
-      expect(result).toEqual({
-        data: {
-          success: true,
-          ...mockUserData,
-        },
-        errors: null,
-      });
-    });
-
-    it('should handle unauthorized user', async () => {
-      server.use(
-        http.get(`${baseUrl}/users/me`, () => {
-          return new HttpResponse(null, { status: 401 });
-        }),
-      );
-
-      const result = await me();
-
-      expect(result).toEqual({
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      });
-    });
-
-    it('should handle network error during me request', async () => {
-      server.use(
-        http.get(`${baseUrl}/users/me`, () => {
-          return HttpResponse.error();
-        }),
-      );
-
-      const result = await me();
-
-      expect(result.data).toBeNull();
-      expect(result.errors).toEqual({
-        message: 'Something went wrong, please try again later.',
-        details: expect.any(TypeError),
-      });
     });
   });
 

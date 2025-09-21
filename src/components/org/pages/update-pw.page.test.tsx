@@ -30,7 +30,6 @@ describe('UpdatePasswordPage', () => {
     mockNavigate.mockClear();
     mockUpdatePassword.mockClear();
     mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
       login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),

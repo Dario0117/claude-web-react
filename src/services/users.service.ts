@@ -3,7 +3,6 @@ import type {
   CoreHTTPResponse,
   LoginResponse,
   LogoutResponse,
-  MeResponse,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
@@ -115,43 +114,6 @@ export async function login(
     const json = await rawResponse.json();
 
     return json;
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
-}
-
-export async function me(): Promise<CoreHTTPResponse<MeResponse>> {
-  try {
-    const rawResponse = await httpClient.get('/users/me', {
-      credentials: 'include',
-    });
-
-    if (rawResponse.status !== 200) {
-      return {
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      };
-    }
-
-    const userData = await rawResponse.json();
-    return {
-      data: {
-        success: true,
-        ...userData,
-      },
-      errors: null,
-    };
   } catch (error) {
     return {
       data: null,

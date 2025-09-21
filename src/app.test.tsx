@@ -1,10 +1,12 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { useAuthenticationStore } from '@/stores/authentication.store';
+import type { User } from '@/types/auth';
 import App from './app';
 
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
+// Mock the authentication store
+vi.mock('@/stores/authentication.store', () => ({
+  useAuthenticationStore: vi.fn(),
 }));
 
 // Mock TanStack Router
@@ -33,18 +35,17 @@ vi.mock('./routeTree.gen', () => ({
   routeTree: {},
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
+const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 
 describe('App', () => {
   it('renders RouterProvider with authentication context when user is logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    const mockUser: User = {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+    };
+
+    mockUseAuthenticationStore.mockReturnValue(mockUser);
 
     const { getByTestId } = render(<App />);
 
@@ -55,14 +56,7 @@ describe('App', () => {
   });
 
   it('renders RouterProvider with authentication context when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     const { getByTestId } = render(<App />);
 
@@ -72,15 +66,14 @@ describe('App', () => {
     );
   });
 
-  it('passes correct authentication state to router context', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+  it('passes correct authentication state to router context when logged in', () => {
+    const mockUser: User = {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+    };
+
+    mockUseAuthenticationStore.mockReturnValue(mockUser);
 
     const { getByTestId } = render(<App />);
 
@@ -89,14 +82,7 @@ describe('App', () => {
   });
 
   it('updates context when authentication state changes', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     const { getByTestId, rerender } = render(<App />);
 
@@ -104,15 +90,13 @@ describe('App', () => {
       JSON.stringify({ isLoggedIn: false }),
     );
 
-    // Update the mock to return different state
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    // Update the mock to return a user
+    const mockUser: User = {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+    };
+    mockUseAuthenticationStore.mockReturnValue(mockUser);
 
     rerender(<App />);
 
@@ -121,19 +105,12 @@ describe('App', () => {
     );
   });
 
-  it('uses useAuth hook correctly', () => {
-    mockUseAuth.mockClear();
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+  it('uses useAuthenticationStore correctly', () => {
+    mockUseAuthenticationStore.mockClear();
+    mockUseAuthenticationStore.mockReturnValue(undefined);
 
     render(<App />);
 
-    expect(mockUseAuth).toHaveBeenCalledTimes(1);
+    expect(mockUseAuthenticationStore).toHaveBeenCalledTimes(1);
   });
 });
