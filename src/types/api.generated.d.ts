@@ -15,20 +15,20 @@ export interface paths {
          * List projects
          * @description Retrieve all projects owned by the authenticated user.
          */
-        get: operations["v1_projects_retrieve"];
+        get: operations["v1ProjectsRetrieve"];
         put?: never;
         /**
          * Create projects
          * @description Create multiple projects for the authenticated user. Duplicate names are automatically removed.
          */
-        post: operations["v1_projects_create"];
+        post: operations["v1ProjectsCreate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/projects/{project_id}/": {
+    "/api/v1/projects/{projectId}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -39,7 +39,7 @@ export interface paths {
          * Get project details
          * @description Retrieve details of a specific project.
          */
-        get: operations["v1_projects_retrieve_2"];
+        get: operations["v1ProjectsRetrieve2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -49,10 +49,10 @@ export interface paths {
          * Update project
          * @description Update an existing project.
          */
-        patch: operations["v1_projects_partial_update"];
+        patch: operations["v1ProjectsPartialUpdate"];
         trace?: never;
     };
-    "/api/v1/projects/{project_id}/sessions/": {
+    "/api/v1/projects/{projectId}/sessions/": {
         parameters: {
             query?: never;
             header?: never;
@@ -63,20 +63,20 @@ export interface paths {
          * List sessions
          * @description Retrieve all sessions for a specific project.
          */
-        get: operations["v1_projects_sessions_retrieve"];
+        get: operations["v1ProjectsSessionsRetrieve"];
         put?: never;
         /**
          * Create session
          * @description Create a new session for a project. The session will be assigned a unique UUID and can optionally reference a parent session for threaded conversations.
          */
-        post: operations["v1_projects_sessions_create"];
+        post: operations["v1ProjectsSessionsCreate"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/projects/{project_id}/sessions/{id}/": {
+    "/api/v1/projects/{projectId}/sessions/{id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -87,24 +87,24 @@ export interface paths {
          * Get session details
          * @description Retrieve details of a specific session.
          */
-        get: operations["v1_projects_sessions_retrieve_2"];
+        get: operations["v1ProjectsSessionsRetrieve2"];
         put?: never;
         post?: never;
         /**
          * Delete session
          * @description Delete an existing session. This action is irreversible and will also affect any child sessions that reference this session as a parent.
          */
-        delete: operations["v1_projects_sessions_destroy"];
+        delete: operations["v1ProjectsSessionsDestroy"];
         options?: never;
         head?: never;
         /**
          * Update session
          * @description Update an existing session with new content, status, or messages. This endpoint supports partial updates.
          */
-        patch: operations["v1_projects_sessions_partial_update"];
+        patch: operations["v1ProjectsSessionsPartialUpdate"];
         trace?: never;
     };
-    "/api/v1/projects/{project_id}/sessions/{id}/processing/": {
+    "/api/v1/projects/{projectId}/sessions/{id}/processing/": {
         parameters: {
             query?: never;
             header?: never;
@@ -117,7 +117,7 @@ export interface paths {
          * Start session processing
          * @description Mark a session as in progress by updating its status to IN_PROGRESS. This endpoint is typically used when beginning to process a session that was created but not yet started.
          */
-        post: operations["v1_projects_sessions_processing_create"];
+        post: operations["v1ProjectsSessionsProcessingCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -135,7 +135,7 @@ export interface paths {
          * List user pending sessions
          * @description Retrieve all pending sessions (status=CREATED) for the authenticated user across all projects they have access to. Results are paginated.
          */
-        get: operations["v1_projects_user_sessions_retrieve"];
+        get: operations["v1ProjectsUserSessionsRetrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -154,7 +154,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Authenticate user and receive access token */
-        post: operations["v1_users_login_create"];
+        post: operations["v1UsersLoginCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -171,7 +171,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Logout current user and invalidate current token */
-        post: operations["v1_users_logout_create"];
+        post: operations["v1UsersLogoutCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -188,7 +188,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Logout user from all devices and invalidate all tokens */
-        post: operations["v1_users_logoutall_create"];
+        post: operations["v1UsersLogoutallCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -203,7 +203,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Get the user profile */
-        get: operations["v1_users_me_retrieve"];
+        get: operations["v1UsersMeRetrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -222,7 +222,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Register a new user account */
-        post: operations["v1_users_register_create"];
+        post: operations["v1UsersRegisterCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -239,7 +239,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Request password reset token for user email */
-        post: operations["v1_users_reset_password_create"];
+        post: operations["v1UsersResetPasswordCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -256,7 +256,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Update user password using reset token */
-        post: operations["v1_users_update_password_create"];
+        post: operations["v1UsersUpdatePasswordCreate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -269,8 +269,8 @@ export interface components {
     schemas: {
         BadRequestResponseFromLoginSerializer: {
             /** @description No data returned */
-            response_data?: string | null;
-            response_errors: components["schemas"]["ResponseErrorsLoginSerializer"];
+            responseData?: string | null;
+            responseErrors: components["schemas"]["ResponseErrorsLoginSerializer"];
         };
         Login: {
             username: string;
@@ -303,22 +303,22 @@ export interface components {
             /** @description Current page number */
             page: number;
             /** @description Number of items per page */
-            page_size: number;
+            pageSize: number;
             /** @description Total number of pages */
-            total_pages: number;
+            totalPages: number;
             /** @description Total number of items */
-            total_count: number;
+            totalCount: number;
         };
         PatchedProjectUpdate: {
-            display_name?: string;
+            displayName?: string;
         };
         PatchedSessionUpdate: {
             status?: components["schemas"]["StatusEnum"];
-            raw_content?: string;
-            json_content?: unknown;
+            rawContent?: string;
+            jsonContent?: unknown;
             messages?: unknown[];
             /** Format: uuid */
-            session_id?: string;
+            sessionId?: string;
         };
         Project: {
             readonly id: number;
@@ -391,22 +391,22 @@ export interface components {
         };
         ResponseErrorsLoginSerializer: {
             /** @description Non-field errors */
-            non_field_errors: string[] | null;
+            nonFieldErrors: string[] | null;
             username: string[] | null;
             password: string[] | null;
         };
         Session: {
             readonly id: number;
             /** Format: uuid */
-            session_id: string;
-            readonly parent_session: string;
+            sessionId: string;
+            readonly parentSession: string;
             /** Format: uuid */
-            readonly parent_session_uuid: string;
+            readonly parentSessionUuid: string;
             readonly project: components["schemas"]["Project"];
             readonly message: string;
         };
         SessionCreate: {
-            parent_session?: number | null;
+            parentSession?: number | null;
             message: string;
         };
         SessionCreateErrorResponse: {
@@ -496,7 +496,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    v1_projects_retrieve: {
+    v1ProjectsRetrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -544,7 +544,7 @@ export interface operations {
             };
         };
     };
-    v1_projects_create: {
+    v1ProjectsCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -607,12 +607,12 @@ export interface operations {
             };
         };
     };
-    v1_projects_retrieve_2: {
+    v1ProjectsRetrieve2: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -657,12 +657,12 @@ export interface operations {
             };
         };
     };
-    v1_projects_partial_update: {
+    v1ProjectsPartialUpdate: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -722,12 +722,12 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_retrieve: {
+    v1ProjectsSessionsRetrieve: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -772,12 +772,12 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_create: {
+    v1ProjectsSessionsCreate: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -837,13 +837,13 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_retrieve_2: {
+    v1ProjectsSessionsRetrieve2: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: number;
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -888,13 +888,13 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_destroy: {
+    v1ProjectsSessionsDestroy: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: number;
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -937,13 +937,13 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_partial_update: {
+    v1ProjectsSessionsPartialUpdate: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: number;
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -1003,13 +1003,13 @@ export interface operations {
             };
         };
     };
-    v1_projects_sessions_processing_create: {
+    v1ProjectsSessionsProcessingCreate: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: number;
-                project_id: number;
+                projectId: number;
             };
             cookie?: never;
         };
@@ -1063,7 +1063,7 @@ export interface operations {
             };
         };
     };
-    v1_projects_user_sessions_retrieve: {
+    v1ProjectsUserSessionsRetrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -1111,7 +1111,7 @@ export interface operations {
             };
         };
     };
-    v1_users_login_create: {
+    v1UsersLoginCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -1174,7 +1174,7 @@ export interface operations {
             };
         };
     };
-    v1_users_logout_create: {
+    v1UsersLogoutCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -1222,7 +1222,7 @@ export interface operations {
             };
         };
     };
-    v1_users_logoutall_create: {
+    v1UsersLogoutallCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -1270,7 +1270,7 @@ export interface operations {
             };
         };
     };
-    v1_users_me_retrieve: {
+    v1UsersMeRetrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -1316,7 +1316,7 @@ export interface operations {
             };
         };
     };
-    v1_users_register_create: {
+    v1UsersRegisterCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -1368,7 +1368,7 @@ export interface operations {
             };
         };
     };
-    v1_users_reset_password_create: {
+    v1UsersResetPasswordCreate: {
         parameters: {
             query?: never;
             header?: never;
@@ -1420,7 +1420,7 @@ export interface operations {
             };
         };
     };
-    v1_users_update_password_create: {
+    v1UsersUpdatePasswordCreate: {
         parameters: {
             query?: never;
             header?: never;
