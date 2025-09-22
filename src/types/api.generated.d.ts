@@ -267,10 +267,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        AuthToken: {
+        BadRequestResponseFromLoginSerializer: {
+            /** @description No data returned */
+            response_data?: string | null;
+            response_errors: components["schemas"]["ResponseErrorsLoginSerializer"];
+        };
+        Login: {
             username: string;
             password: string;
-            readonly token: string;
         };
         LoginResponse: {
             /** @description Authentication token for subsequent requests */
@@ -384,6 +388,12 @@ export interface components {
         RequestUpdatePasswordUser: {
             token: string;
             password: string;
+        };
+        ResponseErrorsLoginSerializer: {
+            /** @description Non-field errors */
+            non_field_errors: string[] | null;
+            username: string[] | null;
+            password: string[] | null;
         };
         Session: {
             readonly id: number;
@@ -1110,9 +1120,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/x-www-form-urlencoded": components["schemas"]["AuthToken"];
-                "multipart/form-data": components["schemas"]["AuthToken"];
-                "application/json": components["schemas"]["AuthToken"];
+                "application/x-www-form-urlencoded": components["schemas"]["Login"];
+                "multipart/form-data": components["schemas"]["Login"];
+                "application/json": components["schemas"]["Login"];
             };
         };
         responses: {
@@ -1123,6 +1133,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LoginResponse"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestResponseFromLoginSerializer"];
                 };
             };
             /** @description Unauthorized */
