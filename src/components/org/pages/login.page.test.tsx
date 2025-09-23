@@ -77,7 +77,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
 
@@ -101,7 +101,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(mockUser);
+    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
     render(<LoginPage />);
 
@@ -118,7 +118,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
 
@@ -133,7 +133,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
 
@@ -150,7 +150,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     const { container } = render(<LoginPage />);
 
@@ -178,7 +178,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     const { rerender } = render(<LoginPage />);
 
@@ -191,7 +191,7 @@ describe('LoginPage', () => {
       email: 'test@example.com',
     };
 
-    mockUseAuthenticationStore.mockReturnValue(mockUser);
+    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
     rerender(<LoginPage />);
 
@@ -208,7 +208,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
 
@@ -225,7 +225,7 @@ describe('LoginPage', () => {
       updatePassword: vi.fn(),
     });
 
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
 

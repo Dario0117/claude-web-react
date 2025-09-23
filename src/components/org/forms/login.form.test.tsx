@@ -203,7 +203,6 @@ describe('LoginForm', () => {
     const forgotPasswordLink = screen.getByRole('link', {
       name: 'Forgot your password?',
     });
-    const submitButton = screen.getByRole('button', { name: 'Login' });
 
     // Tab navigation should work
     await user.tab();
@@ -215,7 +214,9 @@ describe('LoginForm', () => {
     await user.tab();
     expect(passwordInput).toHaveFocus();
 
+    // Submit button is disabled, so next focus should be register link
     await user.tab();
-    expect(submitButton).toHaveFocus();
+    const registerLink = screen.getByRole('link', { name: 'Register' });
+    expect(registerLink).toHaveFocus();
   });
 });

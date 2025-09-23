@@ -57,12 +57,19 @@ export function LoginForm({ loginMutation }: LoginFormProps) {
           </form.Field>
 
           <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              className="w-full"
+            <form.Subscribe
+              selector={(state) => state.isValid && !state.isPristine}
             >
-              Login
-            </Button>
+              {(canSubmit) => (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!canSubmit}
+                >
+                  Login
+                </Button>
+              )}
+            </form.Subscribe>
           </div>
         </div>
 

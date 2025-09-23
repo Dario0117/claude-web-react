@@ -25,8 +25,15 @@ export function useLoginForm({ loginMutation }: UseLoginFormProps) {
           });
         } catch (exception: unknown) {
           const error = exception as useLoginReturnType['error'];
-          const { nonFieldErrors: form, ...fields } =
-            error?.responseErrors || {};
+          if (!error?.responseErrors) {
+            // biome-ignore lint/suspicious/noConsole: possible 500 error
+            console.error('Unexpected error type', error);
+            return {
+              form: ['Something went wrong, please try again later.'],
+              fields: {},
+            };
+          }
+          const { nonFieldErrors: form, ...fields } = error.responseErrors;
           return {
             form,
             fields,

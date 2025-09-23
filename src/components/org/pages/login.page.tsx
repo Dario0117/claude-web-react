@@ -7,7 +7,7 @@ import { useAuthenticationStore } from '@/stores/authentication.store';
 export function LoginPage() {
   const navigate = useNavigate({ from: '/login' });
   const login = useLogin();
-  const user = useAuthenticationStore();
+  const { user } = useAuthenticationStore();
 
   useEffect(() => {
     if (login.isSuccess || user) {
