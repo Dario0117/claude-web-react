@@ -195,7 +195,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/me": {
+    "/api/v1/users/profile": {
         parameters: {
             query?: never;
             header?: never;
@@ -203,7 +203,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Get the user profile */
-        get: operations["v1UsersMeRetrieve"];
+        get: operations["v1UsersProfileRetrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -272,6 +272,11 @@ export interface components {
             responseData?: string | null;
             responseErrors: components["schemas"]["ResponseErrorsLoginSerializer"];
         };
+        BadRequestResponseFromRequestPaginationSerializer: {
+            /** @description No data returned */
+            responseData?: string | null;
+            responseErrors: components["schemas"]["ResponseErrorsRequestPaginationSerializer"];
+        };
         Login: {
             username: string;
             password: string;
@@ -321,19 +326,11 @@ export interface components {
             sessionId?: string;
         };
         Project: {
-            readonly id: number;
+            id: number;
             name: string;
         };
         ProjectCreate: {
             projects: string[];
-        };
-        ProjectCreateErrorResponse: {
-            /** @description Error messages organized by field */
-            errors: {
-                [key: string]: unknown;
-            };
-            /** @description No data returned for error responses */
-            data: string | null;
         };
         ProjectCreateResponse: {
             /** @description Error messages organized by field */
@@ -350,14 +347,6 @@ export interface components {
             } | null;
             /** @description Project details */
             data: components["schemas"]["Project"];
-        };
-        ProjectListResponse: {
-            /** @description Error messages organized by field */
-            errors: {
-                [key: string]: unknown;
-            } | null;
-            /** @description List of user projects */
-            data: components["schemas"]["Project"][];
         };
         ProjectUpdateErrorResponse: {
             /** @description Error messages organized by field */
@@ -394,6 +383,31 @@ export interface components {
             nonFieldErrors: string[] | null;
             username: string[] | null;
             password: string[] | null;
+        };
+        ResponseErrorsRequestPaginationSerializer: {
+            /** @description Non-field errors */
+            nonFieldErrors: string[] | null;
+            page: string[] | null;
+            size: string[] | null;
+        };
+        ResponseProfile: {
+            firstName: string;
+            lastName: string;
+            email: string;
+        };
+        ResponseSuccessFromPaginatedProjectSerializer: {
+            hasNext: boolean;
+            hasPrevious: boolean;
+            totalResults: number;
+            totalPages: number;
+            page: number;
+            size: number;
+            results: components["schemas"]["Project"][];
+        };
+        ResponseSuccessFromSingleResponseProfileSerializer: {
+            /** @description No error returned */
+            responseErrors?: string | null;
+            responseData: components["schemas"]["ResponseProfile"];
         };
         Session: {
             readonly id: number;
@@ -480,6 +494,11 @@ export interface components {
          * @enum {string}
          */
         StatusEnum: "DRAFT" | "CREATED" | "SUCCEEDED" | "FAILED" | "IN_PROGRESS";
+        SuccessResponseFromPaginatedProjectSerializer: {
+            /** @description No error returned */
+            responseErrors?: string | null;
+            responseData: components["schemas"]["ResponseSuccessFromPaginatedProjectSerializer"];
+        };
         UserPendingSessionListResponse: {
             /** @description Error messages if any */
             errors: string | null;
@@ -511,7 +530,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjectListResponse"];
+                    "application/json": components["schemas"]["SuccessResponseFromPaginatedProjectSerializer"];
                 };
             };
             /** @description Unauthorized */
@@ -568,13 +587,13 @@ export interface operations {
                     "application/json": components["schemas"]["ProjectCreateResponse"];
                 };
             };
-            /** @description Invalid data provided */
+            /** @description Bad request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjectCreateErrorResponse"];
+                    "application/json": components["schemas"]["BadRequestResponseFromRequestPaginationSerializer"];
                 };
             };
             /** @description Unauthorized */
@@ -1270,7 +1289,7 @@ export interface operations {
             };
         };
     };
-    v1UsersMeRetrieve: {
+    v1UsersProfileRetrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -1284,7 +1303,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ResponseSuccessFromSingleResponseProfileSerializer"];
+                };
             };
             /** @description Unauthorized */
             401: {
