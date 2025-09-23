@@ -1,19 +1,22 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
-import type { CoreHTTPError } from '@/types/api.d';
 
 interface FormErrorDisplayProps {
-  error: CoreHTTPError<unknown> | null;
+  errors: string[];
 }
 
-export function FormErrorDisplay({ error }: FormErrorDisplayProps) {
-  if (!error) {
+export function FormErrorDisplay({ errors }: FormErrorDisplayProps) {
+  if (!errors.length) {
     return null;
   }
 
   return (
     <div className="mt-4">
       <Alert variant="destructive">
-        <AlertTitle>{error.message}</AlertTitle>
+        <AlertTitle>
+          {errors.map((error) => (
+            <span key={error}>{error}</span>
+          ))}
+        </AlertTitle>
       </Alert>
     </div>
   );

@@ -1,7 +1,7 @@
+import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
 import type {
   CoreHTTPResponse,
-  LoginResponse,
   LogoutResponse,
   RegisterRequest,
   RegisterResponse,
@@ -95,35 +95,11 @@ export async function updatePassword(
   }
 }
 
-export async function login(
-  username: string,
-  password: string,
-): Promise<CoreHTTPResponse<LoginResponse>> {
-  try {
-    const rawResponse = await httpClient.post(
-      '/users/login',
-      {
-        username,
-        password,
-      },
-      {
-        credentials: 'include',
-      },
-    );
-
-    const json = await rawResponse.json();
-
-    return json;
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
+export function useLogin() {
+  return $api.useMutation('post', '/api/v1/users/login');
 }
+
+export type useLoginReturnType = ReturnType<typeof useLogin>;
 
 export async function logout(): Promise<CoreHTTPResponse<LogoutResponse>> {
   try {

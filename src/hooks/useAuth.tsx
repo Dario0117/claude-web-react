@@ -1,12 +1,10 @@
 import { useCallback } from 'react';
 import {
-  login as serviceLogin,
   logout as serviceLogout,
   register as serviceRegister,
   resetPassword as serviceResetPassword,
   updatePassword as serviceUpdatePassword,
 } from '@/services/users.service';
-import { useAuthenticationStore } from '@/stores/authentication.store';
 import type {
   RegisterRequest as RegisterForm,
   ResetPasswordRequest as ResetPasswordForm,
@@ -14,21 +12,6 @@ import type {
 } from '@/types/api.d';
 
 export function useAuth() {
-  const setUser = useAuthenticationStore((state) => state.setUser);
-
-  const login = useCallback(
-    async (username: string, password: string) => {
-      const result = await serviceLogin(username, password);
-      setUser({
-        id: 0,
-        username: 'test',
-        email: 'test@test.com',
-      });
-      return result;
-    },
-    [setUser],
-  );
-
   const logout = useCallback(async () => {
     const result = await serviceLogout();
     return result;
@@ -50,7 +33,6 @@ export function useAuth() {
   }, []);
 
   return {
-    login,
     logout,
     register,
     resetPassword,

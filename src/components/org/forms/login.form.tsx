@@ -3,22 +3,15 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type {
-  CoreHTTPError,
-  CoreHTTPResponse,
-  LoginResponse,
-} from '@/types/api.d';
+import type { useLoginReturnType } from '@/services/users.service';
 import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
-  handleLogin(
-    username: string,
-    password: string,
-  ): Promise<CoreHTTPResponse<LoginResponse>>;
+  loginMutation: useLoginReturnType;
 }
 
-export function LoginForm({ handleLogin }: LoginFormProps) {
-  const form = useLoginForm({ handleLogin });
+export function LoginForm({ loginMutation }: LoginFormProps) {
+  const form = useLoginForm({ loginMutation });
 
   return (
     <FormCard
@@ -73,17 +66,13 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
           </div>
         </div>
 
-        <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-          {(errorMap) => {
-            const error =
-              errorMap && typeof errorMap === 'object' && 'form' in errorMap
-                ? (errorMap as { form: CoreHTTPError<unknown> }).form
-                : null;
-            return (
-              <FormErrorDisplay
-                error={error as CoreHTTPError<unknown> | null}
-              />
-            );
+        <form.Subscribe selector={(state) => [state.errorMap]}>
+          {([errorMap]) => {
+            const submitErrors = errorMap?.onSubmit;
+            if (!submitErrors) {
+              return null;
+            }
+            return <FormErrorDisplay errors={submitErrors} />;
           }}
         </form.Subscribe>
 
