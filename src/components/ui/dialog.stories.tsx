@@ -74,7 +74,10 @@ export const WithForm: Story = {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+            <Label
+              htmlFor="name"
+              className="text-right"
+            >
               Name
             </Label>
             <Input
@@ -84,7 +87,10 @@ export const WithForm: Story = {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="email" className="text-right">
+            <Label
+              htmlFor="email"
+              className="text-right"
+            >
               Email
             </Label>
             <Input
@@ -198,7 +204,8 @@ export const LongContent: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Dialog with scrollable content that exceeds the viewport height.',
+        story:
+          'Dialog with scrollable content that exceeds the viewport height.',
       },
     },
   },
@@ -214,7 +221,8 @@ export const NoCloseButton: Story = {
         <DialogHeader>
           <DialogTitle>Custom Close Actions</DialogTitle>
           <DialogDescription>
-            This dialog has no X button and can only be closed via the action buttons.
+            This dialog has no X button and can only be closed via the action
+            buttons.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">

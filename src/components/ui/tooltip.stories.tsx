@@ -55,7 +55,10 @@ export const Positions: Story = {
           <TooltipTrigger asChild>
             <Button variant="outline">Top Start</Button>
           </TooltipTrigger>
-          <TooltipContent side="top" align="start">
+          <TooltipContent
+            side="top"
+            align="start"
+          >
             <p>Tooltip on top start</p>
           </TooltipContent>
         </Tooltip>
@@ -99,7 +102,10 @@ export const Positions: Story = {
           <TooltipTrigger asChild>
             <Button variant="outline">Bottom Start</Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" align="start">
+          <TooltipContent
+            side="bottom"
+            align="start"
+          >
             <p>Tooltip on bottom start</p>
           </TooltipContent>
         </Tooltip>
@@ -122,7 +128,8 @@ export const Positions: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tooltips can be positioned on different sides of the trigger element.',
+        story:
+          'Tooltips can be positioned on different sides of the trigger element.',
       },
     },
   },
@@ -133,8 +140,12 @@ export const WithIcon: Story = {
     <div className="flex items-center gap-4">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+          >
             <span className="sr-only">Help</span>
+            {/** biome-ignore lint/a11y/noSvgWithoutTitle: story */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -146,7 +157,11 @@ export const WithIcon: Story = {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <circle cx="12" cy="12" r="10" />
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <path d="M12 17h.01" />
             </svg>
@@ -159,8 +174,12 @@ export const WithIcon: Story = {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+          >
             <span className="sr-only">Settings</span>
+            {/** biome-ignore lint/a11y/noSvgWithoutTitle: story */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -173,7 +192,11 @@ export const WithIcon: Story = {
               strokeLinejoin="round"
             >
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-              <circle cx="12" cy="12" r="3" />
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
+              />
             </svg>
           </Button>
         </TooltipTrigger>
@@ -243,7 +266,8 @@ export const OnDisabledElement: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tooltips can be used on disabled elements by wrapping them in a div.',
+        story:
+          'Tooltips can be used on disabled elements by wrapping them in a div.',
       },
     },
   },

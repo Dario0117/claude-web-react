@@ -96,8 +96,12 @@ export const InSidebar: Story = {
       <div className="space-y-1">
         <p className="text-sm font-medium">Account</p>
         <div className="space-y-1">
-          <div className="rounded px-2 py-1 text-sm hover:bg-accent">Profile</div>
-          <div className="rounded px-2 py-1 text-sm hover:bg-accent">Settings</div>
+          <div className="rounded px-2 py-1 text-sm hover:bg-accent">
+            Profile
+          </div>
+          <div className="rounded px-2 py-1 text-sm hover:bg-accent">
+            Settings
+          </div>
         </div>
       </div>
     </div>
