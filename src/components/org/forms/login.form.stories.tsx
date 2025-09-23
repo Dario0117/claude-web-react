@@ -59,26 +59,29 @@ function MockLoginForm({ loginMutation }: { loginMutation: any }) {
           </form.Field>
 
           <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              className="w-full"
+            <form.Subscribe
+              selector={(state) => state.isValid && !state.isPristine}
             >
-              Login
-            </Button>
+              {(canSubmit) => (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!canSubmit}
+                >
+                  Login
+                </Button>
+              )}
+            </form.Subscribe>
           </div>
         </div>
 
-        <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-          {(errorMap) => {
-            const error =
-              errorMap && typeof errorMap === 'object' && 'form' in errorMap
-                ? (errorMap as { form: CoreHTTPError<unknown> }).form
-                : null;
-            return (
-              <FormErrorDisplay
-                errors={error ? [error.message || 'An error occurred'] : []}
-              />
-            );
+        <form.Subscribe selector={(state) => [state.errorMap]}>
+          {([errorMap]) => {
+            const submitErrors = errorMap?.onSubmit;
+            if (!submitErrors) {
+              return null;
+            }
+            return <FormErrorDisplay errors={submitErrors} />;
           }}
         </form.Subscribe>
 
