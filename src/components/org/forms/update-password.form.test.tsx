@@ -82,9 +82,11 @@ describe('UpdatePasswordForm', () => {
       name: 'Update password',
     });
 
-    await user.type(passwordInput, 'newpassword123');
-    await user.type(confirmPasswordInput, 'newpassword123');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(passwordInput, 'newpassword123');
+      await user.type(confirmPasswordInput, 'newpassword123');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSubmit).toHaveBeenCalledWith('newpassword123');
@@ -112,9 +114,11 @@ describe('UpdatePasswordForm', () => {
       name: 'Update password',
     });
 
-    await user.type(passwordInput, 'newpassword123');
-    await user.type(confirmPasswordInput, 'newpassword123');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(passwordInput, 'newpassword123');
+      await user.type(confirmPasswordInput, 'newpassword123');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalled();
@@ -145,9 +149,11 @@ describe('UpdatePasswordForm', () => {
       name: 'Update password',
     });
 
-    await user.type(passwordInput, 'newpassword123');
-    await user.type(confirmPasswordInput, 'newpassword123');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(passwordInput, 'newpassword123');
+      await user.type(confirmPasswordInput, 'newpassword123');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Password update failed')).toBeInTheDocument();
@@ -172,9 +178,11 @@ describe('UpdatePasswordForm', () => {
       name: 'Update password',
     });
 
-    await user.type(passwordInput, 'password123');
-    await user.type(confirmPasswordInput, 'differentpassword');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(passwordInput, 'password123');
+      await user.type(confirmPasswordInput, 'differentpassword');
+      await user.click(submitButton);
+    });
 
     // Should not call handleSubmit if passwords don't match
     await waitFor(
@@ -261,7 +269,9 @@ describe('UpdatePasswordForm', () => {
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
-    await user.click(submitButton);
+    await act(async () => {
+      await user.click(submitButton);
+    });
 
     // Form should handle validation internally and not call handleSubmit
     expect(mockHandleSubmit).not.toHaveBeenCalled();
@@ -315,9 +325,11 @@ describe('UpdatePasswordForm', () => {
       name: 'Update password',
     });
 
-    await user.type(passwordInput, 'newpassword123');
-    await user.type(confirmPasswordInput, 'newpassword123');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(passwordInput, 'newpassword123');
+      await user.type(confirmPasswordInput, 'newpassword123');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSubmit).toHaveBeenCalled();
@@ -351,11 +363,13 @@ describe('UpdatePasswordForm', () => {
     const passwords = ['password123', 'verysecure456', 'complex!pass789'];
 
     for (const password of passwords) {
-      await user.clear(passwordInput);
-      await user.clear(confirmPasswordInput);
-      await user.type(passwordInput, password);
-      await user.type(confirmPasswordInput, password);
-      await user.click(submitButton);
+      await act(async () => {
+        await user.clear(passwordInput);
+        await user.clear(confirmPasswordInput);
+        await user.type(passwordInput, password);
+        await user.type(confirmPasswordInput, password);
+        await user.click(submitButton);
+      });
 
       await waitFor(() => {
         expect(mockHandleSubmit).toHaveBeenCalledWith(password);
@@ -378,7 +392,9 @@ describe('UpdatePasswordForm', () => {
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
-    await user.click(submitButton);
+    await act(async () => {
+      await user.click(submitButton);
+    });
 
     // Should not call handleSubmit with empty passwords
     expect(mockHandleSubmit).not.toHaveBeenCalled();

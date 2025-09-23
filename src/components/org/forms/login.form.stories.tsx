@@ -11,15 +11,9 @@ import type {
 import { useLoginForm } from './hooks/use-login-form';
 
 // Mock LoginForm component to avoid router context dependencies
-function MockLoginForm({
-  handleLogin,
-}: {
-  handleLogin: (
-    username: string,
-    password: string,
-  ) => Promise<CoreHTTPResponse<LoginResponse>>;
-}) {
-  const form = useLoginForm({ handleLogin });
+// biome-ignore lint/suspicious/noExplicitAny: Storybook mock
+function MockLoginForm({ loginMutation }: { loginMutation: any }) {
+  const form = useLoginForm({ loginMutation });
 
   return (
     <FormCard
@@ -82,7 +76,7 @@ function MockLoginForm({
                 : null;
             return (
               <FormErrorDisplay
-                error={error as CoreHTTPError<unknown> | null}
+                errors={error ? [error.message || 'An error occurred'] : []}
               />
             );
           }}
@@ -174,13 +168,27 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleLogin: mockHandleLoginSuccess,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginSuccess(body.username, body.password),
+      error: null,
+    },
   },
 };
 
 export const WithError: Story = {
   args: {
-    handleLogin: mockHandleLoginError,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginError(body.username, body.password),
+      error: null,
+    },
   },
   parameters: {
     docs: {
@@ -194,7 +202,14 @@ export const WithError: Story = {
 
 export const NetworkError: Story = {
   args: {
-    handleLogin: mockHandleLoginNetworkError,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginNetworkError(body.username, body.password),
+      error: null,
+    },
   },
   parameters: {
     docs: {
@@ -207,19 +222,26 @@ export const NetworkError: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleLogin: async (username: string, password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Simulate different responses based on credentials
-      if (username === 'admin' && password === 'password') {
-        return mockHandleLoginSuccess(username, password);
-      }
+        // Simulate different responses based on credentials
+        if (body.username === 'admin' && body.password === 'password') {
+          return mockHandleLoginSuccess(body.username, body.password);
+        }
 
-      if (username === 'network-error') {
-        return mockHandleLoginNetworkError(username, password);
-      }
+        if (body.username === 'network-error') {
+          return mockHandleLoginNetworkError(body.username, body.password);
+        }
 
-      return mockHandleLoginError(username, password);
+        return mockHandleLoginError(body.username, body.password);
+      },
+      error: null,
     },
   },
   parameters: {

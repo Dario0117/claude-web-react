@@ -32,11 +32,19 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
+// Mock the useLogin service hook
+vi.mock('@/services/users.service', () => ({
+  useLogin: vi.fn(),
+}));
+
 const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
 const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
+const mockUseLogin = vi.mocked(
+  await import('@/services/users.service'),
+).useLogin;
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -47,11 +55,22 @@ describe('LoginPage', () => {
     mockNavigate.mockClear();
     mockUseAuth.mockClear();
     mockUseAuthenticationStore.mockClear();
+    mockUseLogin.mockClear();
+
+    // Set up default mock for useLogin
+    mockUseLogin.mockReturnValue({
+      mutateAsync: vi.fn(),
+      error: null,
+      isSuccess: false,
+      data: null,
+      isLoading: false,
+      isError: false,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any);
   });
 
   it('should render login form when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -76,7 +95,6 @@ describe('LoginPage', () => {
     };
 
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -94,7 +112,6 @@ describe('LoginPage', () => {
 
   it('should not redirect when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -109,10 +126,7 @@ describe('LoginPage', () => {
   });
 
   it('should pass login function to LoginForm', () => {
-    const mockLogin = vi.fn();
-
     mockUseAuth.mockReturnValue({
-      login: mockLogin,
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -130,7 +144,6 @@ describe('LoginPage', () => {
 
   it('should have proper page structure and styling', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -159,7 +172,6 @@ describe('LoginPage', () => {
   it('should handle user state change', async () => {
     // Start with user not logged in
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -190,7 +202,6 @@ describe('LoginPage', () => {
 
   it('should use correct navigation source', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -208,7 +219,6 @@ describe('LoginPage', () => {
 
   it('should render accessibility landmarks', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),

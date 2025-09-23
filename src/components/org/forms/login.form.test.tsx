@@ -28,14 +28,18 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 describe('LoginForm', () => {
-  const mockHandleLogin = vi.fn();
+  const mockLoginMutation = {
+    mutateAsync: vi.fn(),
+    error: null,
+    // biome-ignore lint/suspicious/noExplicitAny: Test mock
+  } as any;
 
   beforeEach(() => {
-    mockHandleLogin.mockClear();
+    mockLoginMutation.mutateAsync.mockClear();
   });
 
   it('should render login form with all required fields', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(
@@ -47,7 +51,7 @@ describe('LoginForm', () => {
   });
 
   it('should render forgot password link', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const forgotPasswordLink = screen.getByText('Forgot your password?');
     expect(forgotPasswordLink).toBeInTheDocument();
@@ -58,7 +62,7 @@ describe('LoginForm', () => {
   });
 
   it('should render register link', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const registerLink = screen.getByText('Register');
     expect(registerLink).toBeInTheDocument();
@@ -66,39 +70,44 @@ describe('LoginForm', () => {
   });
 
   it('should have proper input placeholders', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     expect(screen.getByPlaceholderText('johndoe17')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
   });
 
   it('should have password input type', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const passwordInput = screen.getByLabelText(/Password/);
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
-  it('should call handleLogin with correct credentials on form submission', async () => {
+  it('should call loginMutation with correct credentials on form submission', async () => {
     const user = userEvent.setup();
     const mockResponse: CoreHTTPResponse<LoginResponse> = {
       data: { success: true, token: 'mock-token' },
       errors: null,
     };
-    mockHandleLogin.mockResolvedValue(mockResponse);
+    mockLoginMutation.mutateAsync.mockResolvedValue(mockResponse);
 
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
-    await user.type(usernameInput, 'testuser');
-    await user.type(passwordInput, 'testpassword');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(usernameInput, 'testuser');
+      await user.type(passwordInput, 'testpassword');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
-      expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'testpassword');
+      expect(mockLoginMutation.mutateAsync).toHaveBeenCalledWith({
+        body: { username: 'testuser', password: 'testpassword' },
+        signal: expect.any(AbortSignal),
+      });
     });
   });
 
@@ -106,7 +115,7 @@ describe('LoginForm', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const form = screen.getByRole('button', { name: 'Login' }).closest('form');
     expect(form).toBeInTheDocument();
@@ -127,43 +136,41 @@ describe('LoginForm', () => {
 
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const submitButton = screen.getByRole('button', { name: 'Login' });
-    await user.click(submitButton);
+    await act(async () => {
+      await user.click(submitButton);
+    });
 
     // Form should handle validation internally
-    expect(mockHandleLogin).not.toHaveBeenCalled();
+    expect(mockLoginMutation.mutateAsync).not.toHaveBeenCalled();
   });
 
-  it('should display form error when handleLogin fails', async () => {
+  it('should display form error when loginMutation fails', async () => {
     const user = userEvent.setup();
-    const mockError: CoreHTTPResponse<LoginResponse> = {
-      data: null,
-      errors: {
-        message: 'Invalid credentials',
-        details: {},
-      },
-    };
-    mockHandleLogin.mockResolvedValue(mockError);
+    const mockError = new Error('Invalid credentials');
+    mockLoginMutation.mutateAsync.mockRejectedValue(mockError);
 
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
-    await user.type(usernameInput, 'testuser');
-    await user.type(passwordInput, 'wrongpassword');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(usernameInput, 'testuser');
+      await user.type(passwordInput, 'wrongpassword');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
-      expect(mockHandleLogin).toHaveBeenCalled();
+      expect(mockLoginMutation.mutateAsync).toHaveBeenCalled();
     });
   });
 
   it('should have required attributes on form fields', () => {
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
@@ -173,7 +180,9 @@ describe('LoginForm', () => {
   });
 
   it('should render with proper form structure', () => {
-    const { container } = render(<LoginForm handleLogin={mockHandleLogin} />);
+    const { container } = render(
+      <LoginForm loginMutation={mockLoginMutation} />,
+    );
 
     const form = container.querySelector('form');
     expect(form).toBeInTheDocument();
@@ -187,7 +196,7 @@ describe('LoginForm', () => {
 
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
-    render(<LoginForm handleLogin={mockHandleLogin} />);
+    render(<LoginForm loginMutation={mockLoginMutation} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);

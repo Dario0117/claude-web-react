@@ -29,7 +29,6 @@ describe('ResetPasswordPage', () => {
     mockNavigate.mockClear();
     mockResetPassword.mockClear();
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: mockResetPassword,

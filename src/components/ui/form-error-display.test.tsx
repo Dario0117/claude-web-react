@@ -4,7 +4,7 @@ import { FormErrorDisplay } from './form-error-display';
 
 describe('FormErrorDisplay', () => {
   it('should not render anything when error is null', () => {
-    const { container } = render(<FormErrorDisplay error={null} />);
+    const { container } = render(<FormErrorDisplay errors={[]} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -14,7 +14,7 @@ describe('FormErrorDisplay', () => {
       details: null,
     };
 
-    render(<FormErrorDisplay error={error} />);
+    render(<FormErrorDisplay errors={[error.message]} />);
 
     expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
   });
@@ -25,7 +25,7 @@ describe('FormErrorDisplay', () => {
       details: null,
     };
 
-    const { container } = render(<FormErrorDisplay error={error} />);
+    const { container } = render(<FormErrorDisplay errors={[error.message]} />);
 
     expect(screen.getByText('Server error occurred')).toBeInTheDocument();
 
@@ -40,7 +40,7 @@ describe('FormErrorDisplay', () => {
       details: { field: 'username' },
     };
 
-    render(<FormErrorDisplay error={error} />);
+    render(<FormErrorDisplay errors={[error.message]} />);
 
     expect(screen.getByText('Validation failed')).toBeInTheDocument();
   });
@@ -59,12 +59,14 @@ describe('FormErrorDisplay', () => {
         details: null,
       };
 
-      const { rerender } = render(<FormErrorDisplay error={error} />);
+      const { rerender } = render(
+        <FormErrorDisplay errors={[error.message]} />,
+      );
 
       expect(screen.getByText(message)).toBeInTheDocument();
 
       // Clean up for next iteration
-      rerender(<FormErrorDisplay error={null} />);
+      rerender(<FormErrorDisplay errors={[]} />);
     });
   });
 
@@ -74,7 +76,7 @@ describe('FormErrorDisplay', () => {
       details: null,
     };
 
-    const { container } = render(<FormErrorDisplay error={error} />);
+    const { container } = render(<FormErrorDisplay errors={[error.message]} />);
 
     const wrapper = container.firstChild as HTMLElement;
     expect(wrapper).toHaveClass('mt-4');
@@ -91,14 +93,14 @@ describe('FormErrorDisplay', () => {
       details: null,
     };
 
-    const { rerender } = render(<FormErrorDisplay error={error1} />);
+    const { rerender } = render(<FormErrorDisplay errors={[error1.message]} />);
     expect(screen.getByText('First error')).toBeInTheDocument();
 
-    rerender(<FormErrorDisplay error={error2} />);
+    rerender(<FormErrorDisplay errors={[error2.message]} />);
     expect(screen.getByText('Second error')).toBeInTheDocument();
     expect(screen.queryByText('First error')).not.toBeInTheDocument();
 
-    rerender(<FormErrorDisplay error={null} />);
+    rerender(<FormErrorDisplay errors={[]} />);
     expect(screen.queryByText('Second error')).not.toBeInTheDocument();
   });
 
@@ -108,7 +110,7 @@ describe('FormErrorDisplay', () => {
       details: null,
     };
 
-    render(<FormErrorDisplay error={error} />);
+    render(<FormErrorDisplay errors={[error.message]} />);
 
     // Should still render the alert structure even with empty message
     const alert = screen.getByRole('alert');

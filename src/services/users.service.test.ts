@@ -1,14 +1,11 @@
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 import type {
-  CoreHTTPResponse,
-  LoginResponse,
   RegisterRequest,
   ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@/types/api.d';
 import {
-  login,
   logout,
   register,
   resetPassword,
@@ -172,68 +169,6 @@ describe('users.service', () => {
         message: 'Something went wrong, please try again later.',
         details: expect.any(Error),
       });
-    });
-  });
-
-  describe('login', () => {
-    it('should login successfully', async () => {
-      const mockResponse: CoreHTTPResponse<LoginResponse> = {
-        data: {
-          success: true,
-          user: {
-            id: 1,
-            username: 'testuser',
-            email: 'test@example.com',
-          },
-        },
-        errors: null,
-      };
-
-      server.use(
-        http.post(`${baseUrl}/users/login`, () => {
-          return HttpResponse.json(mockResponse);
-        }),
-      );
-
-      const result = await login('testuser', 'password123');
-
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should handle login failure', async () => {
-      server.use(
-        http.post(`${baseUrl}/users/login`, () => {
-          return HttpResponse.error();
-        }),
-      );
-
-      const result = await login('testuser', 'wrongpassword');
-
-      expect(result.data).toBeNull();
-      expect(result.errors).toEqual({
-        message: 'Something went wrong, please try again later.',
-        details: expect.any(TypeError),
-      });
-    });
-
-    it('should handle login with invalid credentials', async () => {
-      const mockResponse: CoreHTTPResponse<LoginResponse> = {
-        data: null,
-        errors: {
-          message: 'Invalid credentials',
-          details: {},
-        },
-      };
-
-      server.use(
-        http.post(`${baseUrl}/users/login`, () => {
-          return HttpResponse.json(mockResponse);
-        }),
-      );
-
-      const result = await login('testuser', 'wrongpassword');
-
-      expect(result).toEqual(mockResponse);
     });
   });
 

@@ -66,8 +66,10 @@ describe('ResetPasswordForm', () => {
       name: 'Send reset email',
     });
 
-    await user.type(emailInput, 'test@example.com');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(emailInput, 'test@example.com');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSubmit).toHaveBeenCalledWith('test@example.com');
@@ -94,8 +96,10 @@ describe('ResetPasswordForm', () => {
       name: 'Send reset email',
     });
 
-    await user.type(emailInput, 'test@example.com');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(emailInput, 'test@example.com');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalled();
@@ -125,8 +129,10 @@ describe('ResetPasswordForm', () => {
       name: 'Send reset email',
     });
 
-    await user.type(emailInput, 'nonexistent@example.com');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(emailInput, 'nonexistent@example.com');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Email not found')).toBeInTheDocument();
@@ -150,8 +156,10 @@ describe('ResetPasswordForm', () => {
       name: 'Send reset email',
     });
 
-    await user.type(emailInput, 'invalid-email');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.type(emailInput, 'invalid-email');
+      await user.click(submitButton);
+    });
 
     // Should not call handleSubmit if email is invalid
     await waitFor(

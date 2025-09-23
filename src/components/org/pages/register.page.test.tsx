@@ -41,7 +41,6 @@ describe('RegisterPage', () => {
 
   it('should render register form', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -68,7 +67,6 @@ describe('RegisterPage', () => {
 
   it('should have proper page structure', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
@@ -88,7 +86,6 @@ describe('RegisterPage', () => {
     const mockRegister = vi.fn();
 
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: mockRegister,
       resetPassword: vi.fn(),
@@ -104,7 +101,6 @@ describe('RegisterPage', () => {
 
   it('should have accessibility structure', () => {
     mockUseAuth.mockReturnValue({
-      login: vi.fn(),
       logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),

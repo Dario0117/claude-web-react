@@ -3,7 +3,6 @@ import * as usersService from '@/services/users.service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type {
   CoreHTTPResponse,
-  LoginResponse,
   LogoutResponse,
   RegisterRequest,
   RegisterResponse,
@@ -24,59 +23,6 @@ describe('useAuth', () => {
     // Reset store state before each test
     useAuthenticationStore.setState({
       user: undefined,
-    });
-  });
-
-  describe('login', () => {
-    it('should call login service and set user', async () => {
-      const mockLoginResponse: CoreHTTPResponse<LoginResponse> = {
-        data: {
-          success: true,
-          token: 'mock-token',
-        },
-        errors: null,
-      };
-
-      mockUsersService.login.mockResolvedValue(mockLoginResponse);
-
-      const { result } = renderHook(() => useAuth());
-
-      await act(async () => {
-        await result.current.login('testuser', 'password123');
-      });
-
-      expect(mockUsersService.login).toHaveBeenCalledWith(
-        'testuser',
-        'password123',
-      );
-
-      // Check that user was set in store
-      const store = useAuthenticationStore.getState();
-      expect(store.user).toEqual({
-        id: 0,
-        username: 'test',
-        email: 'test@test.com',
-      });
-    });
-
-    it('should return login service response', async () => {
-      const mockLoginResponse: CoreHTTPResponse<LoginResponse> = {
-        data: {
-          success: true,
-          token: 'mock-token',
-        },
-        errors: null,
-      };
-
-      mockUsersService.login.mockResolvedValue(mockLoginResponse);
-
-      const { result } = renderHook(() => useAuth());
-
-      const response = await act(async () => {
-        return await result.current.login('testuser', 'password123');
-      });
-
-      expect(response).toEqual(mockLoginResponse);
     });
   });
 
@@ -204,7 +150,6 @@ describe('useAuth', () => {
       const { result, rerender } = renderHook(() => useAuth());
 
       const firstRender = {
-        login: result.current.login,
         logout: result.current.logout,
         register: result.current.register,
         resetPassword: result.current.resetPassword,
@@ -214,14 +159,12 @@ describe('useAuth', () => {
       rerender();
 
       const secondRender = {
-        login: result.current.login,
         logout: result.current.logout,
         register: result.current.register,
         resetPassword: result.current.resetPassword,
         updatePassword: result.current.updatePassword,
       };
 
-      expect(firstRender.login).toBe(secondRender.login);
       expect(firstRender.logout).toBe(secondRender.logout);
       expect(firstRender.register).toBe(secondRender.register);
       expect(firstRender.resetPassword).toBe(secondRender.resetPassword);
