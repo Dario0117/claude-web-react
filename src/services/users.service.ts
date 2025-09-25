@@ -2,7 +2,6 @@ import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
 import type {
   CoreHTTPResponse,
-  LogoutResponse,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
@@ -95,43 +94,20 @@ export async function updatePassword(
   }
 }
 
-export function useLogin() {
+export function useLoginMutation() {
   return $api.useMutation('post', '/api/v1/users/login');
 }
 
-export type useLoginReturnType = ReturnType<typeof useLogin>;
+export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
-export async function logout(): Promise<CoreHTTPResponse<LogoutResponse>> {
-  try {
-    const rawResponse = await httpClient.post('/users/logout', undefined, {
-      credentials: 'include',
-    });
-
-    if (rawResponse.status !== 204) {
-      return {
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      };
-    }
-
-    return {
-      data: {
-        success: true,
-      },
-      errors: null,
-    };
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
+export function useLogoutMutation() {
+  return $api.useMutation('post', '/api/v1/users/logout');
 }
+
+export type useLogoutMutationType = ReturnType<typeof useLogoutMutation>;
+
+export function useProfileQuery() {
+  return $api.useSuspenseQuery('get', '/api/v1/users/profile');
+}
+
+export type useProfileQueryReturnType = ReturnType<typeof useProfileQuery>;

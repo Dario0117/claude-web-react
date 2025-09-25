@@ -3,7 +3,6 @@ import * as usersService from '@/services/users.service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type {
   CoreHTTPResponse,
-  LogoutResponse,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
@@ -23,46 +22,6 @@ describe('useAuth', () => {
     // Reset store state before each test
     useAuthenticationStore.setState({
       user: undefined,
-    });
-  });
-
-  describe('logout', () => {
-    it('should call logout service', async () => {
-      const mockLogoutResponse: CoreHTTPResponse<LogoutResponse> = {
-        data: {
-          success: true,
-        },
-        errors: null,
-      };
-
-      mockUsersService.logout.mockResolvedValue(mockLogoutResponse);
-
-      const { result } = renderHook(() => useAuth());
-
-      await act(async () => {
-        await result.current.logout();
-      });
-
-      expect(mockUsersService.logout).toHaveBeenCalled();
-    });
-
-    it('should return logout service response', async () => {
-      const mockLogoutResponse: CoreHTTPResponse<LogoutResponse> = {
-        data: {
-          success: true,
-        },
-        errors: null,
-      };
-
-      mockUsersService.logout.mockResolvedValue(mockLogoutResponse);
-
-      const { result } = renderHook(() => useAuth());
-
-      const response = await act(async () => {
-        return await result.current.logout();
-      });
-
-      expect(response).toEqual(mockLogoutResponse);
     });
   });
 
@@ -150,7 +109,6 @@ describe('useAuth', () => {
       const { result, rerender } = renderHook(() => useAuth());
 
       const firstRender = {
-        logout: result.current.logout,
         register: result.current.register,
         resetPassword: result.current.resetPassword,
         updatePassword: result.current.updatePassword,
@@ -159,13 +117,11 @@ describe('useAuth', () => {
       rerender();
 
       const secondRender = {
-        logout: result.current.logout,
         register: result.current.register,
         resetPassword: result.current.resetPassword,
         updatePassword: result.current.updatePassword,
       };
 
-      expect(firstRender.logout).toBe(secondRender.logout);
       expect(firstRender.register).toBe(secondRender.register);
       expect(firstRender.resetPassword).toBe(secondRender.resetPassword);
       expect(firstRender.updatePassword).toBe(secondRender.updatePassword);

@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import {
-  logout as serviceLogout,
   register as serviceRegister,
   resetPassword as serviceResetPassword,
   updatePassword as serviceUpdatePassword,
@@ -12,11 +11,6 @@ import type {
 } from '@/types/api.d';
 
 export function useAuth() {
-  const logout = useCallback(async () => {
-    const result = await serviceLogout();
-    return result;
-  }, []);
-
   const register = useCallback(async (form: RegisterForm) => {
     const result = await serviceRegister(form);
     return result;
@@ -33,7 +27,6 @@ export function useAuth() {
   }, []);
 
   return {
-    logout,
     register,
     resetPassword,
     updatePassword,

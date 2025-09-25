@@ -1,13 +1,21 @@
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useNavigate,
+} from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { useLogoutMutation } from '@/services/users.service';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export const Route = createFileRoute('/(authenticated)/')({
   component: Index,
 });
 
 function Index() {
-  const { logout } = useAuth();
+  const logout = useLogoutMutation();
+  const { setUser } = useAuthenticationStore();
+  const navigate = useNavigate({ from: '/' });
   return (
     <div>
       <div>
@@ -19,7 +27,21 @@ function Index() {
             Register
           </Link>
         </div>
-        <Button onClick={logout}>Logout</Button>
+        <Button
+          onClick={() => {
+            logout.mutate(
+              {},
+              {
+                onSuccess: () => {
+                  setUser(undefined);
+                  navigate({ to: '/login' });
+                },
+              },
+            );
+          }}
+        >
+          Logout
+        </Button>
         <Outlet />
       </div>
       Hello!

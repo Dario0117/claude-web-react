@@ -40,8 +40,8 @@ const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 describe('App', () => {
   it('renders RouterProvider with authentication context when user is logged in', () => {
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
 
@@ -68,8 +68,8 @@ describe('App', () => {
 
   it('passes correct authentication state to router context when logged in', () => {
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
 
@@ -92,8 +92,8 @@ describe('App', () => {
 
     // Update the mock to return a user
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
     mockUseAuthenticationStore.mockReturnValue(mockUser);

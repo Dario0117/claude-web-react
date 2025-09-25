@@ -20,8 +20,8 @@ describe('authentication.store', () => {
 
   describe('setUser action', () => {
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
 
@@ -39,14 +39,14 @@ describe('authentication.store', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
       const firstUser: User = {
-        id: 1,
-        username: 'firstuser',
+        firstName: 'First',
+        lastName: 'User',
         email: 'first@example.com',
       };
 
       const secondUser: User = {
-        id: 2,
-        username: 'seconduser',
+        firstName: 'Second',
+        lastName: 'User',
         email: 'second@example.com',
       };
 
@@ -70,8 +70,8 @@ describe('authentication.store', () => {
       const { result: result2 } = renderHook(() => useAuthenticationStore());
 
       const mockUser: User = {
-        id: 1,
-        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
         email: 'test@example.com',
       };
 
@@ -93,8 +93,8 @@ describe('authentication.store', () => {
       };
 
       const mockUser: User = {
-        id: 1,
-        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
         email: 'test@example.com',
       };
 

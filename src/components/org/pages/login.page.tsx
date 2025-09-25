@@ -1,12 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { LoginForm } from '@/components/org/forms/login.form';
-import { useLogin } from '@/services/users.service';
+import { useLoginMutation } from '@/services/users.service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function LoginPage() {
   const navigate = useNavigate({ from: '/login' });
-  const login = useLogin();
+  const login = useLoginMutation();
   const { user } = useAuthenticationStore();
 
   useEffect(() => {

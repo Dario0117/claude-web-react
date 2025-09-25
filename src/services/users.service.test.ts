@@ -5,12 +5,7 @@ import type {
   ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@/types/api.d';
-import {
-  logout,
-  register,
-  resetPassword,
-  updatePassword,
-} from './users.service';
+import { register, resetPassword, updatePassword } from './users.service';
 
 const server = setupServer();
 
@@ -168,61 +163,6 @@ describe('users.service', () => {
       expect(result.errors).toEqual({
         message: 'Something went wrong, please try again later.',
         details: expect.any(Error),
-      });
-    });
-  });
-
-  describe('logout', () => {
-    it('should logout successfully', async () => {
-      server.use(
-        http.post(`${baseUrl}/users/logout`, () => {
-          return new HttpResponse(null, { status: 204 });
-        }),
-      );
-
-      const result = await logout();
-
-      expect(result).toEqual({
-        data: {
-          success: true,
-        },
-        errors: null,
-      });
-    });
-
-    it('should handle logout failure when no active session', async () => {
-      server.use(
-        http.post(`${baseUrl}/users/logout`, () => {
-          return new HttpResponse(null, { status: 401 });
-        }),
-      );
-
-      const result = await logout();
-
-      expect(result).toEqual({
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      });
-    });
-
-    it('should handle network error during logout', async () => {
-      server.use(
-        http.post(`${baseUrl}/users/logout`, () => {
-          return HttpResponse.error();
-        }),
-      );
-
-      const result = await logout();
-
-      expect(result.data).toBeNull();
-      expect(result.errors).toEqual({
-        message: 'Something went wrong, please try again later.',
-        details: expect.any(TypeError),
       });
     });
   });

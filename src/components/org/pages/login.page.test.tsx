@@ -44,7 +44,7 @@ const mockUseNavigate = vi.mocked(
 ).useNavigate;
 const mockUseLogin = vi.mocked(
   await import('@/services/users.service'),
-).useLogin;
+).useLoginMutation;
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -71,7 +71,6 @@ describe('LoginPage', () => {
 
   it('should render login form when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -89,13 +88,12 @@ describe('LoginPage', () => {
 
   it('should redirect to dashboard when user is already logged in', async () => {
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
 
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -112,7 +110,6 @@ describe('LoginPage', () => {
 
   it('should not redirect when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -127,7 +124,6 @@ describe('LoginPage', () => {
 
   it('should pass login function to LoginForm', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -144,7 +140,6 @@ describe('LoginPage', () => {
 
   it('should have proper page structure and styling', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -172,7 +167,6 @@ describe('LoginPage', () => {
   it('should handle user state change', async () => {
     // Start with user not logged in
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -186,8 +180,8 @@ describe('LoginPage', () => {
 
     // Change to logged in
     const mockUser: User = {
-      id: 1,
-      username: 'testuser',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
     };
 
@@ -202,7 +196,6 @@ describe('LoginPage', () => {
 
   it('should use correct navigation source', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
@@ -219,7 +212,6 @@ describe('LoginPage', () => {
 
   it('should render accessibility landmarks', () => {
     mockUseAuth.mockReturnValue({
-      logout: vi.fn(),
       register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),

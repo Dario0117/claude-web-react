@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { useLoginReturnType } from '@/services/users.service';
+import type { useLoginMutationType } from '@/services/users.service';
 import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
-  loginMutation: useLoginReturnType;
+  loginMutation: useLoginMutationType;
 }
 
 export function LoginForm({ loginMutation }: LoginFormProps) {

@@ -1,9 +1,9 @@
 import { useForm } from '@tanstack/react-form';
-import type { useLoginReturnType } from '@/services/users.service';
+import type { useLoginMutationType } from '@/services/users.service';
 import { loginFormSchema } from '../validation/login-form.schema';
 
 interface UseLoginFormProps {
-  loginMutation: useLoginReturnType;
+  loginMutation: useLoginMutationType;
 }
 
 export function useLoginForm({ loginMutation }: UseLoginFormProps) {
@@ -24,7 +24,7 @@ export function useLoginForm({ loginMutation }: UseLoginFormProps) {
             signal,
           });
         } catch (exception: unknown) {
-          const error = exception as useLoginReturnType['error'];
+          const error = exception as useLoginMutationType['error'];
           if (!error?.responseErrors) {
             // biome-ignore lint/suspicious/noConsole: possible 500 error
             console.error('Unexpected error type', error);

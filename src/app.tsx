@@ -1,5 +1,4 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
-import { useAuthenticationStore } from '@/stores/authentication.store';
 import { routeTree } from './routeTree.gen';
 
 const router = createRouter({
@@ -15,15 +14,12 @@ declare module '@tanstack/react-router' {
 }
 
 export default function App() {
-  const user = useAuthenticationStore((state) => state.user);
-  const isLoggedIn = !!user;
-
   return (
     <RouterProvider
       router={router}
       context={{
         authentication: {
-          isLoggedIn,
+          user: undefined,
         },
       }}
     />
