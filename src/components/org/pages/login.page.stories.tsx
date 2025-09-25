@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-// import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+// import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
 
 // Mock functions for reference (not used directly in stories)
 // const mockUseAuth = {

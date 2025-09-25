@@ -1,15 +1,12 @@
 import { useForm } from '@tanstack/react-form';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import type { useLoginMutationType } from '@/services/users.service';
 import { loginFormSchema } from '../validation/login-form.schema';
 
 interface UseLoginFormProps {
-  handleLogin: (
-    username: string,
-    password: string,
-  ) => Promise<CoreHTTPResponse<LoginResponse>>;
+  loginMutation: useLoginMutationType;
 }
 
-export function useLoginForm({ handleLogin }: UseLoginFormProps) {
+export function useLoginForm({ loginMutation }: UseLoginFormProps) {
   const form = useForm({
     defaultValues: {
       username: '',
@@ -17,26 +14,32 @@ export function useLoginForm({ handleLogin }: UseLoginFormProps) {
     },
     validators: {
       onChange: loginFormSchema,
-    },
-    onSubmit: async ({ value, formApi }) => {
-      // Clear any previous errors
-      formApi.setErrorMap({
-        onSubmit: {
-          form: null,
-          fields: {},
-        },
-      });
-
-      const result = await handleLogin(value.username, value.password);
-
-      if (result.errors) {
-        formApi.setErrorMap({
-          onSubmit: {
-            form: result.errors,
-            fields: {},
-          },
-        });
-      }
+      async onSubmitAsync({ value, signal }) {
+        try {
+          await loginMutation.mutateAsync({
+            body: {
+              username: value.username,
+              password: value.password,
+            },
+            signal,
+          });
+        } catch (exception: unknown) {
+          const error = exception as useLoginMutationType['error'];
+          if (!error?.responseErrors) {
+            // biome-ignore lint/suspicious/noConsole: possible 500 error
+            console.error('Unexpected error type', error);
+            return {
+              form: ['Something went wrong, please try again later.'],
+              fields: {},
+            };
+          }
+          const { nonFieldErrors: form, ...fields } = error.responseErrors;
+          return {
+            form,
+            fields,
+          };
+        }
+      },
     },
   });
 

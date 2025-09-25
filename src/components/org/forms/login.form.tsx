@@ -3,22 +3,15 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type {
-  CoreHTTPError,
-  CoreHTTPResponse,
-  LoginResponse,
-} from '@/services/users.service';
+import type { useLoginMutationType } from '@/services/users.service';
 import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
-  handleLogin(
-    username: string,
-    password: string,
-  ): Promise<CoreHTTPResponse<LoginResponse>>;
+  loginMutation: useLoginMutationType;
 }
 
-export function LoginForm({ handleLogin }: LoginFormProps) {
-  const form = useLoginForm({ handleLogin });
+export function LoginForm({ loginMutation }: LoginFormProps) {
+  const form = useLoginForm({ loginMutation });
 
   return (
     <FormCard
@@ -54,7 +47,7 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
                 required
               >
                 <Link
-                  to="/app/reset-password"
+                  to="/reset-password"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
@@ -64,31 +57,34 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
           </form.Field>
 
           <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              className="w-full"
+            <form.Subscribe
+              selector={(state) => state.isValid && !state.isPristine}
             >
-              Login
-            </Button>
+              {(canSubmit) => (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!canSubmit}
+                >
+                  Login
+                </Button>
+              )}
+            </form.Subscribe>
           </div>
         </div>
 
-        <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-          {(errorMap) => {
-            const error =
-              errorMap && typeof errorMap === 'object' && 'form' in errorMap
-                ? (errorMap as { form: CoreHTTPError<unknown> }).form
-                : null;
-            return (
-              <FormErrorDisplay
-                error={error as CoreHTTPError<unknown> | null}
-              />
-            );
+        <form.Subscribe selector={(state) => [state.errorMap]}>
+          {([errorMap]) => {
+            const submitErrors = errorMap?.onSubmit;
+            if (!submitErrors) {
+              return null;
+            }
+            return <FormErrorDisplay errors={submitErrors} />;
           }}
         </form.Subscribe>
 
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account? <Link to="/app/register">Register</Link>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
         </div>
       </form>
     </FormCard>

@@ -1,27 +1,12 @@
+import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
 import type {
   CoreHTTPResponse,
-  LoginResponse,
-  LogoutResponse,
-  MeResponse,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
   UpdatePasswordRequest,
-} from '@/types/api';
-
-// Re-export types for convenience
-export type {
-  CoreHTTPError,
-  CoreHTTPResponse,
-  LoginResponse,
-  LogoutResponse,
-  MeResponse,
-  RegisterRequest as RegisterForm,
-  RegisterResponse,
-  ResetPasswordRequest as ResetPasswordForm,
-  UpdatePasswordRequest as UpdatePasswordForm,
-} from '@/types/api';
+} from '@/types/api.d';
 
 export async function register(
   formValues: RegisterRequest,
@@ -109,104 +94,20 @@ export async function updatePassword(
   }
 }
 
-export async function login(
-  username: string,
-  password: string,
-): Promise<CoreHTTPResponse<LoginResponse>> {
-  try {
-    const rawResponse = await httpClient.post(
-      '/users/login',
-      {
-        username,
-        password,
-      },
-      {
-        credentials: 'include',
-      },
-    );
-
-    const json = await rawResponse.json();
-
-    return json;
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
+export function useLoginMutation() {
+  return $api.useMutation('post', '/api/v1/users/login');
 }
 
-export async function me(): Promise<CoreHTTPResponse<MeResponse>> {
-  try {
-    const rawResponse = await httpClient.get('/users/me', {
-      credentials: 'include',
-    });
+export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
-    if (rawResponse.status !== 200) {
-      return {
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      };
-    }
-
-    const userData = await rawResponse.json();
-    return {
-      data: {
-        success: true,
-        ...userData,
-      },
-      errors: null,
-    };
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
+export function useLogoutMutation() {
+  return $api.useMutation('post', '/api/v1/users/logout');
 }
 
-export async function logout(): Promise<CoreHTTPResponse<LogoutResponse>> {
-  try {
-    const rawResponse = await httpClient.post('/users/logout', undefined, {
-      credentials: 'include',
-    });
+export type useLogoutMutationType = ReturnType<typeof useLogoutMutation>;
 
-    if (rawResponse.status !== 204) {
-      return {
-        data: null,
-        errors: {
-          message: 'Not active session',
-          details: {
-            success: false,
-          },
-        },
-      };
-    }
-
-    return {
-      data: {
-        success: true,
-      },
-      errors: null,
-    };
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
+export function useProfileQuery() {
+  return $api.useSuspenseQuery('get', '/api/v1/users/profile');
 }
+
+export type useProfileQueryReturnType = ReturnType<typeof useProfileQuery>;

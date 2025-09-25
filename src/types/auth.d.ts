@@ -1,26 +1,13 @@
+import type { useProfileQueryReturnType } from '@/services/users.service';
+
 export interface AuthenticationContext {
-  isLoggedIn: boolean;
+  user: User | undefined;
 }
 
 export interface RouterContext {
   authentication: AuthenticationContext;
 }
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-}
-
-export interface AuthState {
-  isLoggedIn: boolean;
-  wasProfileChecked: boolean;
-  user?: User;
-}
-
-export interface AuthActions {
-  logIn: () => void;
-  logOut: () => void;
-  checkProfile: () => void;
-  setUser: (user: User) => void;
-}
+export type User = NonNullable<
+  useProfileQueryReturnType['data']
+>['responseData'];

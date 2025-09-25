@@ -1,7 +1,93 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import { Button } from '@/components/ui/button';
+import { FormCard } from '@/components/ui/form-card';
+import { FormErrorDisplay } from '@/components/ui/form-error-display';
+import { FormField } from '@/components/ui/form-field';
+import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
+import { useLoginForm } from './hooks/use-login-form';
 
-import { LoginForm } from './login.form';
+// Mock LoginForm component to avoid router context dependencies
+// biome-ignore lint/suspicious/noExplicitAny: Storybook mock
+function MockLoginForm({ loginMutation }: { loginMutation: any }) {
+  const form = useLoginForm({ loginMutation });
+
+  return (
+    <FormCard
+      title="Login to your account"
+      description="Enter your username below to login to your account"
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <div className="flex flex-col gap-6">
+          <form.Field name="username">
+            {(field) => (
+              <FormField
+                field={field}
+                label="Username"
+                placeholder="johndoe17"
+                required
+              />
+            )}
+          </form.Field>
+
+          <form.Field name="password">
+            {(field) => (
+              <FormField
+                field={field}
+                label="Password"
+                type="password"
+                placeholder="Password"
+                required
+              >
+                <a
+                  href="/reset-password"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </FormField>
+            )}
+          </form.Field>
+
+          <div className="flex flex-col gap-3">
+            <form.Subscribe
+              selector={(state) => state.isValid && !state.isPristine}
+            >
+              {(canSubmit) => (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!canSubmit}
+                >
+                  Login
+                </Button>
+              )}
+            </form.Subscribe>
+          </div>
+        </div>
+
+        <form.Subscribe selector={(state) => [state.errorMap]}>
+          {([errorMap]) => {
+            const submitErrors = errorMap?.onSubmit;
+            if (!submitErrors) {
+              return null;
+            }
+            return <FormErrorDisplay errors={submitErrors} />;
+          }}
+        </form.Subscribe>
+
+        <div className="mt-4 text-center text-sm">
+          Don&apos;t have an account? <a href="/register">Register</a>
+        </div>
+      </form>
+    </FormCard>
+  );
+}
 
 // Mock handlers for Storybook
 const mockHandleLoginSuccess = async (
@@ -62,7 +148,7 @@ const mockHandleLoginNetworkError = async (
 
 const meta = {
   title: 'Forms/LoginForm',
-  component: LoginForm,
+  component: MockLoginForm,
   parameters: {
     layout: 'centered',
     docs: {
@@ -73,7 +159,7 @@ const meta = {
     },
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof LoginForm>;
+} satisfies Meta<typeof MockLoginForm>;
 
 export default meta;
 
@@ -81,13 +167,27 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleLogin: mockHandleLoginSuccess,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginSuccess(body.username, body.password),
+      error: null,
+    },
   },
 };
 
 export const WithError: Story = {
   args: {
-    handleLogin: mockHandleLoginError,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginError(body.username, body.password),
+      error: null,
+    },
   },
   parameters: {
     docs: {
@@ -101,7 +201,14 @@ export const WithError: Story = {
 
 export const NetworkError: Story = {
   args: {
-    handleLogin: mockHandleLoginNetworkError,
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => mockHandleLoginNetworkError(body.username, body.password),
+      error: null,
+    },
   },
   parameters: {
     docs: {
@@ -114,19 +221,26 @@ export const NetworkError: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleLogin: async (username: string, password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    loginMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { username: string; password: string };
+      }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Simulate different responses based on credentials
-      if (username === 'admin' && password === 'password') {
-        return mockHandleLoginSuccess(username, password);
-      }
+        // Simulate different responses based on credentials
+        if (body.username === 'admin' && body.password === 'password') {
+          return mockHandleLoginSuccess(body.username, body.password);
+        }
 
-      if (username === 'network-error') {
-        return mockHandleLoginNetworkError(username, password);
-      }
+        if (body.username === 'network-error') {
+          return mockHandleLoginNetworkError(body.username, body.password);
+        }
 
-      return mockHandleLoginError(username, password);
+        return mockHandleLoginError(body.username, body.password);
+      },
+      error: null,
     },
   },
   parameters: {

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": { "ignoreUnknown": false },
   "formatter": {
@@ -17,9 +17,10 @@
       "!**/dist",
       "!docs",
       "!**/node_modules",
+      "!**/storybook-static",
       "!**/coverage",
       "!**/pnpm-lock.yaml",
-      "!**/src/types/api.ts",
+      "!**/src/types/api.generated.d.ts",
       "!**/routeTree.gen.ts"
     ]
   },
@@ -30,9 +31,10 @@
       "!**/dist",
       "!docs",
       "!**/node_modules",
+      "!**/storybook-static",
       "!**/coverage",
       "!**/pnpm-lock.yaml",
-      "!**/src/types/api.ts",
+      "!**/src/types/api.generated.d.ts",
       "!**/routeTree.gen.ts"
     ]
   },
@@ -153,9 +155,10 @@
       "!**/dist/**/*",
       "!docs",
       "!**/node_modules",
+      "!**/storybook-static",
       "!**/coverage",
       "!**/pnpm-lock.yaml",
-      "!**/src/types/api.ts",
+      "!**/src/types/api.generated.d.ts",
       "!**/routeTree.gen.ts"
     ]
   },

@@ -1,8 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type {
-  CoreHTTPResponse,
-  RegisterResponse,
-} from '@/services/users.service';
+import type { CoreHTTPResponse, RegisterResponse } from '@/types/api.d';
 
 import { RegisterForm } from './register.form';
 

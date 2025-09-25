@@ -42,16 +42,6 @@ export interface UpdatePasswordRequest {
   password: string;
   token: string;
 }
-
-export interface MeResponse {
-  success: boolean;
-  user?: {
-    id: number;
-    username: string;
-    email: string;
-  };
-}
-
 export interface LogoutResponse {
   success: boolean;
 }

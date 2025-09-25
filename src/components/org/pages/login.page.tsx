@@ -1,21 +1,23 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { LoginForm } from '@/components/org/forms/login.form';
-import { useAuth } from '@/hooks/useAuth';
+import { useLoginMutation } from '@/services/users.service';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function LoginPage() {
-  const navigate = useNavigate({ from: '/app/login' });
-  const { isLoggedIn, login } = useAuth();
+  const navigate = useNavigate({ from: '/login' });
+  const login = useLoginMutation();
+  const { user } = useAuthenticationStore();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate({ to: '/app/d' });
+    if (login.isSuccess || user) {
+      navigate({ to: '/' });
     }
-  }, [isLoggedIn, navigate]);
+  }, [login.isSuccess, user, navigate]);
   return (
     <section className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <LoginForm handleLogin={login} />
+        <LoginForm loginMutation={login} />
       </div>
     </section>
   );
