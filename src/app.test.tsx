@@ -1,13 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { User } from '@/types/auth';
 import App from './app';
-
-// Mock the authentication store
-vi.mock('@/stores/authentication.store', () => ({
-  useAuthenticationStore: vi.fn(),
-}));
 
 // Mock TanStack Router
 vi.mock('@tanstack/react-router', () => ({
@@ -20,7 +13,7 @@ vi.mock('@tanstack/react-router', () => ({
   RouterProvider: ({
     context,
   }: {
-    context: { authentication: { isLoggedIn: boolean } };
+    context: { authentication: { user: undefined } };
   }) => (
     <div data-testid="router-provider">
       <div data-testid="auth-context">
@@ -35,82 +28,42 @@ vi.mock('./routeTree.gen', () => ({
   routeTree: {},
 }));
 
-const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
-
 describe('App', () => {
-  it('renders RouterProvider with authentication context when user is logged in', () => {
-    const mockUser: User = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-    };
-
-    mockUseAuthenticationStore.mockReturnValue(mockUser);
-
+  it('renders RouterProvider with router instance', () => {
     const { getByTestId } = render(<App />);
 
     expect(getByTestId('router-provider')).toBeInTheDocument();
-    expect(getByTestId('auth-context')).toHaveTextContent(
-      JSON.stringify({ isLoggedIn: true }),
-    );
   });
 
-  it('renders RouterProvider with authentication context when user is not logged in', () => {
-    mockUseAuthenticationStore.mockReturnValue(undefined);
-
+  it('passes correct authentication context to RouterProvider', () => {
     const { getByTestId } = render(<App />);
 
-    expect(getByTestId('router-provider')).toBeInTheDocument();
-    expect(getByTestId('auth-context')).toHaveTextContent(
-      JSON.stringify({ isLoggedIn: false }),
-    );
+    expect(getByTestId('auth-context')).toHaveTextContent('{}');
   });
 
-  it('passes correct authentication state to router context when logged in', () => {
-    const mockUser: User = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-    };
-
-    mockUseAuthenticationStore.mockReturnValue(mockUser);
-
+  it('has consistent authentication context structure', () => {
     const { getByTestId } = render(<App />);
 
     const authContext = getByTestId('auth-context');
-    expect(authContext).toHaveTextContent('{"isLoggedIn":true}');
+    expect(authContext).toHaveTextContent('{}');
   });
 
-  it('updates context when authentication state changes', () => {
-    mockUseAuthenticationStore.mockReturnValue(undefined);
+  it('creates router with proper configuration', () => {
+    const { getByTestId } = render(<App />);
 
+    // The router should be created and RouterProvider should render
+    expect(getByTestId('router-provider')).toBeInTheDocument();
+    expect(getByTestId('auth-context')).toBeInTheDocument();
+  });
+
+  it('maintains static authentication context', () => {
     const { getByTestId, rerender } = render(<App />);
 
-    expect(getByTestId('auth-context')).toHaveTextContent(
-      JSON.stringify({ isLoggedIn: false }),
-    );
+    expect(getByTestId('auth-context')).toHaveTextContent('{}');
 
-    // Update the mock to return a user
-    const mockUser: User = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-    };
-    mockUseAuthenticationStore.mockReturnValue(mockUser);
-
+    // Re-render should maintain the same context
     rerender(<App />);
 
-    expect(getByTestId('auth-context')).toHaveTextContent(
-      JSON.stringify({ isLoggedIn: true }),
-    );
-  });
-
-  it('uses useAuthenticationStore correctly', () => {
-    mockUseAuthenticationStore.mockClear();
-    mockUseAuthenticationStore.mockReturnValue(undefined);
-
-    render(<App />);
-
-    expect(mockUseAuthenticationStore).toHaveBeenCalledTimes(1);
+    expect(getByTestId('auth-context')).toHaveTextContent('{}');
   });
 });

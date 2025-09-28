@@ -32,9 +32,9 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-// Mock the useLogin service hook
+// Mock the useLoginMutation service hook
 vi.mock('@/services/users.service', () => ({
-  useLogin: vi.fn(),
+  useLoginMutation: vi.fn(),
 }));
 
 const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
@@ -42,7 +42,7 @@ const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
-const mockUseLogin = vi.mocked(
+const mockUseLoginMutation = vi.mocked(
   await import('@/services/users.service'),
 ).useLoginMutation;
 
@@ -55,10 +55,10 @@ describe('LoginPage', () => {
     mockNavigate.mockClear();
     mockUseAuth.mockClear();
     mockUseAuthenticationStore.mockClear();
-    mockUseLogin.mockClear();
+    mockUseLoginMutation.mockClear();
 
-    // Set up default mock for useLogin
-    mockUseLogin.mockReturnValue({
+    // Set up default mock for useLoginMutation
+    mockUseLoginMutation.mockReturnValue({
       mutateAsync: vi.fn(),
       error: null,
       isSuccess: false,
