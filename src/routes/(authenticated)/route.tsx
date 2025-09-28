@@ -10,13 +10,16 @@ export const Route = createFileRoute('/(authenticated)')({
 
 function PreAuthLayout() {
   const { setUser } = useAuthenticationStore();
-  const user = useProfileQuery().data?.responseData;
+  const { data, isLoading } = useProfileQuery();
   useEffect(() => {
-    if (user) {
-      setUser(user);
+    if (data?.responseData) {
+      setUser(data.responseData);
     }
-  }, [user, setUser]);
-  if (!user) {
+  }, [data?.responseData, setUser]);
+  if (isLoading) {
+    return null;
+  }
+  if (!data?.responseData) {
     return (
       <Navigate
         to="/login"

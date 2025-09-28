@@ -1,5 +1,6 @@
 import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
+import { queryClient } from '@/query-provider';
 import type {
   CoreHTTPResponse,
   RegisterRequest,
@@ -101,13 +102,22 @@ export function useLoginMutation() {
 export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
 export function useLogoutMutation() {
-  return $api.useMutation('post', '/api/v1/users/logout');
+  return $api.useMutation('post', '/api/v1/users/logout', {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/v1/users/profile'],
+      });
+    },
+  });
 }
 
 export type useLogoutMutationType = ReturnType<typeof useLogoutMutation>;
 
 export function useProfileQuery() {
-  return $api.useSuspenseQuery('get', '/api/v1/users/profile');
+  return $api.useQuery('get', '/api/v1/users/profile', undefined, {
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  });
 }
 
 export type useProfileQueryReturnType = ReturnType<typeof useProfileQuery>;

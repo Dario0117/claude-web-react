@@ -10,15 +10,9 @@ vi.mock('@tanstack/react-router', () => ({
     load: vi.fn(),
     navigate: vi.fn(),
   })),
-  RouterProvider: ({
-    context,
-  }: {
-    context: { authentication: { user: undefined } };
-  }) => (
+  RouterProvider: ({ context }: { context: { nothingYet: boolean } }) => (
     <div data-testid="router-provider">
-      <div data-testid="auth-context">
-        {JSON.stringify(context.authentication)}
-      </div>
+      <div data-testid="context">{JSON.stringify(context)}</div>
     </div>
   ),
 }));
@@ -35,17 +29,17 @@ describe('App', () => {
     expect(getByTestId('router-provider')).toBeInTheDocument();
   });
 
-  it('passes correct authentication context to RouterProvider', () => {
+  it('passes correct context to RouterProvider', () => {
     const { getByTestId } = render(<App />);
 
-    expect(getByTestId('auth-context')).toHaveTextContent('{}');
+    expect(getByTestId('context')).toHaveTextContent('{"nothingYet":false}');
   });
 
-  it('has consistent authentication context structure', () => {
+  it('has consistent context structure', () => {
     const { getByTestId } = render(<App />);
 
-    const authContext = getByTestId('auth-context');
-    expect(authContext).toHaveTextContent('{}');
+    const context = getByTestId('context');
+    expect(context).toHaveTextContent('{"nothingYet":false}');
   });
 
   it('creates router with proper configuration', () => {
@@ -53,17 +47,17 @@ describe('App', () => {
 
     // The router should be created and RouterProvider should render
     expect(getByTestId('router-provider')).toBeInTheDocument();
-    expect(getByTestId('auth-context')).toBeInTheDocument();
+    expect(getByTestId('context')).toBeInTheDocument();
   });
 
-  it('maintains static authentication context', () => {
+  it('maintains static context', () => {
     const { getByTestId, rerender } = render(<App />);
 
-    expect(getByTestId('auth-context')).toHaveTextContent('{}');
+    expect(getByTestId('context')).toHaveTextContent('{"nothingYet":false}');
 
     // Re-render should maintain the same context
     rerender(<App />);
 
-    expect(getByTestId('auth-context')).toHaveTextContent('{}');
+    expect(getByTestId('context')).toHaveTextContent('{"nothingYet":false}');
   });
 });

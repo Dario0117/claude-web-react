@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
@@ -8,10 +9,17 @@ import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
   loginMutation: useLoginMutationType;
+  handleSuccess: (data: useLoginMutationType['data']) => void;
 }
 
-export function LoginForm({ loginMutation }: LoginFormProps) {
+export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
   const form = useLoginForm({ loginMutation });
+
+  useEffect(() => {
+    if (loginMutation.isSuccess) {
+      handleSuccess(loginMutation.data);
+    }
+  }, [loginMutation.isSuccess, loginMutation.data, handleSuccess]);
 
   return (
     <FormCard

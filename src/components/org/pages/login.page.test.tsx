@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type { User } from '@/types/auth';
 import { LoginPage } from './login.page';
@@ -86,7 +86,7 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
 
-  it('should redirect to dashboard when user is already logged in', async () => {
+  it('should render login form regardless of authentication state', () => {
     const mockUser: User = {
       firstName: 'Test',
       lastName: 'User',
@@ -103,9 +103,9 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
-    });
+    // LoginPage should render the form even when user is logged in
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should not redirect when user is not logged in', () => {
@@ -164,7 +164,7 @@ describe('LoginPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should handle user state change', async () => {
+  it('should maintain consistent behavior on rerender', () => {
     // Start with user not logged in
     mockUseAuth.mockReturnValue({
       register: vi.fn(),
@@ -177,8 +177,9 @@ describe('LoginPage', () => {
     const { rerender } = render(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
 
-    // Change to logged in
+    // Change to logged in - component behavior should remain the same
     const mockUser: User = {
       firstName: 'Test',
       lastName: 'User',
@@ -189,9 +190,9 @@ describe('LoginPage', () => {
 
     rerender(<LoginPage />);
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
-    });
+    // Component should still render the form and not navigate
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should use correct navigation source', () => {

@@ -4,7 +4,7 @@ import { routeTree } from './routeTree.gen';
 const router = createRouter({
   routeTree,
   // biome-ignore lint/style/noNonNullAssertion: Recommendation from the lib maintainers
-  context: { authentication: undefined! },
+  context: { nothingYet: undefined! },
 });
 
 declare module '@tanstack/react-router' {
@@ -18,9 +18,7 @@ export default function App() {
     <RouterProvider
       router={router}
       context={{
-        authentication: {
-          user: undefined,
-        },
+        nothingYet: false,
       }}
     />
   );

@@ -1,23 +1,25 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
 import { LoginForm } from '@/components/org/forms/login.form';
-import { useLoginMutation } from '@/services/users.service';
-import { useAuthenticationStore } from '@/stores/authentication.store';
+import {
+  useLoginMutation,
+  type useLoginMutationType,
+} from '@/services/users.service';
 
 export function LoginPage() {
   const navigate = useNavigate({ from: '/login' });
   const login = useLoginMutation();
-  const { user } = useAuthenticationStore();
 
-  useEffect(() => {
-    if (login.isSuccess || user) {
-      navigate({ to: '/' });
-    }
-  }, [login.isSuccess, user, navigate]);
+  const handleSuccess = (_data: useLoginMutationType['data']) => {
+    navigate({ to: '/' });
+  };
+
   return (
     <section className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <LoginForm loginMutation={login} />
+        <LoginForm
+          loginMutation={login}
+          handleSuccess={handleSuccess}
+        />
       </div>
     </section>
   );

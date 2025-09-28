@@ -1,8 +1,41 @@
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Link,
+  Navigate,
+  Outlet,
+} from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useProfileQuery } from '@/services/users.service';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export const Route = createFileRoute('/(unauthenticated)')({
-  component: RouteComponent,
+  component: SessionCheckComponent,
 });
+
+function SessionCheckComponent() {
+  const { user, setUser } = useAuthenticationStore();
+  const { data, isLoading, error } = useProfileQuery();
+  console.log('test', { data, isLoading, error });
+  useEffect(() => {
+    if (data?.responseData) {
+      setUser(data.responseData);
+    }
+  }, [data?.responseData, setUser]);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (user) {
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    );
+  }
+  return <RouteComponent />;
+}
 
 function RouteComponent() {
   return (

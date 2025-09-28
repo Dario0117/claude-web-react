@@ -1,11 +1,7 @@
 import type { useProfileQueryReturnType } from '@/services/users.service';
 
-export interface AuthenticationContext {
-  user: User | undefined;
-}
-
 export interface RouterContext {
-  authentication: AuthenticationContext;
+  nothingYet: boolean | undefined;
 }
 
 export type User = NonNullable<
