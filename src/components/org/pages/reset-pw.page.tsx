@@ -10,10 +10,6 @@ export function ResetPasswordPage() {
       <div className="w-full max-w-sm">
         <ResetPasswordForm
           handleSubmit={async (email: string) => {
-            console.log({
-              email,
-            });
-
             const result = await resetPassword({
               email,
             });

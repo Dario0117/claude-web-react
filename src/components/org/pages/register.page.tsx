@@ -14,12 +14,6 @@ export function RegisterPage() {
             password: string,
             email: string,
           ) => {
-            console.log({
-              username,
-              password,
-              email,
-            });
-
             const result = await register({
               username,
               password,

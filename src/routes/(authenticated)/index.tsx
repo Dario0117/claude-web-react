@@ -44,7 +44,6 @@ function Index() {
         </Button>
         <Outlet />
       </div>
-      Hello!
       <Outlet />
     </div>
   );

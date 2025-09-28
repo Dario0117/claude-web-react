@@ -16,11 +16,6 @@ export function UpdatePasswordPage(props: UpdatePasswordPageProps) {
       <div className="w-full max-w-sm">
         <UpdatePasswordForm
           handleSubmit={async (password: string) => {
-            console.log({
-              password,
-              token: props.token,
-            });
-
             const result = await updatePassword({
               password,
               token: props.token,
