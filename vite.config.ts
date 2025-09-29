@@ -39,7 +39,15 @@ export default defineConfig(({ mode }) => {
       setupFiles: './testsSetup.ts',
       coverage: {
         provider: 'v8',
-        reporter: ['html'],
+        reporter: ['html', 'json'],
+        exclude: [
+          '**/storybook-static/**',
+          '**/src/types/**',
+          'docs/**',
+          '.storybook/**',
+          '**/routeTree.gen.ts',
+          '**/vite-env.d.ts',
+        ],
       },
     },
     plugins: [
