@@ -297,13 +297,6 @@ export interface components {
              */
             detail: string;
         };
-        LogoutResponse: {
-            /**
-             * @description Logout confirmation message
-             * @default Successfully logged out.
-             */
-            detail: string;
-        };
         PaginationInfo: {
             /** @description Current page number */
             page: number;
@@ -494,6 +487,11 @@ export interface components {
          * @enum {string}
          */
         StatusEnum: "DRAFT" | "CREATED" | "SUCCEEDED" | "FAILED" | "IN_PROGRESS";
+        SuccessResponseFromMessages: {
+            responseData: string[];
+            /** @description No errors returned */
+            responseErrors?: string | null;
+        };
         SuccessResponseFromPaginatedProjectSerializer: {
             /** @description No error returned */
             responseErrors?: string | null;
@@ -1208,7 +1206,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LogoutResponse"];
+                    "application/json": components["schemas"]["SuccessResponseFromMessages"];
                 };
             };
             /** @description Unauthorized */
