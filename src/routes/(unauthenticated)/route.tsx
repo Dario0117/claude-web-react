@@ -14,8 +14,7 @@ export const Route = createFileRoute('/(unauthenticated)')({
 
 function SessionCheckComponent() {
   const { user, setUser } = useAuthenticationStore();
-  const { data, isLoading, error } = useProfileQuery();
-  console.log('test', { data, isLoading, error });
+  const { data, isLoading } = useProfileQuery();
   useEffect(() => {
     if (data?.responseData) {
       setUser(data.responseData);

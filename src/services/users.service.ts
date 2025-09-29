@@ -1,39 +1,12 @@
 import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
 import { queryClient } from '@/query-provider';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 import type {
   CoreHTTPResponse,
-  RegisterRequest,
-  RegisterResponse,
   ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@/types/api.d';
-
-export async function register(
-  formValues: RegisterRequest,
-): Promise<CoreHTTPResponse<RegisterResponse>> {
-  try {
-    const rawResponse = await httpClient.post('/users/register', formValues, {
-      credentials: 'include',
-    });
-
-    if (rawResponse.status === 201) {
-      return {
-        data: { success: true },
-        errors: null,
-      };
-    }
-    throw new Error('Not created');
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
-}
 
 export async function resetPassword(
   formValues: ResetPasswordRequest,
@@ -102,8 +75,10 @@ export function useLoginMutation() {
 export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
 export function useLogoutMutation() {
+  const { setUser } = useAuthenticationStore();
   return $api.useMutation('post', '/api/v1/users/logout', {
     onSuccess: () => {
+      setUser(undefined);
       queryClient.invalidateQueries({
         queryKey: ['get', '/api/v1/users/profile'],
       });
@@ -121,3 +96,9 @@ export function useProfileQuery() {
 }
 
 export type useProfileQueryReturnType = ReturnType<typeof useProfileQuery>;
+
+export function useRegisterMutation() {
+  return $api.useMutation('post', '/api/v1/users/register');
+}
+
+export type useRegisterMutationType = ReturnType<typeof useRegisterMutation>;

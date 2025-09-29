@@ -9,7 +9,7 @@ import { useLoginForm } from './hooks/use-login-form';
 
 interface LoginFormProps {
   loginMutation: useLoginMutationType;
-  handleSuccess: (data: useLoginMutationType['data']) => void;
+  handleSuccess(data: useLoginMutationType['data']): void;
 }
 
 export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {

@@ -150,7 +150,6 @@ This is a React frontend template using modern tooling and patterns:
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
 - Don't test types
-- When asked to fix or add tests, don't change the tested code, accommodate the tests to comply with the code
 
 ### Storybook approach
 
@@ -190,3 +189,5 @@ This is a React frontend template using modern tooling and patterns:
 - Don't add unsafe modifications from biome
 - Never delete or update auto generated files (src/types/api.generated.d.ts, src/routes/routeTree.gen.ts)
 - Never re-export imports on the same file
+- When asked to fix tests or add tests or fix typescript issues, don't change the tested code, accommodate the tests to comply with the code
+- When asked to fix typescript issues, don't create new types, only add new interfaces or types to existing ones unless the type is necessary for the code to work

@@ -1,12 +1,6 @@
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  useNavigate,
-} from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { useLogoutMutation } from '@/services/users.service';
-import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export const Route = createFileRoute('/(authenticated)/')({
   component: Index,
@@ -14,8 +8,6 @@ export const Route = createFileRoute('/(authenticated)/')({
 
 function Index() {
   const logout = useLogoutMutation();
-  const { setUser } = useAuthenticationStore();
-  const navigate = useNavigate({ from: '/' });
   return (
     <div>
       <div>
@@ -29,15 +21,7 @@ function Index() {
         </div>
         <Button
           onClick={() => {
-            logout.mutate(
-              {},
-              {
-                onSuccess: () => {
-                  setUser(undefined);
-                  navigate({ to: '/login' });
-                },
-              },
-            );
+            logout.mutate({});
           }}
         >
           Logout

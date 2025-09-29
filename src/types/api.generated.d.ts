@@ -277,6 +277,11 @@ export interface components {
             responseData?: string | null;
             responseErrors: components["schemas"]["ResponseErrorsRequestPaginationSerializer"];
         };
+        BadRequestResponseFromRequestRegisterUserSerializer: {
+            /** @description No data returned */
+            responseData?: string | null;
+            responseErrors: components["schemas"]["ResponseErrorsRequestRegisterUserSerializer"];
+        };
         Login: {
             username: string;
             password: string;
@@ -382,6 +387,13 @@ export interface components {
             nonFieldErrors: string[] | null;
             page: string[] | null;
             size: string[] | null;
+        };
+        ResponseErrorsRequestRegisterUserSerializer: {
+            /** @description Non-field errors */
+            nonFieldErrors: string[] | null;
+            email: string[] | null;
+            password: string[] | null;
+            username: string[] | null;
         };
         ResponseProfile: {
             firstName: string;
@@ -1355,7 +1367,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseFromMessages"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestResponseFromRequestRegisterUserSerializer"];
+                };
             };
             /** @description Unauthorized */
             401: {
