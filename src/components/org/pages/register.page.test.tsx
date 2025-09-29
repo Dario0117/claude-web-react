@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import { RegisterPage } from './register.page';
 
@@ -33,6 +34,20 @@ const mockUseNavigate = vi.mocked(
 const mockNavigate = vi.fn();
 mockUseNavigate.mockReturnValue(mockNavigate);
 
+// Test wrapper with QueryClient
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
+
 describe('RegisterPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
@@ -41,12 +56,11 @@ describe('RegisterPage', () => {
 
   it('should render register form', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
-    render(<RegisterPage />);
+    render(<RegisterPage />, { wrapper: TestWrapper });
 
     // Check that the register form is rendered
     // The exact elements depend on the RegisterForm implementation
@@ -66,12 +80,11 @@ describe('RegisterPage', () => {
 
   it('should have proper page structure', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
-    const { container } = render(<RegisterPage />);
+    const { container } = render(<RegisterPage />, { wrapper: TestWrapper });
 
     const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
@@ -80,30 +93,25 @@ describe('RegisterPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should call register function from useAuth', () => {
-    const mockRegister = vi.fn();
-
+  it('should render without errors when useAuth is available', () => {
     mockUseAuth.mockReturnValue({
-      register: mockRegister,
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
-    render(<RegisterPage />);
+    render(<RegisterPage />, { wrapper: TestWrapper });
 
-    // The register function should be available to the component
-    // We verify this by checking that the component renders without errors
+    // The component should render without errors
     expect(document.querySelector('section')).toBeInTheDocument();
   });
 
   it('should have accessibility structure', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
-    render(<RegisterPage />);
+    render(<RegisterPage />, { wrapper: TestWrapper });
 
     const section = document.querySelector('section');
     expect(section).toBeInTheDocument();

@@ -71,7 +71,6 @@ describe('LoginPage', () => {
 
   it('should render login form when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -94,7 +93,6 @@ describe('LoginPage', () => {
     };
 
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -110,7 +108,6 @@ describe('LoginPage', () => {
 
   it('should not redirect when user is not logged in', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -124,7 +121,6 @@ describe('LoginPage', () => {
 
   it('should pass login function to LoginForm', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -140,7 +136,6 @@ describe('LoginPage', () => {
 
   it('should have proper page structure and styling', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -167,7 +162,6 @@ describe('LoginPage', () => {
   it('should maintain consistent behavior on rerender', () => {
     // Start with user not logged in
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -197,7 +191,6 @@ describe('LoginPage', () => {
 
   it('should use correct navigation source', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
@@ -213,7 +206,6 @@ describe('LoginPage', () => {
 
   it('should render accessibility landmarks', () => {
     mockUseAuth.mockReturnValue({
-      register: vi.fn(),
       resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });

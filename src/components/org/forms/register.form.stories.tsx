@@ -1,73 +1,75 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse, RegisterResponse } from '@/types/api.d';
+import type { useRegisterMutationType } from '@/services/users.service';
 
 import { RegisterForm } from './register.form';
 
-// Mock handlers for Storybook
-const mockHandleRegisterSuccess = async (
-  username: string,
-  password: string,
-  email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+// Mock mutation for successful registration
+const mockSuccessfulMutation: useRegisterMutationType = {
+  mutate: () => {
+    // Mock function - no implementation needed
+  },
+  mutateAsync: async () => ({
+    responseData: ['Account created successfully!'],
+    responseErrors: null,
+  }),
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+  isIdle: false,
+  data: {
+    responseData: ['Account created successfully!'],
+    responseErrors: null,
+  },
+  error: null,
+  status: 'success',
+  variables: undefined,
+  reset: () => {
+    // Mock function - no implementation needed
+  },
+} as unknown as useRegisterMutationType;
 
-  console.log('Register attempt:', { username, password, email });
-  return {
-    data: {
-      success: true,
-      message: 'Account created successfully!',
-    },
-    errors: null,
-  };
-};
+// Mock mutation for error state
+const mockErrorMutation: useRegisterMutationType = {
+  mutate: () => {
+    // Mock function - no implementation needed
+  },
+  mutateAsync: () => {
+    throw new Error('Registration failed');
+  },
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+  isIdle: false,
+  data: undefined,
+  error: new Error('Registration failed'),
+  status: 'error',
+  variables: undefined,
+  reset: () => {
+    // Mock function - no implementation needed
+  },
+} as unknown as useRegisterMutationType;
 
-const mockHandleRegisterError = async (
-  username: string,
-  password: string,
-  email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  console.log('Register attempt with error:', { username, password, email });
-  return {
-    data: null,
-    errors: {
-      message: 'Registration failed. Username or email already exists.',
-      details: {
-        username: ['This username is already taken'],
-        email: ['An account with this email already exists'],
-      },
-    },
-  };
-};
-
-const mockHandleRegisterValidationError = async (
-  username: string,
-  password: string,
-  email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  console.log('Register attempt with validation error:', {
-    username,
-    password,
-    email,
-  });
-  return {
-    data: null,
-    errors: {
-      message: 'Please fix the following validation errors:',
-      details: {
-        username: ['Username must be at least 3 characters long'],
-        password: [
-          'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-        ],
-        email: ['Please enter a valid email address'],
-      },
-    },
-  };
-};
+// Mock mutation for loading state
+const mockLoadingMutation: useRegisterMutationType = {
+  mutate: () => {
+    // Mock function - no implementation needed
+  },
+  mutateAsync: async () =>
+    new Promise(() => {
+      // Never resolves - simulates loading state
+    }),
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+  isIdle: false,
+  data: undefined,
+  error: null,
+  status: 'loading',
+  variables: undefined,
+  reset: () => {
+    // Mock function - no implementation needed
+  },
+} as unknown as useRegisterMutationType;
 
 const mockHandleSuccess = () => {
   console.log('Registration successful! Redirecting...');
@@ -95,14 +97,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleSubmit: mockHandleRegisterSuccess,
+    registerMutation: mockSuccessfulMutation,
     handleSuccess: mockHandleSuccess,
   },
 };
 
 export const WithError: Story = {
   args: {
-    handleSubmit: mockHandleRegisterError,
+    registerMutation: mockErrorMutation,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -117,7 +119,7 @@ export const WithError: Story = {
 
 export const ValidationError: Story = {
   args: {
-    handleSubmit: mockHandleRegisterValidationError,
+    registerMutation: mockLoadingMutation,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -131,20 +133,7 @@ export const ValidationError: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleSubmit: async (username: string, password: string, email: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Simulate different responses based on input
-      if (username === 'admin' || email === 'admin@example.com') {
-        return mockHandleRegisterError(username, password, email);
-      }
-
-      if (username.length < 3 || !email.includes('@') || password.length < 6) {
-        return mockHandleRegisterValidationError(username, password, email);
-      }
-
-      return mockHandleRegisterSuccess(username, password, email);
-    },
+    registerMutation: mockSuccessfulMutation,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
