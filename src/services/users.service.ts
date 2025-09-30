@@ -2,41 +2,7 @@ import { $api } from '@/httpp-service-setup';
 import { httpClient } from '@/lib/http-client';
 import { queryClient } from '@/query-provider';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type {
-  CoreHTTPResponse,
-  ResetPasswordRequest,
-  UpdatePasswordRequest,
-} from '@/types/api.d';
-
-export async function resetPassword(
-  formValues: ResetPasswordRequest,
-): Promise<CoreHTTPResponse<{ success: boolean }>> {
-  try {
-    const rawResponse = await httpClient.post(
-      '/users/reset-password',
-      formValues,
-      {
-        credentials: 'include',
-      },
-    );
-
-    if (rawResponse.status === 200) {
-      return {
-        data: { success: true },
-        errors: null,
-      };
-    }
-    throw new Error('Not created');
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
-}
+import type { CoreHTTPResponse, UpdatePasswordRequest } from '@/types/api.d';
 
 export async function updatePassword(
   formValues: UpdatePasswordRequest,
@@ -102,3 +68,11 @@ export function useRegisterMutation() {
 }
 
 export type useRegisterMutationType = ReturnType<typeof useRegisterMutation>;
+
+export function useResetPasswordMutation() {
+  return $api.useMutation('post', '/api/v1/users/reset-password');
+}
+
+export type useResetPasswordMutationType = ReturnType<
+  typeof useResetPasswordMutation
+>;

@@ -282,6 +282,11 @@ export interface components {
             responseData?: string | null;
             responseErrors: components["schemas"]["ResponseErrorsRequestRegisterUserSerializer"];
         };
+        BadRequestResponseFromRequestResetPasswordSerializer: {
+            /** @description No data returned */
+            responseData?: string | null;
+            responseErrors: components["schemas"]["ResponseErrorsRequestResetPasswordSerializer"];
+        };
         Login: {
             username: string;
             password: string;
@@ -394,6 +399,11 @@ export interface components {
             email: string[] | null;
             password: string[] | null;
             username: string[] | null;
+        };
+        ResponseErrorsRequestResetPasswordSerializer: {
+            /** @description Non-field errors */
+            nonFieldErrors: string[] | null;
+            email: string[] | null;
         };
         ResponseProfile: {
             firstName: string;
@@ -1430,7 +1440,18 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseFromMessages"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadRequestResponseFromRequestResetPasswordSerializer"];
+                };
             };
             /** @description Unauthorized */
             401: {
