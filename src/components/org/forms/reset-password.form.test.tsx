@@ -6,22 +6,44 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CoreHTTPResponse } from '@/types/api.d';
+import type { useResetPasswordMutationType } from '@/services/users.service';
 import { ResetPasswordForm } from './reset-password.form';
 
 describe('ResetPasswordForm', () => {
-  const mockHandleSubmit = vi.fn();
+  const createMockMutation = (
+    overrides?: Partial<useResetPasswordMutationType>,
+  ): useResetPasswordMutationType =>
+    ({
+      mutate: vi.fn(),
+      mutateAsync: vi.fn(),
+      data: undefined,
+      error: null,
+      isError: false,
+      isIdle: true,
+      isPending: false,
+      isSuccess: false,
+      status: 'idle',
+      variables: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      submittedAt: 0,
+      reset: vi.fn(),
+      context: undefined,
+      ...overrides,
+    }) as useResetPasswordMutationType;
+
   const mockHandleSuccess = vi.fn();
 
   beforeEach(() => {
-    mockHandleSubmit.mockClear();
     mockHandleSuccess.mockClear();
   });
 
   it('should render reset password form with all required fields', () => {
+    const mockMutation = createMockMutation();
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -34,9 +56,10 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should have proper input placeholder', () => {
+    const mockMutation = createMockMutation();
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -46,17 +69,14 @@ describe('ResetPasswordForm', () => {
     ).toBeInTheDocument();
   });
 
-  it('should call handleSubmit with correct email on form submission', async () => {
+  it('should call mutateAsync with correct email on form submission', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -72,54 +92,43 @@ describe('ResetPasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSubmit).toHaveBeenCalledWith('test@example.com');
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        body: { email: 'test@example.com' },
+        signal: expect.any(AbortSignal),
+      });
     });
   });
 
   it('should call handleSuccess on successful password reset request', async () => {
-    const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    const mockData = { responseData: ['Email sent successfully'] };
+    const mockMutation = createMockMutation({
+      mutateAsync: vi.fn().mockResolvedValue({}),
+      isSuccess: true,
+      data: mockData,
+    });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
 
-    const emailInput = screen.getByLabelText(/Email/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Send reset email',
-    });
-
-    await act(async () => {
-      await user.type(emailInput, 'test@example.com');
-      await user.click(submitButton);
-    });
-
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalled();
+      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
     });
   });
 
-  it('should display error when handleSubmit fails', async () => {
+  it('should display error when mutation fails', async () => {
     const user = userEvent.setup();
-    const mockError: CoreHTTPResponse<unknown> = {
-      data: null,
-      errors: {
-        message: 'Email not found',
-        details: {},
-      },
-    };
-    mockHandleSubmit.mockResolvedValue(mockError);
+    const mockMutateAsync = vi.fn().mockRejectedValue({
+      responseErrors: { nonFieldErrors: ['Email not found'] },
+    });
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -143,10 +152,12 @@ describe('ResetPasswordForm', () => {
 
   it('should validate email format', async () => {
     const user = userEvent.setup();
+    const mockMutateAsync = vi.fn();
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -161,10 +172,10 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
     });
 
-    // Should not call handleSubmit if email is invalid
+    // Should not call mutateAsync if email is invalid
     await waitFor(
       () => {
-        expect(mockHandleSubmit).not.toHaveBeenCalled();
+        expect(mockMutateAsync).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
@@ -173,10 +184,11 @@ describe('ResetPasswordForm', () => {
   it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
+    const mockMutation = createMockMutation();
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -201,9 +213,10 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should have required attribute on email field', () => {
+    const mockMutation = createMockMutation();
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -213,9 +226,10 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should render with proper form structure', () => {
+    const mockMutation = createMockMutation();
     const { container } = render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -232,10 +246,12 @@ describe('ResetPasswordForm', () => {
 
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
+    const mockMutateAsync = vi.fn();
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -245,16 +261,17 @@ describe('ResetPasswordForm', () => {
     });
     await user.click(submitButton);
 
-    // Form should handle validation internally and not call handleSubmit
-    expect(mockHandleSubmit).not.toHaveBeenCalled();
+    // Form should handle validation internally and not call mutateAsync
+    expect(mockMutateAsync).not.toHaveBeenCalled();
   });
 
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
+    const mockMutation = createMockMutation();
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -274,15 +291,12 @@ describe('ResetPasswordForm', () => {
 
   it('should clear error map before submission', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -296,24 +310,24 @@ describe('ResetPasswordForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockHandleSubmit).toHaveBeenCalled();
+      expect(mockMutateAsync).toHaveBeenCalled();
     });
 
-    // Verify the form clears errors before submission
-    expect(mockHandleSubmit).toHaveBeenCalledWith('test@example.com');
+    // Verify the mutation was called with the email
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      body: { email: 'test@example.com' },
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it('should accept valid email addresses', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
     render(
       <ResetPasswordForm
-        handleSubmit={mockHandleSubmit}
+        resetPasswordMutation={mockMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -335,10 +349,13 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockHandleSubmit).toHaveBeenCalledWith(email);
+        expect(mockMutateAsync).toHaveBeenCalledWith({
+          body: { email },
+          signal: expect.any(AbortSignal),
+        });
       });
 
-      mockHandleSubmit.mockClear();
+      mockMutateAsync.mockClear();
     }
   });
 });

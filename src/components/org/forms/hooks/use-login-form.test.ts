@@ -1,17 +1,15 @@
 import { act, renderHook } from '@testing-library/react';
-import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
+import type { CoreHTTPResponse } from '@/types/api.d';
+import type { components } from '@/types/api.generated';
 import { useLoginForm } from './use-login-form';
+
+type LoginResponse = components['schemas']['LoginResponse'];
 
 describe('useLoginForm', () => {
   const mockLoginSuccess: CoreHTTPResponse<LoginResponse> = {
     data: {
-      success: true,
       token: 'mock-token',
-      user: {
-        id: 1,
-        username: 'testuser',
-        email: 'test@example.com',
-      },
+      expiry: '2025-12-31T23:59:59Z',
     },
     errors: null,
   };

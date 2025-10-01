@@ -1,10 +1,7 @@
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import type {
-  ResetPasswordRequest,
-  UpdatePasswordRequest,
-} from '@/types/api.d';
-import { resetPassword, updatePassword } from './users.service';
+import type { UpdatePasswordRequest } from '@/types/api.d';
+import { updatePassword } from './users.service';
 
 const server = setupServer();
 
@@ -14,47 +11,6 @@ afterAll(() => server.close());
 
 describe('users.service', () => {
   const baseUrl = 'http://127.0.0.1:9000/api/v1';
-
-  describe('resetPassword', () => {
-    it('should reset password successfully', async () => {
-      const mockFormValues: ResetPasswordRequest = {
-        email: 'test@example.com',
-      };
-
-      server.use(
-        http.post(`${baseUrl}/users/reset-password`, () => {
-          return new HttpResponse(null, { status: 200 });
-        }),
-      );
-
-      const result = await resetPassword(mockFormValues);
-
-      expect(result).toEqual({
-        data: { success: true },
-        errors: null,
-      });
-    });
-
-    it('should handle reset password failure', async () => {
-      const mockFormValues: ResetPasswordRequest = {
-        email: 'test@example.com',
-      };
-
-      server.use(
-        http.post(`${baseUrl}/users/reset-password`, () => {
-          return new HttpResponse(null, { status: 400 });
-        }),
-      );
-
-      const result = await resetPassword(mockFormValues);
-
-      expect(result.data).toBeNull();
-      expect(result.errors).toEqual({
-        message: 'Something went wrong, please try again later.',
-        details: expect.any(Error),
-      });
-    });
-  });
 
   describe('updatePassword', () => {
     it('should update password successfully', async () => {

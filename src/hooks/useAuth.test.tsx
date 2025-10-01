@@ -1,11 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import * as usersService from '@/services/users.service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type {
-  CoreHTTPResponse,
-  ResetPasswordRequest,
-  UpdatePasswordRequest,
-} from '@/types/api.d';
+import type { CoreHTTPResponse, UpdatePasswordRequest } from '@/types/api.d';
 import { useAuth } from './useAuth';
 
 // Mock the users service
@@ -20,31 +16,6 @@ describe('useAuth', () => {
     // Reset store state before each test
     useAuthenticationStore.setState({
       user: undefined,
-    });
-  });
-
-  describe('resetPassword', () => {
-    it('should call resetPassword service', async () => {
-      const mockResetResponse: CoreHTTPResponse<{ success: boolean }> = {
-        data: {
-          success: true,
-        },
-        errors: null,
-      };
-
-      const resetForm: ResetPasswordRequest = {
-        email: 'user@example.com',
-      };
-
-      mockUsersService.resetPassword.mockResolvedValue(mockResetResponse);
-
-      const { result } = renderHook(() => useAuth());
-
-      await act(async () => {
-        await result.current.resetPassword(resetForm);
-      });
-
-      expect(mockUsersService.resetPassword).toHaveBeenCalledWith(resetForm);
     });
   });
 
@@ -79,18 +50,15 @@ describe('useAuth', () => {
       const { result, rerender } = renderHook(() => useAuth());
 
       const firstRender = {
-        resetPassword: result.current.resetPassword,
         updatePassword: result.current.updatePassword,
       };
 
       rerender();
 
       const secondRender = {
-        resetPassword: result.current.resetPassword,
         updatePassword: result.current.updatePassword,
       };
 
-      expect(firstRender.resetPassword).toBe(secondRender.resetPassword);
       expect(firstRender.updatePassword).toBe(secondRender.updatePassword);
     });
   });

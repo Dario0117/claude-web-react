@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CoreHTTPResponse } from '@/types/api.d';
+import type { useResetPasswordMutationType } from '@/services/users.service';
 import { ResetPasswordPage } from './reset-pw.page';
 
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
+// Mock the users service
+vi.mock('@/services/users.service', () => ({
+  useResetPasswordMutation: vi.fn(),
 }));
 
 // Mock the navigation hook
@@ -13,7 +13,9 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: vi.fn(),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
+const mockUseResetPasswordMutation = vi.mocked(
+  await import('@/services/users.service'),
+).useResetPasswordMutation;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
@@ -23,15 +25,32 @@ const mockNavigate = vi.fn();
 mockUseNavigate.mockReturnValue(mockNavigate);
 
 describe('ResetPasswordPage', () => {
-  const mockResetPassword = vi.fn();
+  const createMockMutation = (
+    overrides?: Partial<useResetPasswordMutationType>,
+  ): useResetPasswordMutationType =>
+    ({
+      mutate: vi.fn(),
+      mutateAsync: vi.fn().mockResolvedValue({}),
+      data: undefined,
+      error: null,
+      isError: false,
+      isIdle: true,
+      isPending: false,
+      isSuccess: false,
+      status: 'idle',
+      variables: undefined,
+      failureCount: 0,
+      failureReason: null,
+      isPaused: false,
+      submittedAt: 0,
+      reset: vi.fn(),
+      context: undefined,
+      ...overrides,
+    }) as useResetPasswordMutationType;
 
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockResetPassword.mockClear();
-    mockUseAuth.mockReturnValue({
-      resetPassword: mockResetPassword,
-      updatePassword: vi.fn(),
-    });
+    mockUseResetPasswordMutation.mockReturnValue(createMockMutation());
   });
 
   it('should render reset password form', () => {
@@ -44,13 +63,12 @@ describe('ResetPasswordPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('should call resetPassword when form is submitted', async () => {
+  it('should call mutateAsync when form is submitted', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockResetPassword.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({ mutateAsync: mockMutateAsync }),
+    );
 
     render(<ResetPasswordPage />);
 
@@ -63,29 +81,24 @@ describe('ResetPasswordPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        body: { email: 'test@example.com' },
+        signal: expect.any(AbortSignal),
       });
     });
   });
 
   it('should navigate to login page on successful reset', async () => {
-    const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockResetPassword.mockResolvedValue(mockResponse);
+    const mockData = { responseData: ['Email sent successfully'] };
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({
+        mutateAsync: vi.fn().mockResolvedValue({}),
+        isSuccess: true,
+        data: mockData,
+      }),
+    );
 
     render(<ResetPasswordPage />);
-
-    const emailInput = screen.getByLabelText(/Email/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Send reset email',
-    });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
@@ -94,14 +107,12 @@ describe('ResetPasswordPage', () => {
 
   it('should not navigate on failed reset', async () => {
     const user = userEvent.setup();
-    const mockError: CoreHTTPResponse<unknown> = {
-      data: null,
-      errors: {
-        message: 'Email not found',
-        details: {},
-      },
-    };
-    mockResetPassword.mockResolvedValue(mockError);
+    const mockMutateAsync = vi.fn().mockRejectedValue({
+      responseErrors: { nonFieldErrors: ['Email not found'] },
+    });
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({ mutateAsync: mockMutateAsync }),
+    );
 
     render(<ResetPasswordPage />);
 
@@ -114,7 +125,7 @@ describe('ResetPasswordPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalled();
+      expect(mockMutateAsync).toHaveBeenCalled();
     });
 
     // Should not navigate on error
@@ -139,21 +150,20 @@ describe('ResetPasswordPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should pass resetPassword function to ResetPasswordForm', () => {
+  it('should pass resetPasswordMutation to ResetPasswordForm', () => {
     render(<ResetPasswordPage />);
 
-    // The resetPassword function should be passed to ResetPasswordForm
+    // The resetPasswordMutation should be passed to ResetPasswordForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
     expect(screen.getByText('Reset your password')).toBeInTheDocument();
   });
 
-  it('should handle resetPassword function call correctly', async () => {
+  it('should handle mutation call correctly', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockResetPassword.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({ mutateAsync: mockMutateAsync }),
+    );
 
     render(<ResetPasswordPage />);
 
@@ -166,13 +176,11 @@ describe('ResetPasswordPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith({
-        email: 'user@example.com',
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        body: { email: 'user@example.com' },
+        signal: expect.any(AbortSignal),
       });
     });
-
-    // Verify the result is returned correctly
-    expect(mockResetPassword).toHaveReturnedWith(Promise.resolve(mockResponse));
   });
 
   it('should use correct navigation source', () => {
@@ -191,11 +199,10 @@ describe('ResetPasswordPage', () => {
 
   it('should handle multiple form submissions', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockResetPassword.mockResolvedValue(mockResponse);
+    const mockMutateAsync = vi.fn().mockResolvedValue({});
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({ mutateAsync: mockMutateAsync }),
+    );
 
     render(<ResetPasswordPage />);
 
@@ -209,13 +216,14 @@ describe('ResetPasswordPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith({
-        email: 'test1@example.com',
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        body: { email: 'test1@example.com' },
+        signal: expect.any(AbortSignal),
       });
     });
 
     // Clear the mock and submit again
-    mockResetPassword.mockClear();
+    mockMutateAsync.mockClear();
     mockNavigate.mockClear();
 
     await user.clear(emailInput);
@@ -223,25 +231,31 @@ describe('ResetPasswordPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith({
-        email: 'test2@example.com',
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        body: { email: 'test2@example.com' },
+        signal: expect.any(AbortSignal),
       });
     });
   });
 
-  it('should handle async resetPassword function correctly', async () => {
+  it('should handle async mutation correctly', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
+    const mockData = { responseData: ['Email sent successfully'] };
 
     // Simulate async behavior
-    mockResetPassword.mockImplementation(
+    const mockMutateAsync = vi.fn().mockImplementation(
       () =>
         new Promise((resolve) => {
-          setTimeout(() => resolve(mockResponse), 100);
+          setTimeout(() => resolve({}), 100);
         }),
+    );
+
+    mockUseResetPasswordMutation.mockReturnValue(
+      createMockMutation({
+        mutateAsync: mockMutateAsync,
+        isSuccess: true,
+        data: mockData,
+      }),
     );
 
     render(<ResetPasswordPage />);
@@ -256,8 +270,9 @@ describe('ResetPasswordPage', () => {
 
     await waitFor(
       () => {
-        expect(mockResetPassword).toHaveBeenCalledWith({
-          email: 'async@example.com',
+        expect(mockMutateAsync).toHaveBeenCalledWith({
+          body: { email: 'async@example.com' },
+          signal: expect.any(AbortSignal),
         });
       },
       { timeout: 1000 },

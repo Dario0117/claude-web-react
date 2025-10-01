@@ -1,56 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse } from '@/types/api.d';
-
+import type { useResetPasswordMutationType } from '@/services/users.service';
 import { ResetPasswordForm } from './reset-password.form';
 
-// Mock handlers for Storybook
-const mockHandleResetSuccess = async (
-  email: string,
-): Promise<CoreHTTPResponse<unknown>> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-
-  console.log('Reset password request for:', email);
-  return {
-    data: {
-      success: true,
-      message: 'Password reset email sent successfully',
-    },
-    errors: null,
-  };
-};
-
-const mockHandleResetError = async (
-  email: string,
-): Promise<CoreHTTPResponse<unknown>> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  console.log('Reset password error for:', email);
-  return {
-    data: null,
-    errors: {
-      message:
-        'No account found with this email address. Please check your email and try again.',
-      details: null,
-    },
-  };
-};
-
-const mockHandleResetRateLimit = async (
-  email: string,
-): Promise<CoreHTTPResponse<unknown>> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  console.log('Rate limit error for:', email);
-  return {
-    data: null,
-    errors: {
-      message:
-        'Too many reset attempts. Please wait 15 minutes before trying again.',
-      details: null,
-    },
-  };
-};
+// Create mock mutation factory
+const createMockMutation = (
+  overrides?: Partial<useResetPasswordMutationType>,
+): useResetPasswordMutationType =>
+  ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn().mockResolvedValue({ responseData: [] }),
+    data: undefined,
+    error: null,
+    isError: false,
+    isIdle: true,
+    isPending: false,
+    isSuccess: false,
+    status: 'idle',
+    variables: undefined,
+    failureCount: 0,
+    failureReason: null,
+    isPaused: false,
+    submittedAt: 0,
+    reset: vi.fn(),
+    context: undefined,
+    ...overrides,
+  }) as useResetPasswordMutationType;
 
 const mockHandleSuccess = () => {
   console.log('Reset email sent successfully!');
@@ -78,14 +52,32 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleSubmit: mockHandleResetSuccess,
+    resetPasswordMutation: createMockMutation({
+      mutateAsync: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        return { responseData: [] };
+      },
+    }),
     handleSuccess: mockHandleSuccess,
   },
 };
 
 export const EmailNotFound: Story = {
   args: {
-    handleSubmit: mockHandleResetError,
+    resetPasswordMutation: createMockMutation({
+      mutateAsync: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const error = new Error('Email not found');
+        Object.assign(error, {
+          responseErrors: {
+            nonFieldErrors: [
+              'No account found with this email address. Please check your email and try again.',
+            ],
+          },
+        });
+        throw error;
+      },
+    }),
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -100,7 +92,20 @@ export const EmailNotFound: Story = {
 
 export const RateLimited: Story = {
   args: {
-    handleSubmit: mockHandleResetRateLimit,
+    resetPasswordMutation: createMockMutation({
+      mutateAsync: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const error = new Error('Rate limited');
+        Object.assign(error, {
+          responseErrors: {
+            nonFieldErrors: [
+              'Too many reset attempts. Please wait 15 minutes before trying again.',
+            ],
+          },
+        });
+        throw error;
+      },
+    }),
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -115,30 +120,40 @@ export const RateLimited: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleSubmit: async (email: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    resetPasswordMutation: createMockMutation({
+      mutateAsync: async ({ body }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Simulate different responses based on email
-      if (email === 'notfound@example.com') {
-        return mockHandleResetError(email);
-      }
+        const email = body.email;
 
-      if (email === 'ratelimit@example.com') {
-        return mockHandleResetRateLimit(email);
-      }
+        // Simulate different responses based on email
+        if (email === 'notfound@example.com') {
+          const error = new Error('Email not found');
+          Object.assign(error, {
+            responseErrors: {
+              nonFieldErrors: [
+                'No account found with this email address. Please check your email and try again.',
+              ],
+            },
+          });
+          throw error;
+        }
 
-      if (!email.includes('@') || !email.includes('.')) {
-        return {
-          data: null,
-          errors: {
-            message: 'Please enter a valid email address.',
-            details: null,
-          },
-        };
-      }
+        if (email === 'ratelimit@example.com') {
+          const error = new Error('Rate limited');
+          Object.assign(error, {
+            responseErrors: {
+              nonFieldErrors: [
+                'Too many reset attempts. Please wait 15 minutes before trying again.',
+              ],
+            },
+          });
+          throw error;
+        }
 
-      return mockHandleResetSuccess(email);
-    },
+        return { responseData: [] };
+      },
+    }),
     handleSuccess: mockHandleSuccess,
   },
   parameters: {

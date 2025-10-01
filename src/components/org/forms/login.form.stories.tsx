@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
+import type { CoreHTTPResponse } from '@/types/api.d';
+import type { components } from '@/types/api.generated';
 import { useLoginForm } from './hooks/use-login-form';
+
+type LoginResponse = components['schemas']['LoginResponse'];
 
 // Mock LoginForm component to avoid router context dependencies
 // biome-ignore lint/suspicious/noExplicitAny: Storybook mock
@@ -100,13 +103,8 @@ const mockHandleLoginSuccess = async (
   console.log('Login attempt:', { username, password });
   return {
     data: {
-      success: true,
       token: 'mock-token-123',
-      user: {
-        id: 1,
-        username,
-        email: `${username}@example.com`,
-      },
+      expiry: '2025-12-31T23:59:59Z',
     },
     errors: null,
   };

@@ -56,7 +56,6 @@ describe('RegisterPage', () => {
 
   it('should render register form', () => {
     mockUseAuth.mockReturnValue({
-      resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
@@ -80,7 +79,6 @@ describe('RegisterPage', () => {
 
   it('should have proper page structure', () => {
     mockUseAuth.mockReturnValue({
-      resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
@@ -95,7 +93,6 @@ describe('RegisterPage', () => {
 
   it('should render without errors when useAuth is available', () => {
     mockUseAuth.mockReturnValue({
-      resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 
@@ -107,7 +104,6 @@ describe('RegisterPage', () => {
 
   it('should have accessibility structure', () => {
     mockUseAuth.mockReturnValue({
-      resetPassword: vi.fn(),
       updatePassword: vi.fn(),
     });
 

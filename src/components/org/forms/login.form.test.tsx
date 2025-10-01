@@ -6,8 +6,11 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CoreHTTPResponse, LoginResponse } from '@/types/api.d';
+import type { CoreHTTPResponse } from '@/types/api.d';
+import type { components } from '@/types/api.generated';
 import { LoginForm } from './login.form';
+
+type LoginResponse = components['schemas']['LoginResponse'];
 
 interface LinkProps {
   children: React.ReactNode;
@@ -114,7 +117,7 @@ describe('LoginForm', () => {
   it('should call loginMutation with correct credentials on form submission', async () => {
     const user = userEvent.setup();
     const mockResponse: CoreHTTPResponse<LoginResponse> = {
-      data: { success: true, token: 'mock-token' },
+      data: { token: 'mock-token', expiry: '2025-12-31T23:59:59Z' },
       errors: null,
     };
     mockLoginMutation.mutateAsync.mockResolvedValue(mockResponse);
