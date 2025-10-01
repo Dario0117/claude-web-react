@@ -13,9 +13,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import useDialogState from '@/hooks/use-dialog-state';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState();
+  const { user } = useAuthenticationStore();
+
+  const avatarFallback = user
+    ? user.firstName.charAt(0) + user.lastName.charAt(0)
+    : '';
 
   return (
     <>
@@ -30,7 +36,7 @@ export function ProfileDropdown() {
                 src="/avatars/01.png"
                 alt="@shadcn"
               />
-              <AvatarFallback>SN</AvatarFallback>
+              <AvatarFallback>{avatarFallback}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -41,9 +47,11 @@ export function ProfileDropdown() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col gap-1.5">
-              <p className="text-sm leading-none font-medium">satnaing</p>
+              <p className="text-sm leading-none font-medium">
+                {user?.firstName} {user?.lastName}
+              </p>
               <p className="text-muted-foreground text-xs leading-none">
-                satnaingdev@gmail.com
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>

@@ -26,6 +26,16 @@ vi.mock('@tanstack/react-router', () => ({
   }),
 }));
 
+vi.mock('@/stores/authentication.store', () => ({
+  useAuthenticationStore: () => ({
+    user: {
+      firstName: 'satnaing',
+      lastName: 'dev',
+      email: 'satnaingdev@gmail.com',
+    },
+  }),
+}));
+
 describe('ProfileDropdown', () => {
   it('should render profile avatar button', () => {
     render(<ProfileDropdown />);
@@ -35,7 +45,7 @@ describe('ProfileDropdown', () => {
 
   it('should render avatar fallback', () => {
     render(<ProfileDropdown />);
-    expect(screen.getByText('SN')).toBeInTheDocument();
+    expect(screen.getByText('sd')).toBeInTheDocument();
   });
 
   it('should open dropdown menu when avatar is clicked', async () => {
@@ -43,7 +53,7 @@ describe('ProfileDropdown', () => {
     render(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
-    expect(screen.getByText('satnaing')).toBeInTheDocument();
+    expect(screen.getByText('satnaing dev')).toBeInTheDocument();
     expect(screen.getByText('satnaingdev@gmail.com')).toBeInTheDocument();
   });
 

@@ -1,35 +1,16 @@
 import {
   AudioWaveform,
-  Bell,
-  Bug,
+  Code,
   Command,
-  Construction,
-  FileX,
+  FilePenLine,
+  FolderKanban,
   GalleryVerticalEnd,
-  HelpCircle,
-  LayoutDashboard,
-  ListTodo,
-  Lock,
-  MessagesSquare,
-  Monitor,
-  Package,
-  Palette,
-  ServerOff,
-  Settings,
-  ShieldCheck,
-  UserCog,
-  Users,
-  UserX,
-  Wrench,
+  Layers,
+  MonitorSmartphone,
 } from 'lucide-react';
 import type { SidebarData } from '../types';
 
 export const sidebarData: SidebarData = {
-  user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
   teams: [
     {
       name: 'Shadcn Admin',
@@ -52,133 +33,36 @@ export const sidebarData: SidebarData = {
       title: 'General',
       items: [
         {
-          title: 'Dashboard',
+          title: 'Projects',
           url: '/',
-          icon: LayoutDashboard,
+          icon: FolderKanban,
         },
         {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: ListTodo,
+          title: 'Drafts',
+          url: '/drafts',
+          badge: '2',
+          icon: FilePenLine,
         },
         {
-          title: 'Apps',
-          url: '/apps',
-          icon: Package,
-        },
-        {
-          title: 'Chats',
-          url: '/chats',
+          title: 'Queued sessions',
+          url: '/q',
           badge: '3',
-          icon: MessagesSquare,
-        },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: Users,
+          icon: Layers,
         },
       ],
     },
     {
-      title: 'Pages',
+      title: 'Integrations',
       items: [
         {
-          title: 'Auth',
-          icon: ShieldCheck,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/sign-in',
-            },
-            {
-              title: 'Sign In (2 Col)',
-              url: '/sign-in-2',
-            },
-            {
-              title: 'Sign Up',
-              url: '/sign-up',
-            },
-            {
-              title: 'Forgot Password',
-              url: '/forgot-password',
-            },
-            {
-              title: 'OTP',
-              url: '/otp',
-            },
-          ],
-        },
-        {
-          title: 'Errors',
-          icon: Bug,
-          items: [
-            {
-              title: 'Unauthorized',
-              url: '/errors/unauthorized',
-              icon: Lock,
-            },
-            {
-              title: 'Forbidden',
-              url: '/errors/forbidden',
-              icon: UserX,
-            },
-            {
-              title: 'Not Found',
-              url: '/errors/not-found',
-              icon: FileX,
-            },
-            {
-              title: 'Internal Server Error',
-              url: '/errors/internal-server-error',
-              icon: ServerOff,
-            },
-            {
-              title: 'Maintenance Error',
-              url: '/errors/maintenance-error',
-              icon: Construction,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Other',
-      items: [
-        {
-          title: 'Settings',
-          icon: Settings,
-          items: [
-            {
-              title: 'Profile',
-              url: '/settings',
-              icon: UserCog,
-            },
-            {
-              title: 'Account',
-              url: '/settings/account',
-              icon: Wrench,
-            },
-            {
-              title: 'Appearance',
-              url: '/settings/appearance',
-              icon: Palette,
-            },
-            {
-              title: 'Notifications',
-              url: '/settings/notifications',
-              icon: Bell,
-            },
-            {
-              title: 'Display',
-              url: '/settings/display',
-              icon: Monitor,
-            },
-          ],
-        },
-        {
-          title: 'Help Center',
+          title: 'Devices',
           url: '/help-center',
-          icon: HelpCircle,
+          icon: MonitorSmartphone,
+        },
+        {
+          title: 'API',
+          url: '/api',
+          icon: Code,
         },
       ],
     },

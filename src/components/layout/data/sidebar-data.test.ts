@@ -5,25 +5,8 @@ import { sidebarData } from './sidebar-data';
 describe('Sidebar Data', () => {
   it('should have valid structure', () => {
     expect(sidebarData).toBeDefined();
-    expect(sidebarData).toHaveProperty('user');
     expect(sidebarData).toHaveProperty('teams');
     expect(sidebarData).toHaveProperty('navGroups');
-  });
-
-  it('should have valid user data', () => {
-    const { user } = sidebarData;
-
-    expect(user).toHaveProperty('name');
-    expect(user).toHaveProperty('email');
-    expect(user).toHaveProperty('avatar');
-
-    expect(typeof user.name).toBe('string');
-    expect(typeof user.email).toBe('string');
-    expect(typeof user.avatar).toBe('string');
-
-    expect(user.name).toBe('satnaing');
-    expect(user.email).toBe('satnaingdev@gmail.com');
-    expect(user.avatar).toBe('/avatars/shadcn.jpg');
   });
 
   it('should have valid teams data', () => {
@@ -72,10 +55,9 @@ describe('Sidebar Data', () => {
   it('should have expected nav groups', () => {
     const { navGroups } = sidebarData;
 
-    expect(navGroups).toHaveLength(3);
+    expect(navGroups).toHaveLength(2);
     expect(navGroups[0]?.title).toBe('General');
-    expect(navGroups[1]?.title).toBe('Pages');
-    expect(navGroups[2]?.title).toBe('Other');
+    expect(navGroups[1]?.title).toBe('Integrations');
   });
 
   it('should have valid nav items in General group', () => {
@@ -84,91 +66,63 @@ describe('Sidebar Data', () => {
       return;
     }
 
-    expect(generalGroup.items).toHaveLength(5);
+    expect(generalGroup.items).toHaveLength(3);
 
-    // Test Dashboard item
-    const dashboardItem = generalGroup.items[0];
-    if (!dashboardItem) {
+    // Test Projects item
+    const projectsItem = generalGroup.items[0];
+    if (!projectsItem) {
       return;
     }
-    expect(dashboardItem.title).toBe('Dashboard');
-    expect('url' in dashboardItem && dashboardItem.url).toBe('/');
-    expect(dashboardItem.icon).toBeDefined();
+    expect(projectsItem.title).toBe('Projects');
+    expect('url' in projectsItem && projectsItem.url).toBe('/');
+    expect(projectsItem.icon).toBeDefined();
 
-    // Test Chats item with badge
-    const chatsItem = generalGroup.items[3];
-    if (!chatsItem) {
+    // Test Drafts item with badge
+    const draftsItem = generalGroup.items[1];
+    if (!draftsItem) {
       return;
     }
-    expect(chatsItem.title).toBe('Chats');
-    expect('url' in chatsItem && chatsItem.url).toBe('/chats');
-    expect(chatsItem.badge).toBe('3');
-    expect(chatsItem.icon).toBeDefined();
+    expect(draftsItem.title).toBe('Drafts');
+    expect('url' in draftsItem && draftsItem.url).toBe('/drafts');
+    expect(draftsItem.badge).toBe('2');
+    expect(draftsItem.icon).toBeDefined();
+
+    // Test Queued sessions item with badge
+    const queuedItem = generalGroup.items[2];
+    if (!queuedItem) {
+      return;
+    }
+    expect(queuedItem.title).toBe('Queued sessions');
+    expect('url' in queuedItem && queuedItem.url).toBe('/q');
+    expect(queuedItem.badge).toBe('3');
+    expect(queuedItem.icon).toBeDefined();
   });
 
-  it('should have valid collapsible nav items in Pages group', () => {
-    const pagesGroup = sidebarData.navGroups[1];
-    if (!pagesGroup) {
+  it('should have valid nav items in Integrations group', () => {
+    const integrationsGroup = sidebarData.navGroups[1];
+    if (!integrationsGroup) {
       return;
     }
 
-    expect(pagesGroup.items).toHaveLength(2);
+    expect(integrationsGroup.items).toHaveLength(2);
 
-    // Test Auth collapsible item
-    const authItem = pagesGroup.items[0];
-    if (!authItem) {
+    // Test Devices item
+    const devicesItem = integrationsGroup.items[0];
+    if (!devicesItem) {
       return;
     }
-    expect(authItem.title).toBe('Auth');
-    expect(authItem.icon).toBeDefined();
-    expect('items' in authItem && authItem.items).toHaveLength(5);
+    expect(devicesItem.title).toBe('Devices');
+    expect('url' in devicesItem && devicesItem.url).toBe('/help-center');
+    expect(devicesItem.icon).toBeDefined();
 
-    if ('items' in authItem && authItem.items) {
-      expect(authItem.items[0]?.title).toBe('Sign In');
-      expect(authItem.items[0]?.url).toBe('/sign-in');
-    }
-
-    // Test Errors collapsible item
-    const errorsItem = pagesGroup.items[1];
-    if (!errorsItem) {
+    // Test API item
+    const apiItem = integrationsGroup.items[1];
+    if (!apiItem) {
       return;
     }
-    expect(errorsItem.title).toBe('Errors');
-    expect(errorsItem.icon).toBeDefined();
-    expect('items' in errorsItem && errorsItem.items).toHaveLength(5);
-
-    if ('items' in errorsItem && errorsItem.items) {
-      expect(errorsItem.items[0]?.title).toBe('Unauthorized');
-      expect(errorsItem.items[0]?.url).toBe('/errors/unauthorized');
-      expect(errorsItem.items[0]?.icon).toBeDefined();
-    }
-  });
-
-  it('should have valid nav items in Other group', () => {
-    const otherGroup = sidebarData.navGroups[2];
-    if (!otherGroup) {
-      return;
-    }
-
-    expect(otherGroup.items).toHaveLength(2);
-
-    // Test Settings collapsible item
-    const settingsItem = otherGroup.items[0];
-    if (!settingsItem) {
-      return;
-    }
-    expect(settingsItem.title).toBe('Settings');
-    expect(settingsItem.icon).toBeDefined();
-    expect('items' in settingsItem && settingsItem.items).toHaveLength(5);
-
-    // Test Help Center direct link
-    const helpItem = otherGroup.items[1];
-    if (!helpItem) {
-      return;
-    }
-    expect(helpItem.title).toBe('Help Center');
-    expect('url' in helpItem && helpItem.url).toBe('/help-center');
-    expect(helpItem.icon).toBeDefined();
+    expect(apiItem.title).toBe('API');
+    expect('url' in apiItem && apiItem.url).toBe('/api');
+    expect(apiItem.icon).toBeDefined();
   });
 
   it('should have all required nav item properties', () => {
@@ -210,7 +164,6 @@ describe('Sidebar Data', () => {
     // This test ensures the data structure matches the TypeScript type
     const typedData: SidebarData = sidebarData;
     expect(typedData).toBeDefined();
-    expect(typedData.user).toBeDefined();
     expect(typedData.teams).toBeDefined();
     expect(typedData.navGroups).toBeDefined();
   });
