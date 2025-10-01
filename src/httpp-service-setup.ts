@@ -6,9 +6,14 @@ import type { paths } from './types/api.generated';
 const authMiddleware: Middleware = {
   // biome-ignore lint/suspicious/useAwait: no need to await
   async onResponse({ response }) {
-    const loginPath = '/login';
-    if (response.status === 401 && window.location.pathname !== loginPath) {
-      window.location.replace(loginPath);
+    if (response.status === 401) {
+      const safePaths = ['/login', '/update-password/'];
+      const isASafePath = safePaths.some((path) =>
+        window.location.pathname.startsWith(path),
+      );
+      if (!isASafePath) {
+        window.location.replace('/login');
+      }
     }
   },
 };
