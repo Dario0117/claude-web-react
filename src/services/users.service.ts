@@ -1,38 +1,6 @@
 import { $api } from '@/httpp-service-setup';
-import { httpClient } from '@/lib/http-client';
 import { queryClient } from '@/query-provider';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { CoreHTTPResponse, UpdatePasswordRequest } from '@/types/api.d';
-
-export async function updatePassword(
-  formValues: UpdatePasswordRequest,
-): Promise<CoreHTTPResponse<{ success: boolean }>> {
-  try {
-    const rawResponse = await httpClient.post(
-      '/users/update-password',
-      formValues,
-      {
-        credentials: 'include',
-      },
-    );
-
-    if (rawResponse.status === 200) {
-      return {
-        data: { success: true },
-        errors: null,
-      };
-    }
-    throw new Error('Not created');
-  } catch (error) {
-    return {
-      data: null,
-      errors: {
-        message: 'Something went wrong, please try again later.',
-        details: error,
-      },
-    };
-  }
-}
 
 export function useLoginMutation() {
   return $api.useMutation('post', '/api/v1/users/login');
@@ -75,4 +43,12 @@ export function useResetPasswordMutation() {
 
 export type useResetPasswordMutationType = ReturnType<
   typeof useResetPasswordMutation
+>;
+
+export function useUpdatePasswordMutation() {
+  return $api.useMutation('post', '/api/v1/users/update-password');
+}
+
+export type useUpdatePasswordMutationType = ReturnType<
+  typeof useUpdatePasswordMutation
 >;

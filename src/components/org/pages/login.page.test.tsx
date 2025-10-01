@@ -9,11 +9,6 @@ interface LinkProps {
   [key: string]: unknown;
 }
 
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
-
 // Mock the authentication store
 vi.mock('@/stores/authentication.store', () => ({
   useAuthenticationStore: vi.fn(),
@@ -37,7 +32,6 @@ vi.mock('@/services/users.service', () => ({
   useLoginMutation: vi.fn(),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
 const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
@@ -53,7 +47,6 @@ mockUseNavigate.mockReturnValue(mockNavigate);
 describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuth.mockClear();
     mockUseAuthenticationStore.mockClear();
     mockUseLoginMutation.mockClear();
 
@@ -70,10 +63,6 @@ describe('LoginPage', () => {
   });
 
   it('should render login form when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
@@ -91,10 +80,6 @@ describe('LoginPage', () => {
       email: 'test@example.com',
     };
 
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
     render(<LoginPage />);
@@ -105,10 +90,6 @@ describe('LoginPage', () => {
   });
 
   it('should not redirect when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
@@ -117,10 +98,6 @@ describe('LoginPage', () => {
   });
 
   it('should pass login function to LoginForm', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
@@ -131,10 +108,6 @@ describe('LoginPage', () => {
   });
 
   it('should have proper page structure and styling', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     const { container } = render(<LoginPage />);
@@ -156,10 +129,6 @@ describe('LoginPage', () => {
 
   it('should maintain consistent behavior on rerender', () => {
     // Start with user not logged in
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     const { rerender } = render(<LoginPage />);
@@ -184,10 +153,6 @@ describe('LoginPage', () => {
   });
 
   it('should use correct navigation source', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);
@@ -198,10 +163,6 @@ describe('LoginPage', () => {
   });
 
   it('should render accessibility landmarks', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
     render(<LoginPage />);

@@ -190,4 +190,4 @@ This is a React frontend template using modern tooling and patterns:
 - Never delete or update auto generated files (src/types/api.generated.d.ts, src/routes/routeTree.gen.ts)
 - Never re-export imports on the same file
 - When asked to fix tests or add tests or fix typescript issues, don't change the tested code, accommodate the tests to comply with the code
-- When asked to fix typescript issues, don't create new types, only add new interfaces or types to existing ones unless the type is necessary for the code to work
+- When asked to fix typescript issues, don't create new types even if they were deleted from the code, it was deleted intentionally, only add new interfaces or types to existing ones unless the type is necessary for the code to work

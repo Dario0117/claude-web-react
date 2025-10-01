@@ -8,6 +8,5 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { token } = Route.useParams();
-  return <UpdatePasswordPage token={token} />;
+  return <UpdatePasswordPage />;
 }

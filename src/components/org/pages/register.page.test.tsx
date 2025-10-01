@@ -8,11 +8,6 @@ interface LinkProps {
   [key: string]: unknown;
 }
 
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
-
 // Mock the navigation hook
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: vi.fn(),
@@ -26,7 +21,6 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
@@ -51,14 +45,9 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 describe('RegisterPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuth.mockClear();
   });
 
   it('should render register form', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     render(<RegisterPage />, { wrapper: TestWrapper });
 
     // Check that the register form is rendered
@@ -78,10 +67,6 @@ describe('RegisterPage', () => {
   });
 
   it('should have proper page structure', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     const { container } = render(<RegisterPage />, { wrapper: TestWrapper });
 
     const section = container.querySelector('section');
@@ -92,10 +77,6 @@ describe('RegisterPage', () => {
   });
 
   it('should render without errors when useAuth is available', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     render(<RegisterPage />, { wrapper: TestWrapper });
 
     // The component should render without errors
@@ -103,10 +84,6 @@ describe('RegisterPage', () => {
   });
 
   it('should have accessibility structure', () => {
-    mockUseAuth.mockReturnValue({
-      updatePassword: vi.fn(),
-    });
-
     render(<RegisterPage />, { wrapper: TestWrapper });
 
     const section = document.querySelector('section');

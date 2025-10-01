@@ -3,11 +3,7 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { CoreHTTPResponse } from '@/types/api.d';
-import type { components } from '@/types/api.generated';
 import { useLoginForm } from './hooks/use-login-form';
-
-type LoginResponse = components['schemas']['LoginResponse'];
 
 // Mock LoginForm component to avoid router context dependencies
 // biome-ignore lint/suspicious/noExplicitAny: Storybook mock
@@ -93,55 +89,36 @@ function MockLoginForm({ loginMutation }: { loginMutation: any }) {
 }
 
 // Mock handlers for Storybook
-const mockHandleLoginSuccess = async (
-  username: string,
-  password: string,
-): Promise<CoreHTTPResponse<LoginResponse>> => {
+const mockHandleLoginSuccess = async (username: string, password: string) => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   console.log('Login attempt:', { username, password });
   return {
-    data: {
-      token: 'mock-token-123',
-      expiry: '2025-12-31T23:59:59Z',
-    },
-    errors: null,
+    token: 'mock-token-123',
+    expiry: '2025-12-31T23:59:59Z',
   };
 };
 
-const mockHandleLoginError = async (
-  username: string,
-  password: string,
-): Promise<CoreHTTPResponse<LoginResponse>> => {
+const mockHandleLoginError = async (username: string, password: string) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   console.log('Login attempt with error:', { username, password });
-  return {
-    data: null,
-    errors: {
-      message:
-        'Invalid username or password. Please check your credentials and try again.',
-      details: null,
-    },
-  };
+  throw new Error(
+    'Invalid username or password. Please check your credentials and try again.',
+  );
 };
 
 const mockHandleLoginNetworkError = async (
   username: string,
   password: string,
-): Promise<CoreHTTPResponse<LoginResponse>> => {
+) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   console.log('Login attempt with network error:', { username, password });
-  return {
-    data: null,
-    errors: {
-      message:
-        'Network error. Please check your internet connection and try again.',
-      details: null,
-    },
-  };
+  throw new Error(
+    'Network error. Please check your internet connection and try again.',
+  );
 };
 
 const meta = {

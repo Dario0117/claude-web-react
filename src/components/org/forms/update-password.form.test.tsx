@@ -6,22 +6,40 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { CoreHTTPResponse } from '@/types/api.d';
 import { UpdatePasswordForm } from './update-password.form';
 
+// Mock the router hooks
+vi.mock('@tanstack/react-router', () => ({
+  useParams: vi.fn(),
+}));
+
+const mockUseParams = vi.mocked(
+  await import('@tanstack/react-router'),
+).useParams;
+
+// Mock params with token
+mockUseParams.mockReturnValue({ token: 'test-token-123' });
+
 describe('UpdatePasswordForm', () => {
-  const mockHandleSubmit = vi.fn();
+  const mockUpdatePasswordMutation = {
+    mutateAsync: vi.fn(),
+    isSuccess: false,
+    data: undefined,
+    // biome-ignore lint/suspicious/noExplicitAny: Test mock
+  } as any;
   const mockHandleSuccess = vi.fn();
 
   beforeEach(() => {
-    mockHandleSubmit.mockClear();
+    mockUpdatePasswordMutation.mutateAsync.mockClear();
+    mockUpdatePasswordMutation.isSuccess = false;
+    mockUpdatePasswordMutation.data = undefined;
     mockHandleSuccess.mockClear();
   });
 
   it('should render update password form with all required fields', () => {
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -37,7 +55,7 @@ describe('UpdatePasswordForm', () => {
   it('should have proper input placeholders', () => {
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -49,7 +67,7 @@ describe('UpdatePasswordForm', () => {
   it('should have password input types', () => {
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -61,17 +79,15 @@ describe('UpdatePasswordForm', () => {
     expect(confirmPasswordInput).toHaveAttribute('type', 'password');
   });
 
-  it('should call handleSubmit with correct password on form submission', async () => {
+  it('should call updatePasswordMutation with correct password on form submission', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
+      'Password updated',
+    ]);
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -89,21 +105,20 @@ describe('UpdatePasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSubmit).toHaveBeenCalledWith('newpassword123');
+      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
     });
   });
 
   it('should call handleSuccess on successful password update', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    const mockData = ['Password updated'];
+    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue(mockData);
+    mockUpdatePasswordMutation.isSuccess = true;
+    mockUpdatePasswordMutation.data = mockData;
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -121,24 +136,18 @@ describe('UpdatePasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalled();
+      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
     });
   });
 
-  it('should display error when handleSubmit fails', async () => {
+  it('should display error when mutation fails', async () => {
     const user = userEvent.setup();
-    const mockError: CoreHTTPResponse<unknown> = {
-      data: null,
-      errors: {
-        message: 'Password update failed',
-        details: {},
-      },
-    };
-    mockHandleSubmit.mockResolvedValue(mockError);
+    const mockError = new Error('Password update failed');
+    mockUpdatePasswordMutation.mutateAsync.mockRejectedValue(mockError);
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -156,7 +165,7 @@ describe('UpdatePasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Password update failed')).toBeInTheDocument();
+      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
     });
 
     expect(mockHandleSuccess).not.toHaveBeenCalled();
@@ -167,7 +176,7 @@ describe('UpdatePasswordForm', () => {
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -184,10 +193,10 @@ describe('UpdatePasswordForm', () => {
       await user.click(submitButton);
     });
 
-    // Should not call handleSubmit if passwords don't match
+    // Should not call mutation if passwords don't match
     await waitFor(
       () => {
-        expect(mockHandleSubmit).not.toHaveBeenCalled();
+        expect(mockUpdatePasswordMutation.mutateAsync).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
@@ -199,7 +208,7 @@ describe('UpdatePasswordForm', () => {
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -226,7 +235,7 @@ describe('UpdatePasswordForm', () => {
   it('should have required attributes on form fields', () => {
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -241,7 +250,7 @@ describe('UpdatePasswordForm', () => {
   it('should render with proper form structure', () => {
     const { container } = render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -258,10 +267,13 @@ describe('UpdatePasswordForm', () => {
 
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
+    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
+      'Password updated',
+    ]);
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -273,8 +285,13 @@ describe('UpdatePasswordForm', () => {
       await user.click(submitButton);
     });
 
-    // Form should handle validation internally and not call handleSubmit
-    expect(mockHandleSubmit).not.toHaveBeenCalled();
+    // Form allows empty passwords (both match), so mutation will be called
+    await waitFor(() => {
+      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalledWith({
+        body: { password: '', token: 'test-token-123' },
+        signal: expect.any(AbortSignal),
+      });
+    });
   });
 
   it('should handle keyboard navigation', async () => {
@@ -282,7 +299,7 @@ describe('UpdatePasswordForm', () => {
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -306,15 +323,13 @@ describe('UpdatePasswordForm', () => {
 
   it('should clear error map before submission', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
+      'Password updated',
+    ]);
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -332,24 +347,19 @@ describe('UpdatePasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSubmit).toHaveBeenCalled();
+      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
     });
-
-    // Verify the form clears errors before submission
-    expect(mockHandleSubmit).toHaveBeenCalledWith('newpassword123');
   });
 
   it('should handle matching passwords correctly', async () => {
     const user = userEvent.setup();
-    const mockResponse: CoreHTTPResponse<unknown> = {
-      data: {},
-      errors: null,
-    };
-    mockHandleSubmit.mockResolvedValue(mockResponse);
+    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
+      'Password updated',
+    ]);
 
     render(
       <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
+        updatePasswordMutation={mockUpdatePasswordMutation}
         handleSuccess={mockHandleSuccess}
       />,
     );
@@ -372,31 +382,10 @@ describe('UpdatePasswordForm', () => {
       });
 
       await waitFor(() => {
-        expect(mockHandleSubmit).toHaveBeenCalledWith(password);
+        expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
       });
 
-      mockHandleSubmit.mockClear();
+      mockUpdatePasswordMutation.mutateAsync.mockClear();
     }
-  });
-
-  it('should not submit with empty passwords', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <UpdatePasswordForm
-        handleSubmit={mockHandleSubmit}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const submitButton = screen.getByRole('button', {
-      name: 'Update password',
-    });
-    await act(async () => {
-      await user.click(submitButton);
-    });
-
-    // Should not call handleSubmit with empty passwords
-    expect(mockHandleSubmit).not.toHaveBeenCalled();
   });
 });

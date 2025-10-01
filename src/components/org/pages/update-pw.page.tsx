@@ -1,28 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
 import { UpdatePasswordForm } from '@/components/org/forms/update-password.form';
-import { useAuth } from '@/hooks/useAuth';
+import { useUpdatePasswordMutation } from '@/services/users.service';
 
-type UpdatePasswordPageProps = {
-  token: string;
-};
-
-export function UpdatePasswordPage(props: UpdatePasswordPageProps) {
+export function UpdatePasswordPage() {
   const navigate = useNavigate({
     from: '/update-password/$token',
   });
-  const { updatePassword } = useAuth();
+  const updatePassword = useUpdatePasswordMutation();
   return (
     <section className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <UpdatePasswordForm
-          handleSubmit={async (password: string) => {
-            const result = await updatePassword({
-              password,
-              token: props.token,
-            });
-
-            return result;
-          }}
+          updatePasswordMutation={updatePassword}
           handleSuccess={() => {
             navigate({ to: '/login' });
           }}
