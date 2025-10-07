@@ -1,6 +1,13 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthenticatedLayout } from './authenticated-layout';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
 
 vi.mock('@/lib/cookies', () => ({
   getCookie: vi.fn(() => 'true'),
@@ -61,9 +68,11 @@ beforeEach(() => {
 
 function renderAuthenticatedLayout(children?: React.ReactNode) {
   return render(
-    <AuthenticatedLayout>
-      {children || <div data-testid="child-content">Child Content</div>}
-    </AuthenticatedLayout>,
+    <QueryClientProvider client={queryClient}>
+      <AuthenticatedLayout>
+        {children || <div data-testid="child-content">Child Content</div>}
+      </AuthenticatedLayout>
+    </QueryClientProvider>,
   );
 }
 

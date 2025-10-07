@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { logError } from '@/lib/logger.utils';
-import type { useLoginMutationType } from '@/services/users.service';
+import type { useLoginMutationType } from '@/services/users.http-service';
 import { loginFormSchema } from '../validation/login-form.schema';
 
 interface UseLoginFormProps {

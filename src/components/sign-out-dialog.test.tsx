@@ -1,23 +1,26 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
 import { SignOutDialog } from './sign-out-dialog';
 
-const mockNavigate = vi.fn();
-const mockAuthReset = vi.fn();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
 
-vi.mock('@tanstack/react-router', () => ({
-  useNavigate: () => mockNavigate,
-  useLocation: () => ({
-    href: '/app/d',
-  }),
-}));
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
-vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: () => ({
-    auth: {
-      reset: mockAuthReset,
-    },
+const mockLogoutMutate = vi.fn();
+
+vi.mock('@/services/users.http-service', () => ({
+  useLogoutMutation: () => ({
+    mutate: mockLogoutMutate,
   }),
 }));
 
@@ -25,7 +28,7 @@ describe('SignOutDialog', () => {
   const mockOnOpenChange = vi.fn();
 
   it('should render dialog with title and description', () => {
-    const { baseElement } = render(
+    const { baseElement } = renderWithProviders(
       <SignOutDialog
         open={true}
         onOpenChange={mockOnOpenChange}
@@ -38,9 +41,9 @@ describe('SignOutDialog', () => {
     );
   });
 
-  it('should call auth.reset and navigate when sign out is confirmed', async () => {
+  it('should call logout mutation when sign out is confirmed', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithProviders(
       <SignOutDialog
         open={true}
         onOpenChange={mockOnOpenChange}
@@ -51,17 +54,12 @@ describe('SignOutDialog', () => {
     if (signOutButton) {
       await user.click(signOutButton);
     }
-    expect(mockAuthReset).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/login',
-      search: { redirect: '/app/d' },
-      replace: true,
-    });
+    expect(mockLogoutMutate).toHaveBeenCalledWith({});
   });
 
-  it('should preserve current location for redirect', async () => {
+  it('should call logout mutation on confirm', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithProviders(
       <SignOutDialog
         open={true}
         onOpenChange={mockOnOpenChange}
@@ -72,15 +70,11 @@ describe('SignOutDialog', () => {
     if (signOutButton) {
       await user.click(signOutButton);
     }
-    expect(mockNavigate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        search: { redirect: '/app/d' },
-      }),
-    );
+    expect(mockLogoutMutate).toHaveBeenCalledWith({});
   });
 
   it('should render cancel button', () => {
-    render(
+    renderWithProviders(
       <SignOutDialog
         open={true}
         onOpenChange={mockOnOpenChange}

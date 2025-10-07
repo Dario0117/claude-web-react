@@ -6,7 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { useResetPasswordMutationType } from '@/services/users.service';
+import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { ResetPasswordForm } from './reset-password.form';
 
 describe('ResetPasswordForm', () => {

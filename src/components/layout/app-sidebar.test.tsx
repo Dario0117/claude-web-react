@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { LayoutProvider } from '@/context/layout-provider';
+import { LayoutProvider } from '@/context/layout.provider';
 import { AppSidebar } from './app-sidebar';
 
 vi.mock('@tanstack/react-router', () => ({

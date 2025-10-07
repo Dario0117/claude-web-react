@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import type { NavGroup, NavItem, SidebarData } from '../types';
 import { sidebarData } from './sidebar-data';
 

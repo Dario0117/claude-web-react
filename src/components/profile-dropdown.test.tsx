@@ -1,7 +1,20 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
 import { ProfileDropdown } from './profile-dropdown';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
@@ -28,7 +41,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('@/stores/authentication.store', () => ({
   useAuthenticationStore: () => ({
-    user: {
+    profile: {
       firstName: 'satnaing',
       lastName: 'dev',
       email: 'satnaingdev@gmail.com',
@@ -38,19 +51,19 @@ vi.mock('@/stores/authentication.store', () => ({
 
 describe('ProfileDropdown', () => {
   it('should render profile avatar button', () => {
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
   });
 
   it('should render avatar fallback', () => {
-    render(<ProfileDropdown />);
-    expect(screen.getByText('sd')).toBeInTheDocument();
+    renderWithProviders(<ProfileDropdown />);
+    expect(screen.getByText(/sd/i)).toBeInTheDocument();
   });
 
   it('should open dropdown menu when avatar is clicked', async () => {
     const user = userEvent.setup();
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
     expect(screen.getByText('satnaing dev')).toBeInTheDocument();
@@ -59,7 +72,7 @@ describe('ProfileDropdown', () => {
 
   it('should render menu items', async () => {
     const user = userEvent.setup();
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
     expect(screen.getByText('Profile')).toBeInTheDocument();
@@ -71,7 +84,7 @@ describe('ProfileDropdown', () => {
 
   it('should render keyboard shortcuts', async () => {
     const user = userEvent.setup();
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
     expect(screen.getByText('⇧⌘P')).toBeInTheDocument();
@@ -82,7 +95,7 @@ describe('ProfileDropdown', () => {
 
   it('should open sign out dialog when sign out is clicked', async () => {
     const user = userEvent.setup();
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
     const signOutItem = screen.getByText('Sign out');
@@ -96,7 +109,7 @@ describe('ProfileDropdown', () => {
 
   it('should render profile links', async () => {
     const user = userEvent.setup();
-    render(<ProfileDropdown />);
+    renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
     const profileLink = screen.getByText('Profile').closest('a');

@@ -6,7 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { useRegisterMutationType } from '@/services/users.service';
+import type { useRegisterMutationType } from '@/services/users.http-service';
 import { RegisterForm } from './register.form';
 
 describe('RegisterForm', () => {

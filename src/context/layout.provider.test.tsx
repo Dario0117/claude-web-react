@@ -1,21 +1,20 @@
 import { act, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import * as cookiesModule from '@/lib/cookies';
+import * as cookiesModule from '@/lib/cookies.utils';
 import {
   type Collapsible,
   LayoutProvider,
   useLayout,
   type Variant,
-} from './layout-provider';
+} from './layout.provider';
 
 // Mock the cookies module
-vi.mock('@/lib/cookies', () => ({
+vi.mock('@/lib/cookies.utils', () => ({
   getCookie: vi.fn(),
   setCookie: vi.fn(),
 }));
 
-const mockGetCookie = vi.mocked(cookiesModule.getCookie);
-const mockSetCookie = vi.mocked(cookiesModule.setCookie);
+const mockGetCookie = cookiesModule.getCookie as ReturnType<typeof vi.fn>;
+const mockSetCookie = cookiesModule.setCookie as ReturnType<typeof vi.fn>;
 
 // Test component that uses the layout hook
 function TestComponent() {

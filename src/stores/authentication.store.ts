@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { AuthActions, AuthState } from '@/stores/auth-store.d';
+import type { AuthActions, AuthState } from '@/stores/authentication.store.d';
 
 export const useAuthenticationStore = create<AuthState & AuthActions>()(
   immer((set) => ({
-    user: undefined,
-    setUser: (user) => {
+    profile: undefined,
+    setProfile: (profile) => {
       set((state) => {
-        state.user = user;
+        state.profile = profile;
       });
     },
   })),

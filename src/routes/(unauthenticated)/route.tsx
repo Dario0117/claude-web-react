@@ -5,7 +5,7 @@ import {
   Outlet,
 } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { useProfileQuery } from '@/services/users.service';
+import { useProfileQuery } from '@/services/users.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export const Route = createFileRoute('/(unauthenticated)')({
@@ -13,19 +13,19 @@ export const Route = createFileRoute('/(unauthenticated)')({
 });
 
 function SessionCheckComponent() {
-  const { user, setUser } = useAuthenticationStore();
+  const { profile, setProfile } = useAuthenticationStore();
   const { data, isLoading } = useProfileQuery();
   useEffect(() => {
     if (data?.responseData) {
-      setUser(data.responseData);
+      setProfile(data.responseData);
     }
-  }, [data?.responseData, setUser]);
+  }, [data?.responseData, setProfile]);
 
   if (isLoading) {
     return null;
   }
 
-  if (user) {
+  if (profile) {
     return (
       <Navigate
         to="/"

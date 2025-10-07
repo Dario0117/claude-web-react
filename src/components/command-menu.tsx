@@ -10,8 +10,8 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
-import { useSearch } from '@/context/search-provider';
-import { useTheme } from '@/theme-provider';
+import { useSearch } from '@/context/search.provider';
+import { useTheme } from '@/context/theme.provider';
 import { sidebarData } from './layout/data/sidebar-data';
 import { ScrollArea } from './ui/scroll-area';
 

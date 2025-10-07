@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import { ResetPasswordForm } from '@/components/org/forms/reset-password.form';
-import { useResetPasswordMutation } from '@/services/users.service';
+import { useResetPasswordMutation } from '@/services/users.http-service';
 
 export function ResetPasswordPage() {
   const navigate = useNavigate({ from: '/reset-password' });

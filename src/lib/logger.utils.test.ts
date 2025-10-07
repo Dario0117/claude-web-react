@@ -1,4 +1,4 @@
-import type { LogContext } from '@/types/logger';
+import type { LogContext } from '@/lib/logger.utils.d';
 import { logError, logInfo, logWarning } from './logger.utils';
 
 describe('logger utils', () => {

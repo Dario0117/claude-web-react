@@ -1,10 +1,24 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { useResetPasswordMutationType } from '@/services/users.service';
+import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { ResetPasswordPage } from './reset-pw.page';
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
+
 // Mock the users service
-vi.mock('@/services/users.service', () => ({
+vi.mock('@/services/users.http-service', () => ({
   useResetPasswordMutation: vi.fn(),
 }));
 
@@ -14,7 +28,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 const mockUseResetPasswordMutation = vi.mocked(
-  await import('@/services/users.service'),
+  await import('@/services/users.http-service'),
 ).useResetPasswordMutation;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
@@ -54,7 +68,7 @@ describe('ResetPasswordPage', () => {
   });
 
   it('should render reset password form', () => {
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     expect(screen.getByText('Reset your password')).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
@@ -70,7 +84,7 @@ describe('ResetPasswordPage', () => {
       createMockMutation({ mutateAsync: mockMutateAsync }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -98,7 +112,7 @@ describe('ResetPasswordPage', () => {
       }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
@@ -114,7 +128,7 @@ describe('ResetPasswordPage', () => {
       createMockMutation({ mutateAsync: mockMutateAsync }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -133,7 +147,7 @@ describe('ResetPasswordPage', () => {
   });
 
   it('should have proper page structure and styling', () => {
-    const { container } = render(<ResetPasswordPage />);
+    const { container } = renderWithProviders(<ResetPasswordPage />);
 
     const section = container.querySelector('section');
     expect(section).toHaveClass(
@@ -151,7 +165,7 @@ describe('ResetPasswordPage', () => {
   });
 
   it('should pass resetPasswordMutation to ResetPasswordForm', () => {
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     // The resetPasswordMutation should be passed to ResetPasswordForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
@@ -165,7 +179,7 @@ describe('ResetPasswordPage', () => {
       createMockMutation({ mutateAsync: mockMutateAsync }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -184,14 +198,14 @@ describe('ResetPasswordPage', () => {
   });
 
   it('should use correct navigation source', () => {
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     expect(mockUseNavigate).toHaveBeenCalledWith({ from: '/reset-password' });
   });
 
   it('should render accessibility landmarks', () => {
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const section = screen.getByText('Reset your password').closest('section');
     expect(section).toBeInTheDocument();
@@ -204,7 +218,7 @@ describe('ResetPasswordPage', () => {
       createMockMutation({ mutateAsync: mockMutateAsync }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -258,7 +272,7 @@ describe('ResetPasswordPage', () => {
       }),
     );
 
-    render(<ResetPasswordPage />);
+    renderWithProviders(<ResetPasswordPage />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {

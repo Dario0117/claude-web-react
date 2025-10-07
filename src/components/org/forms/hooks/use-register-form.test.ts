@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { act } from 'react';
 import { logError } from '@/lib/logger.utils';
-import type { useRegisterMutationType } from '@/services/users.service';
+import type { useRegisterMutationType } from '@/services/users.http-service';
 import { useRegisterForm } from './use-register-form';
 
 // Mock the logger utility

@@ -1,12 +1,12 @@
 import { act, renderHook } from '@testing-library/react';
-import type { User } from '@/types/auth';
 import { useAuthenticationStore } from './authentication.store';
+import type { Profile } from './authentication.store.d';
 
 describe('authentication.store', () => {
   beforeEach(() => {
     // Reset store state before each test
     useAuthenticationStore.setState({
-      user: undefined,
+      profile: undefined,
     });
   });
 
@@ -14,12 +14,12 @@ describe('authentication.store', () => {
     it('should have correct initial state', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
-      expect(result.current.user).toBeUndefined();
+      expect(result.current.profile).toBeUndefined();
     });
   });
 
   describe('setUser action', () => {
-    const mockUser: User = {
+    const mockUser: Profile = {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -29,38 +29,38 @@ describe('authentication.store', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
       act(() => {
-        result.current.setUser(mockUser);
+        result.current.setProfile(mockUser);
       });
 
-      expect(result.current.user).toEqual(mockUser);
+      expect(result.current.profile).toEqual(mockUser);
     });
 
     it('should override existing user data', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
-      const firstUser: User = {
+      const firstUser: Profile = {
         firstName: 'First',
         lastName: 'User',
         email: 'first@example.com',
       };
 
-      const secondUser: User = {
+      const secondUser: Profile = {
         firstName: 'Second',
         lastName: 'User',
         email: 'second@example.com',
       };
 
       act(() => {
-        result.current.setUser(firstUser);
+        result.current.setProfile(firstUser);
       });
 
-      expect(result.current.user).toEqual(firstUser);
+      expect(result.current.profile).toEqual(firstUser);
 
       act(() => {
-        result.current.setUser(secondUser);
+        result.current.setProfile(secondUser);
       });
 
-      expect(result.current.user).toEqual(secondUser);
+      expect(result.current.profile).toEqual(secondUser);
     });
   });
 
@@ -69,18 +69,18 @@ describe('authentication.store', () => {
       const { result: result1 } = renderHook(() => useAuthenticationStore());
       const { result: result2 } = renderHook(() => useAuthenticationStore());
 
-      const mockUser: User = {
+      const mockUser: Profile = {
         firstName: 'Test',
         lastName: 'User',
         email: 'test@example.com',
       };
 
       act(() => {
-        result1.current.setUser(mockUser);
+        result1.current.setProfile(mockUser);
       });
 
-      expect(result1.current.user).toEqual(mockUser);
-      expect(result2.current.user).toEqual(mockUser);
+      expect(result1.current.profile).toEqual(mockUser);
+      expect(result2.current.profile).toEqual(mockUser);
     });
   });
 
@@ -89,22 +89,22 @@ describe('authentication.store', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
       const initialState = {
-        user: result.current.user,
+        user: result.current.profile,
       };
 
-      const mockUser: User = {
+      const mockUser: Profile = {
         firstName: 'Test',
         lastName: 'User',
         email: 'test@example.com',
       };
 
       act(() => {
-        result.current.setUser(mockUser);
+        result.current.setProfile(mockUser);
       });
 
       // Initial state snapshot should remain unchanged
       expect(initialState.user).toBeUndefined();
-      expect(result.current.user).toEqual(mockUser);
+      expect(result.current.profile).toEqual(mockUser);
     });
   });
 });

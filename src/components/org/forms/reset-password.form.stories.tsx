@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { useResetPasswordMutationType } from '@/services/users.service';
+import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { ResetPasswordForm } from './reset-password.form';
 
 // Create mock mutation factory

@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import { RegisterForm } from '@/components/org/forms/register.form';
-import { useRegisterMutation } from '@/services/users.service';
+import { useRegisterMutation } from '@/services/users.http-service';
 
 export function RegisterPage() {
   const navigate = useNavigate({ from: '/register' });

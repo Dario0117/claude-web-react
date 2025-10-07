@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { TeamSwitcher } from './team-switcher';
 

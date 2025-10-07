@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useTheme } from '@/theme-provider';
+import { useTheme } from '@/context/theme.provider';
 import { ThemeSwitch } from './theme-switch';
 
 // Mock the theme provider
-vi.mock('@/theme-provider', () => ({
+vi.mock('@/context/theme.provider', () => ({
   useTheme: vi.fn(),
 }));
 

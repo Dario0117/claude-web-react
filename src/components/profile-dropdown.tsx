@@ -17,10 +17,10 @@ import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState();
-  const { user } = useAuthenticationStore();
+  const { profile } = useAuthenticationStore();
 
-  const avatarFallback = user
-    ? user.firstName.charAt(0) + user.lastName.charAt(0)
+  const avatarFallback = profile
+    ? profile.firstName.charAt(0) + profile.lastName.charAt(0)
     : '';
 
   return (
@@ -48,10 +48,10 @@ export function ProfileDropdown() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col gap-1.5">
               <p className="text-sm leading-none font-medium">
-                {user?.firstName} {user?.lastName}
+                {profile?.firstName} {profile?.lastName}
               </p>
               <p className="text-muted-foreground text-xs leading-none">
-                {user?.email}
+                {profile?.email}
               </p>
             </div>
           </DropdownMenuLabel>

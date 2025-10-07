@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/suspicious/noDocumentCookie: testing */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getCookie, removeCookie, setCookie } from './cookies';
+import { getCookie, removeCookie, setCookie } from './cookies.utils';
 
 describe('cookies', () => {
   let mockDocumentCookie: ReturnType<typeof vi.spyOn>;

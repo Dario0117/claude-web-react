@@ -1,5 +1,5 @@
-import { $api } from '@/httpp-service-setup';
-import { queryClient } from '@/query-provider';
+import { queryClient } from '@/context/query.provider';
+import { $api } from '@/http-service-setup';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function useLoginMutation() {
@@ -9,10 +9,10 @@ export function useLoginMutation() {
 export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
 export function useLogoutMutation() {
-  const { setUser } = useAuthenticationStore();
+  const { setProfile } = useAuthenticationStore();
   return $api.useMutation('post', '/api/v1/users/logout', {
     onSuccess: () => {
-      setUser(undefined);
+      setProfile(undefined);
       queryClient.invalidateQueries({
         queryKey: ['get', '/api/v1/users/profile'],
       });

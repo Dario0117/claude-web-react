@@ -4,7 +4,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { useLayout } from '@/context/layout-provider';
+import { useLayout } from '@/context/layout.provider';
 import { sidebarData } from './data/sidebar-data';
 import { NavGroup } from './nav-group';
 import { TeamSwitcher } from './team-switcher';

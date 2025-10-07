@@ -1,7 +1,21 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { User } from '@/types/auth';
+import type { Profile } from '@/stores/authentication.store.d';
 import { LoginPage } from './login.page';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
 interface LinkProps {
   children: React.ReactNode;
@@ -28,7 +42,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 // Mock the useLoginMutation service hook
-vi.mock('@/services/users.service', () => ({
+vi.mock('@/services/users.http-service', () => ({
   useLoginMutation: vi.fn(),
 }));
 
@@ -37,7 +51,7 @@ const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
 const mockUseLoginMutation = vi.mocked(
-  await import('@/services/users.service'),
+  await import('@/services/users.http-service'),
 ).useLoginMutation;
 
 // Mock navigate function
@@ -65,7 +79,7 @@ describe('LoginPage', () => {
   it('should render login form when user is not logged in', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
@@ -74,7 +88,7 @@ describe('LoginPage', () => {
   });
 
   it('should render login form regardless of authentication state', () => {
-    const mockUser: User = {
+    const mockUser: Profile = {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -82,7 +96,7 @@ describe('LoginPage', () => {
 
     mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // LoginPage should render the form even when user is logged in
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
@@ -92,7 +106,7 @@ describe('LoginPage', () => {
   it('should not redirect when user is not logged in', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
   });
@@ -100,7 +114,7 @@ describe('LoginPage', () => {
   it('should pass login function to LoginForm', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The login function should be passed to LoginForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
@@ -110,7 +124,7 @@ describe('LoginPage', () => {
   it('should have proper page structure and styling', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    const { container } = render(<LoginPage />);
+    const { container } = renderWithProviders(<LoginPage />);
 
     const section = container.querySelector('section');
     expect(section).toHaveClass(
@@ -131,13 +145,13 @@ describe('LoginPage', () => {
     // Start with user not logged in
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    const { rerender } = render(<LoginPage />);
+    const { rerender } = renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
 
     // Change to logged in - component behavior should remain the same
-    const mockUser: User = {
+    const mockUser: Profile = {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -145,7 +159,11 @@ describe('LoginPage', () => {
 
     mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
-    rerender(<LoginPage />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <LoginPage />
+      </QueryClientProvider>,
+    );
 
     // Component should still render the form and not navigate
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
@@ -155,7 +173,7 @@ describe('LoginPage', () => {
   it('should use correct navigation source', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     // This is verified by the component rendering without errors
@@ -165,7 +183,7 @@ describe('LoginPage', () => {
   it('should render accessibility landmarks', () => {
     mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     const section = screen
       .getByText('Login to your account')

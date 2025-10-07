@@ -4,9 +4,9 @@ import { ProfileDropdown } from '@/components/profile-dropdown';
 import { SkipToMain } from '@/components/skip-to-main';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { LayoutProvider } from '@/context/layout-provider';
-import { SearchProvider } from '@/context/search-provider';
-import { getCookie } from '@/lib/cookies';
+import { LayoutProvider } from '@/context/layout.provider';
+import { SearchProvider } from '@/context/search.provider';
+import { getCookie } from '@/lib/cookies.utils';
 import { cn } from '@/lib/utils';
 import { Header } from './header';
 

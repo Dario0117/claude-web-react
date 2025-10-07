@@ -3,7 +3,7 @@ import { LoginForm } from '@/components/org/forms/login.form';
 import {
   useLoginMutation,
   type useLoginMutationType,
-} from '@/services/users.service';
+} from '@/services/users.http-service';
 
 export function LoginPage() {
   const navigate = useNavigate({ from: '/login' });

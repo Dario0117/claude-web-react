@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { useRegisterMutationType } from '@/services/users.service';
+import type { useRegisterMutationType } from '@/services/users.http-service';
 import { useRegisterForm } from './hooks/use-register-form';
 
 interface RegisterFormProps {

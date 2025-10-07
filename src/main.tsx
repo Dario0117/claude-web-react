@@ -3,8 +3,8 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './main.css';
 import App from './app';
-import { QueryProvider } from './query-provider';
-import { ThemeProvider } from './theme-provider';
+import { QueryProvider } from './context/query.provider';
+import { ThemeProvider } from './context/theme.provider';
 
 const rootElement = document.getElementById('root') as Element;
 if (!rootElement.innerHTML) {

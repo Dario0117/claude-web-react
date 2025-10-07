@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 // We need to test the actual implementation by properly mocking import.meta.env
 // Since we can't easily mock import.meta in Vitest, let's test the actual behavior
 // by creating a utility function that we can test more directly
@@ -7,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 describe('getAppVersion integration tests', () => {
   it('should return a string value', async () => {
     // Dynamic import to get the actual implementation
-    const { getAppVersion } = await import('./version');
+    const { getAppVersion } = await import('./version.utils');
 
     const version = getAppVersion();
 
@@ -16,7 +14,7 @@ describe('getAppVersion integration tests', () => {
   });
 
   it('should return "dev" in test environment since Vitest runs in development mode', async () => {
-    const { getAppVersion } = await import('./version');
+    const { getAppVersion } = await import('./version.utils');
 
     const version = getAppVersion();
 

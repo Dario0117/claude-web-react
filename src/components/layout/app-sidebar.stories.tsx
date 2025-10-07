@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { LayoutProvider } from '@/context/layout-provider';
+import { LayoutProvider } from '@/context/layout.provider';
 import { AppSidebar } from './app-sidebar';
 
 const meta = {

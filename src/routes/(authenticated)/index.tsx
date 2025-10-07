@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { useLogoutMutation } from '@/services/users.service';
+import { useLogoutMutation } from '@/services/users.http-service';
 
 export const Route = createFileRoute('/(authenticated)/')({
   component: Index,

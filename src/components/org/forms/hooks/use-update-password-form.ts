@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { useParams } from '@tanstack/react-router';
 import { logError } from '@/lib/logger.utils';
-import type { useUpdatePasswordMutationType } from '@/services/users.service';
+import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { updatePasswordFormSchema } from '../validation/update-password-form.schema';
 
 interface UseResetPasswordFormProps {

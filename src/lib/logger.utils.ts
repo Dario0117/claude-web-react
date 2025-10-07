@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/suspicious/noConsole: logging */
-import type { LogContext } from '@/types/logger';
+import type { LogContext } from '@/lib/logger.utils.d';
 
 export function logWarning(ctx: LogContext) {
   console.warn(ctx.message);

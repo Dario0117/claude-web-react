@@ -1,9 +1,23 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UpdatePasswordPage } from './update-pw.page';
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
+
 // Mock the services
-vi.mock('@/services/users.service', () => ({
+vi.mock('@/services/users.http-service', () => ({
   useUpdatePasswordMutation: vi.fn(),
 }));
 
@@ -14,7 +28,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 const mockUseUpdatePasswordMutation = vi.mocked(
-  await import('@/services/users.service'),
+  await import('@/services/users.http-service'),
 ).useUpdatePasswordMutation;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
@@ -47,7 +61,7 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should render update password form', () => {
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
@@ -63,7 +77,7 @@ describe('UpdatePasswordPage', () => {
       'Password updated',
     ]);
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -85,7 +99,7 @@ describe('UpdatePasswordPage', () => {
     const mockData = ['Password updated'];
     mockUpdatePasswordMutation.mutateAsync.mockResolvedValue(mockData);
 
-    const { rerender } = render(<UpdatePasswordPage />);
+    const { rerender } = renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -106,7 +120,11 @@ describe('UpdatePasswordPage', () => {
     mockUpdatePasswordMutation.isSuccess = true;
     mockUpdatePasswordMutation.data = mockData;
     mockUseUpdatePasswordMutation.mockReturnValue(mockUpdatePasswordMutation);
-    rerender(<UpdatePasswordPage />);
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <UpdatePasswordPage />
+      </QueryClientProvider>,
+    );
 
     // Now navigation should happen
     await waitFor(() => {
@@ -119,7 +137,7 @@ describe('UpdatePasswordPage', () => {
     const mockError = new Error('Invalid token');
     mockUpdatePasswordMutation.mutateAsync.mockRejectedValue(mockError);
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -158,7 +176,7 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should pass updatePassword function to UpdatePasswordForm', () => {
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     // The updatePassword function should be passed to UpdatePasswordForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
@@ -171,7 +189,7 @@ describe('UpdatePasswordPage', () => {
       'Password updated',
     ]);
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -189,7 +207,7 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should use correct navigation source', () => {
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     expect(mockUseNavigate).toHaveBeenCalledWith({
@@ -198,7 +216,7 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should render accessibility landmarks', () => {
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const section = screen.getByText('Update your password').closest('section');
     expect(section).toBeInTheDocument();
@@ -210,7 +228,7 @@ describe('UpdatePasswordPage', () => {
       'Password updated',
     ]);
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -233,7 +251,7 @@ describe('UpdatePasswordPage', () => {
       'Password updated',
     ]);
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -276,7 +294,7 @@ describe('UpdatePasswordPage', () => {
         }),
     );
 
-    render(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage />);
 
     const passwordInput = screen.getByLabelText(/^Password/);
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);

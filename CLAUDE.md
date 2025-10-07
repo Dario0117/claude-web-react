@@ -150,6 +150,7 @@ This is a React frontend template using modern tooling and patterns:
 - Regularly refactor tests to remove duplication
 - Don't test existence of css classes or tailwind directives, only test the behavior of the component on user interactions
 - Don't test types
+- Don't import things from 'vitest', they are global
 
 ### Storybook approach
 
