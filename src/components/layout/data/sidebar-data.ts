@@ -5,6 +5,7 @@ import {
   FilePenLine,
   FolderKanban,
   GalleryVerticalEnd,
+  House,
   Layers,
   MonitorSmartphone,
 } from 'lucide-react';
@@ -33,8 +34,13 @@ export const sidebarData: SidebarData = {
       title: 'General',
       items: [
         {
-          title: 'Projects',
+          title: 'Home',
           url: '/',
+          icon: House,
+        },
+        {
+          title: 'Projects',
+          url: '/projects',
           icon: FolderKanban,
         },
         {
@@ -45,7 +51,7 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'Queued sessions',
-          url: '/q',
+          url: '/queued-sessions',
           badge: '3',
           icon: Layers,
         },
@@ -56,7 +62,7 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Devices',
-          url: '/help-center',
+          url: '/devices',
           icon: MonitorSmartphone,
         },
         {

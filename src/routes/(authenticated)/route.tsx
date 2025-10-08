@@ -1,31 +1,14 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout';
-import { useProfileQuery } from '@/services/users.http-service';
-import { useAuthenticationStore } from '@/stores/authentication.store';
+import { SessionCheckMiddleware } from '@/components/org/pages/session-check-middleware.page';
 
 export const Route = createFileRoute('/(authenticated)')({
-  component: PreAuthLayout,
+  component: () => (
+    <SessionCheckMiddleware
+      to="/login"
+      whenProfileExist={false}
+    >
+      <AuthenticatedLayout />
+    </SessionCheckMiddleware>
+  ),
 });
-
-function PreAuthLayout() {
-  const { setProfile } = useAuthenticationStore();
-  const { data, isLoading } = useProfileQuery();
-  useEffect(() => {
-    if (data?.responseData) {
-      setProfile(data.responseData);
-    }
-  }, [data?.responseData, setProfile]);
-  if (isLoading) {
-    return null;
-  }
-  if (!data?.responseData) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
-  }
-  return <AuthenticatedLayout />;
-}

@@ -4,9 +4,5 @@ import { UpdatePasswordPage } from '@/components/org/pages/update-pw.page';
 export const Route = createFileRoute(
   '/(unauthenticated)/update-password/$token',
 )({
-  component: RouteComponent,
+  component: UpdatePasswordPage,
 });
-
-function RouteComponent() {
-  return <UpdatePasswordPage />;
-}

@@ -65,19 +65,19 @@ describe('Sidebar Data', () => {
       return;
     }
 
-    expect(generalGroup.items).toHaveLength(3);
+    expect(generalGroup.items).toHaveLength(4);
 
     // Test Projects item
-    const projectsItem = generalGroup.items[0];
+    const projectsItem = generalGroup.items[1];
     if (!projectsItem) {
       return;
     }
     expect(projectsItem.title).toBe('Projects');
-    expect('url' in projectsItem && projectsItem.url).toBe('/');
+    expect('url' in projectsItem && projectsItem.url).toBe('/projects');
     expect(projectsItem.icon).toBeDefined();
 
     // Test Drafts item with badge
-    const draftsItem = generalGroup.items[1];
+    const draftsItem = generalGroup.items[2];
     if (!draftsItem) {
       return;
     }
@@ -87,12 +87,12 @@ describe('Sidebar Data', () => {
     expect(draftsItem.icon).toBeDefined();
 
     // Test Queued sessions item with badge
-    const queuedItem = generalGroup.items[2];
+    const queuedItem = generalGroup.items[3];
     if (!queuedItem) {
       return;
     }
     expect(queuedItem.title).toBe('Queued sessions');
-    expect('url' in queuedItem && queuedItem.url).toBe('/q');
+    expect('url' in queuedItem && queuedItem.url).toBe('/queued-sessions');
     expect(queuedItem.badge).toBe('3');
     expect(queuedItem.icon).toBeDefined();
   });
@@ -111,7 +111,7 @@ describe('Sidebar Data', () => {
       return;
     }
     expect(devicesItem.title).toBe('Devices');
-    expect('url' in devicesItem && devicesItem.url).toBe('/help-center');
+    expect('url' in devicesItem && devicesItem.url).toBe('/devices');
     expect(devicesItem.icon).toBeDefined();
 
     // Test API item

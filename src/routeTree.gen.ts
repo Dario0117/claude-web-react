@@ -15,6 +15,11 @@ import { Route as authenticatedIndexRouteImport } from './routes/(authenticated)
 import { Route as unauthenticatedResetPasswordRouteImport } from './routes/(unauthenticated)/reset-password'
 import { Route as unauthenticatedRegisterRouteImport } from './routes/(unauthenticated)/register'
 import { Route as unauthenticatedLoginRouteImport } from './routes/(unauthenticated)/login'
+import { Route as authenticatedQueuedSessionsRouteImport } from './routes/(authenticated)/queued-sessions'
+import { Route as authenticatedProjectsRouteImport } from './routes/(authenticated)/projects'
+import { Route as authenticatedDraftsRouteImport } from './routes/(authenticated)/drafts'
+import { Route as authenticatedDevicesRouteImport } from './routes/(authenticated)/devices'
+import { Route as authenticatedApiRouteImport } from './routes/(authenticated)/api'
 import { Route as unauthenticatedUpdatePasswordTokenRouteImport } from './routes/(unauthenticated)/update-password.$token'
 
 const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
@@ -46,6 +51,32 @@ const unauthenticatedLoginRoute = unauthenticatedLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => unauthenticatedRouteRoute,
 } as any)
+const authenticatedQueuedSessionsRoute =
+  authenticatedQueuedSessionsRouteImport.update({
+    id: '/queued-sessions',
+    path: '/queued-sessions',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedProjectsRoute = authenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedDraftsRoute = authenticatedDraftsRouteImport.update({
+  id: '/drafts',
+  path: '/drafts',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedDevicesRoute = authenticatedDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedApiRoute = authenticatedApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
 const unauthenticatedUpdatePasswordTokenRoute =
   unauthenticatedUpdatePasswordTokenRouteImport.update({
     id: '/update-password/$token',
@@ -55,6 +86,11 @@ const unauthenticatedUpdatePasswordTokenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof authenticatedIndexRoute
+  '/api': typeof authenticatedApiRoute
+  '/devices': typeof authenticatedDevicesRoute
+  '/drafts': typeof authenticatedDraftsRoute
+  '/projects': typeof authenticatedProjectsRoute
+  '/queued-sessions': typeof authenticatedQueuedSessionsRoute
   '/login': typeof unauthenticatedLoginRoute
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
@@ -62,6 +98,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof authenticatedIndexRoute
+  '/api': typeof authenticatedApiRoute
+  '/devices': typeof authenticatedDevicesRoute
+  '/drafts': typeof authenticatedDraftsRoute
+  '/projects': typeof authenticatedProjectsRoute
+  '/queued-sessions': typeof authenticatedQueuedSessionsRoute
   '/login': typeof unauthenticatedLoginRoute
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
@@ -71,6 +112,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/(unauthenticated)': typeof unauthenticatedRouteRouteWithChildren
+  '/(authenticated)/api': typeof authenticatedApiRoute
+  '/(authenticated)/devices': typeof authenticatedDevicesRoute
+  '/(authenticated)/drafts': typeof authenticatedDraftsRoute
+  '/(authenticated)/projects': typeof authenticatedProjectsRoute
+  '/(authenticated)/queued-sessions': typeof authenticatedQueuedSessionsRoute
   '/(unauthenticated)/login': typeof unauthenticatedLoginRoute
   '/(unauthenticated)/register': typeof unauthenticatedRegisterRoute
   '/(unauthenticated)/reset-password': typeof unauthenticatedResetPasswordRoute
@@ -81,6 +127,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api'
+    | '/devices'
+    | '/drafts'
+    | '/projects'
+    | '/queued-sessions'
     | '/login'
     | '/register'
     | '/reset-password'
@@ -88,6 +139,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api'
+    | '/devices'
+    | '/drafts'
+    | '/projects'
+    | '/queued-sessions'
     | '/login'
     | '/register'
     | '/reset-password'
@@ -96,6 +152,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(authenticated)'
     | '/(unauthenticated)'
+    | '/(authenticated)/api'
+    | '/(authenticated)/devices'
+    | '/(authenticated)/drafts'
+    | '/(authenticated)/projects'
+    | '/(authenticated)/queued-sessions'
     | '/(unauthenticated)/login'
     | '/(unauthenticated)/register'
     | '/(unauthenticated)/reset-password'
@@ -152,6 +213,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof unauthenticatedLoginRouteImport
       parentRoute: typeof unauthenticatedRouteRoute
     }
+    '/(authenticated)/queued-sessions': {
+      id: '/(authenticated)/queued-sessions'
+      path: '/queued-sessions'
+      fullPath: '/queued-sessions'
+      preLoaderRoute: typeof authenticatedQueuedSessionsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/projects': {
+      id: '/(authenticated)/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof authenticatedProjectsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/drafts': {
+      id: '/(authenticated)/drafts'
+      path: '/drafts'
+      fullPath: '/drafts'
+      preLoaderRoute: typeof authenticatedDraftsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/devices': {
+      id: '/(authenticated)/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof authenticatedDevicesRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/api': {
+      id: '/(authenticated)/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof authenticatedApiRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/(unauthenticated)/update-password/$token': {
       id: '/(unauthenticated)/update-password/$token'
       path: '/update-password/$token'
@@ -163,10 +259,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface authenticatedRouteRouteChildren {
+  authenticatedApiRoute: typeof authenticatedApiRoute
+  authenticatedDevicesRoute: typeof authenticatedDevicesRoute
+  authenticatedDraftsRoute: typeof authenticatedDraftsRoute
+  authenticatedProjectsRoute: typeof authenticatedProjectsRoute
+  authenticatedQueuedSessionsRoute: typeof authenticatedQueuedSessionsRoute
   authenticatedIndexRoute: typeof authenticatedIndexRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedApiRoute: authenticatedApiRoute,
+  authenticatedDevicesRoute: authenticatedDevicesRoute,
+  authenticatedDraftsRoute: authenticatedDraftsRoute,
+  authenticatedProjectsRoute: authenticatedProjectsRoute,
+  authenticatedQueuedSessionsRoute: authenticatedQueuedSessionsRoute,
   authenticatedIndexRoute: authenticatedIndexRoute,
 }
 
