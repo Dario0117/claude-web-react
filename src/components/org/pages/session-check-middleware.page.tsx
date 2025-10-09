@@ -1,21 +1,8 @@
-import {
-  type AnyRouter,
-  type LinkProps,
-  Navigate,
-  type RegisteredRouter,
-} from '@tanstack/react-router';
+import { Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useProfileQuery } from '@/services/users.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-
-type Routes<TRouter extends AnyRouter = RegisteredRouter> =
-  LinkProps<TRouter>['to'];
-
-interface SessionCheckMiddlewareProps {
-  children: React.ReactNode;
-  to: Routes;
-  whenProfileExist: boolean;
-}
+import type { SessionCheckMiddlewareProps } from './session-check-middleware.page.d';
 
 export function SessionCheckMiddleware(props: SessionCheckMiddlewareProps) {
   const { setProfile } = useAuthenticationStore();

@@ -1,8 +1,5 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
-
-interface FormErrorDisplayProps {
-  errors: string[];
-}
+import type { FormErrorDisplayProps } from './form-error-display.d';
 
 export function FormErrorDisplay({ errors }: FormErrorDisplayProps) {
   if (!errors.length) {

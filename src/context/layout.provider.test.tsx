@@ -1,11 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import * as cookiesModule from '@/lib/cookies.utils';
-import {
-  type Collapsible,
-  LayoutProvider,
-  useLayout,
-  type Variant,
-} from './layout.provider';
+import { LayoutProvider, useLayout } from './layout.provider';
+import type { Collapsible, Variant } from './layout.provider.d';
 
 // Mock the cookies module
 vi.mock('@/lib/cookies.utils', () => ({

@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-
-type HeaderProps = React.HTMLAttributes<HTMLElement> & {
-  fixed?: boolean;
-  ref?: React.Ref<HTMLElement>;
-};
+import type { HeaderProps } from './header.d';
 
 export function Header({ className, fixed, children, ...props }: HeaderProps) {
   const [offset, setOffset] = useState(0);

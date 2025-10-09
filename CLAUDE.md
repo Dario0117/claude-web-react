@@ -152,6 +152,11 @@ This is a React frontend template using modern tooling and patterns:
 - Don't test types
 - Don't import things from 'vitest', they are global
 
+### Constants approach
+
+- All constants must be placed on `[file-name].constants.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.constants.ts` file placed on a global `constants` folder
+- Avoid using magic values, create a constant for it
+
 ### Storybook approach
 
 - Storybook is used for component documentation and development
@@ -171,11 +176,9 @@ This is a React frontend template using modern tooling and patterns:
 
 - Strongly-typed TypeScript with comprehensive interfaces
 - Generic functions and classes with proper constraints
-- Types must be placed on `d.ts` files alongside the code they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder
-- Avoid adding unnecessary types if they can be inferred
+- Types must be placed on `[file-name].d.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder
+- Avoid explicitly adding types if they can be inferred from upper levels in the code chain
 - Use generics and utility types for maximum type safety
-- Prefer type inference over explicit annotations when clear
-- Type declaration files (.d.ts) for external libraries
 
 ##  STRICT RULES, DON'T BREAK THEM, ASK FIRST
 
@@ -189,6 +192,6 @@ This is a React frontend template using modern tooling and patterns:
 - Don't try to analyze code from the installed dependencies
 - Don't add unsafe modifications from biome
 - Never delete or update auto generated files (src/types/api.generated.d.ts, src/routes/routeTree.gen.ts)
-- Never re-export imports on the same file
+- Never re-export things from another files, refactor the code on the dependant file to use the new location of the thing you want to re-export
 - When asked to fix tests or add tests or fix typescript issues, don't change the tested code, accommodate the tests to comply with the code
 - When asked to fix typescript issues, don't create new types even if they were deleted from the code, it was deleted intentionally, only add new interfaces or types to existing ones unless the type is necessary for the code to work

@@ -1,35 +1,20 @@
 import { createContext, useContext, useState } from 'react';
 import { getCookie, setCookie } from '@/lib/cookies.utils';
-
-export type Collapsible = 'offcanvas' | 'icon' | 'none';
-export type Variant = 'inset' | 'sidebar' | 'floating';
-
-// Cookie constants following the pattern from sidebar.tsx
-const LAYOUT_COLLAPSIBLE_COOKIE_NAME = 'layout_collapsible';
-const LAYOUT_VARIANT_COOKIE_NAME = 'layout_variant';
-const LAYOUT_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
-
-// Default values
-const DEFAULT_VARIANT = 'sidebar';
-const DEFAULT_COLLAPSIBLE = 'icon';
-
-type LayoutContextType = {
-  resetLayout: () => void;
-
-  defaultCollapsible: Collapsible;
-  collapsible: Collapsible;
-  setCollapsible: (collapsible: Collapsible) => void;
-
-  defaultVariant: Variant;
-  variant: Variant;
-  setVariant: (variant: Variant) => void;
-};
+import {
+  DEFAULT_COLLAPSIBLE,
+  DEFAULT_VARIANT,
+  LAYOUT_COLLAPSIBLE_COOKIE_NAME,
+  LAYOUT_COOKIE_MAX_AGE,
+  LAYOUT_VARIANT_COOKIE_NAME,
+} from './layout.provider.constants';
+import type {
+  Collapsible,
+  LayoutContextType,
+  LayoutProviderProps,
+  Variant,
+} from './layout.provider.d';
 
 const LayoutContext = createContext<LayoutContextType | null>(null);
-
-type LayoutProviderProps = {
-  children: React.ReactNode;
-};
 
 export function LayoutProvider({ children }: LayoutProviderProps) {
   const [collapsible, _setCollapsible] = useState<Collapsible>(() => {

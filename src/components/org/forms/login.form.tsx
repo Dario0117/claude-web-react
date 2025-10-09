@@ -4,13 +4,8 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { useLoginMutationType } from '@/services/users.http-service';
 import { useLoginForm } from './hooks/use-login-form';
-
-interface LoginFormProps {
-  loginMutation: useLoginMutationType;
-  handleSuccess(data: useLoginMutationType['data']): void;
-}
+import type { LoginFormProps } from './login.form.d';
 
 export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
   const form = useLoginForm({ loginMutation });

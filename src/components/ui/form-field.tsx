@@ -1,17 +1,6 @@
-import type { AnyFieldApi as FieldApi } from '@tanstack/react-form';
-import type React from 'react';
-import type { ComponentPropsWithoutRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-interface FormFieldProps {
-  field: FieldApi;
-  label: string;
-  placeholder?: string;
-  type?: ComponentPropsWithoutRef<'input'>['type'];
-  required?: boolean;
-  children?: React.ReactNode;
-}
+import type { FormFieldProps } from './form-field.d';
 
 export function FormField({
   field,

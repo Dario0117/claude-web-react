@@ -3,13 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { useResetPasswordForm } from './hooks/use-reset-password-form';
-
-interface ResetPasswordFormProps {
-  resetPasswordMutation: useResetPasswordMutationType;
-  handleSuccess(data: useResetPasswordMutationType['data']): void;
-}
+import type { ResetPasswordFormProps } from './reset-password.form.d';
 
 export function ResetPasswordForm({
   resetPasswordMutation,

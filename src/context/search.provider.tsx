@@ -1,16 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { CommandMenu } from '@/components/command-menu';
-
-type SearchContextType = {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+import type {
+  SearchContextType,
+  SearchProviderProps,
+} from './search.provider.d';
 
 const SearchContext = createContext<SearchContextType | null>(null);
-
-type SearchProviderProps = {
-  children: React.ReactNode;
-};
 
 export function SearchProvider({ children }: SearchProviderProps) {
   const [open, setOpen] = useState(false);
@@ -34,7 +29,6 @@ export function SearchProvider({ children }: SearchProviderProps) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useSearch = () => {
   const searchContext = useContext(SearchContext);
 

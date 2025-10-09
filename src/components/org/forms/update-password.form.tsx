@@ -3,13 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
-import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { useUpdatePasswordForm } from './hooks/use-update-password-form';
-
-interface UpdatePasswordFormProps {
-  updatePasswordMutation: useUpdatePasswordMutationType;
-  handleSuccess(data: useUpdatePasswordMutationType['data']): void;
-}
+import type { UpdatePasswordFormProps } from './update-password.form.d';
 
 export function UpdatePasswordForm({
   updatePasswordMutation,

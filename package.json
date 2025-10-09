@@ -16,7 +16,7 @@
     "build": "tsc -b && vite build",
     "format:fix": "biome format --write .",
     "lint:fix": "biome lint --write .",
-    "format-and-lint:fix": "biome check --write ",
+    "format-and-lint:fix": "biome check --write .",
     "format-and-lint:check": "biome check",
     "generate-vibe-rules": "vibe-rules install claude-code",
     "preview": "vite preview",

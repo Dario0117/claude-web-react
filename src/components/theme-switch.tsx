@@ -9,13 +9,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/context/theme.provider';
 import { cn } from '@/lib/utils';
+import { THEME_COLORS } from './theme-switch.constants';
 
 export function ThemeSwitch() {
   const { theme, setTheme } = useTheme();
   /* Update theme-color meta tag
    * when theme is updated */
   useEffect(() => {
-    const themeColor = theme === 'dark' ? '#020817' : '#fff';
+    const themeColor =
+      theme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light;
     const metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', themeColor);

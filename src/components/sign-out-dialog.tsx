@@ -1,10 +1,6 @@
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useLogoutMutation } from '@/services/users.http-service';
-
-interface SignOutDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import type { SignOutDialogProps } from './sign-out-dialog.d';
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
   const logout = useLogoutMutation();

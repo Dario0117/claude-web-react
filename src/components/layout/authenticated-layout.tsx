@@ -8,11 +8,8 @@ import { LayoutProvider } from '@/context/layout.provider';
 import { SearchProvider } from '@/context/search.provider';
 import { getCookie } from '@/lib/cookies.utils';
 import { cn } from '@/lib/utils';
+import type { AuthenticatedLayoutProps } from './authenticated-layout.d';
 import { Header } from './header';
-
-type AuthenticatedLayoutProps = {
-  children?: React.ReactNode;
-};
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false';
