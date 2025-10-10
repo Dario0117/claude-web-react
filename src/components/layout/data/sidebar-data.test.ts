@@ -1,5 +1,6 @@
-import type { NavGroup, NavItem, SidebarData } from '../types';
+import type { NavGroup, NavItem } from '../nav-group.d';
 import { sidebarData } from './sidebar-data';
+import type { SidebarData } from './sidebar-data.d';
 
 describe('Sidebar Data', () => {
   it('should have valid structure', () => {

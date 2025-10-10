@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FilePenLine, FolderKanban, Layers } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { NavGroup } from './nav-group';
-import type { NavItem } from './types';
+import type { NavItem } from './nav-group.d';
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({

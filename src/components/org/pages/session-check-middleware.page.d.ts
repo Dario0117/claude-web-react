@@ -1,14 +1,7 @@
-import type {
-  AnyRouter,
-  LinkProps,
-  RegisteredRouter,
-} from '@tanstack/react-router';
-
-export type Routes<TRouter extends AnyRouter = RegisteredRouter> =
-  LinkProps<TRouter>['to'];
+import type { LinkProps } from '@tanstack/react-router';
 
 export interface SessionCheckMiddlewareProps {
   children: React.ReactNode;
-  to: Routes;
+  to: LinkProps['to'];
   whenProfileExist: boolean;
 }

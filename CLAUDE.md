@@ -176,7 +176,7 @@ This is a React frontend template using modern tooling and patterns:
 
 - Strongly-typed TypeScript with comprehensive interfaces
 - Generic functions and classes with proper constraints
-- Types must be placed on `[file-name].d.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder
+- Types must be placed on `[file-name].d.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder. The only exception for this rule are files that match `[name].http-service.ts` naming pattern, these files are placed on `services` folder.
 - Avoid explicitly adding types if they can be inferred from upper levels in the code chain
 - Use generics and utility types for maximum type safety
 

@@ -1,9 +1,11 @@
 import type * as React from 'react';
 
+export type Team = {
+  name: string;
+  logo: React.ElementType;
+  plan: string;
+};
+
 export type TeamSwitcherProps = {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
+  teams: Team[];
 };
