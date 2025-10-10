@@ -4,7 +4,10 @@ import { registerFormSchema } from '../validation/register-form.schema';
 import { useAppForm } from './app-form';
 import type { UseRegisterFormProps } from './use-register-form.d';
 
-export function useRegisterForm({ registerMutation }: UseRegisterFormProps) {
+export function useRegisterForm({
+  registerMutation,
+  handleSuccess,
+}: UseRegisterFormProps) {
   const form = useAppForm({
     defaultValues: {
       username: '',
@@ -16,7 +19,7 @@ export function useRegisterForm({ registerMutation }: UseRegisterFormProps) {
       onChange: registerFormSchema,
       async onSubmitAsync({ value, signal }) {
         try {
-          await registerMutation.mutateAsync({
+          const results = await registerMutation.mutateAsync({
             body: {
               username: value.username,
               password: value.password,
@@ -24,6 +27,7 @@ export function useRegisterForm({ registerMutation }: UseRegisterFormProps) {
             },
             signal,
           });
+          handleSuccess(results);
         } catch (exception: unknown) {
           const error = exception as useRegisterMutationType['error'];
           if (!error?.responseErrors) {

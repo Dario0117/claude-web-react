@@ -100,11 +100,11 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should call handleSuccess on successful password reset request', async () => {
+    const user = userEvent.setup();
     const mockData = { responseData: ['Email sent successfully'] };
+    const mockMutateAsync = vi.fn().mockResolvedValue(mockData);
     const mockMutation = createMockMutation({
-      mutateAsync: vi.fn().mockResolvedValue({}),
-      isSuccess: true,
-      data: mockData,
+      mutateAsync: mockMutateAsync,
     });
 
     render(
@@ -113,6 +113,16 @@ describe('ResetPasswordForm', () => {
         handleSuccess={mockHandleSuccess}
       />,
     );
+
+    const emailInput = screen.getByLabelText(/Email/);
+    const submitButton = screen.getByRole('button', {
+      name: 'Send reset email',
+    });
+
+    await act(async () => {
+      await user.type(emailInput, 'test@example.com');
+      await user.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);

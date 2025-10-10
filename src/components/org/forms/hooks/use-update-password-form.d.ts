@@ -2,4 +2,5 @@ import type { useUpdatePasswordMutationType } from '@/services/users.http-servic
 
 export interface UseUpdatePasswordFormProps {
   updatePasswordMutation: useUpdatePasswordMutationType;
+  handleSuccess(data: useUpdatePasswordMutationType['data']): void;
 }

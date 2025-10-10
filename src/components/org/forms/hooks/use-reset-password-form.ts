@@ -6,6 +6,7 @@ import type { UseResetPasswordFormProps } from './use-reset-password-form.d';
 
 export function useResetPasswordForm({
   resetPasswordMutation,
+  handleSuccess,
 }: UseResetPasswordFormProps) {
   const form = useAppForm({
     defaultValues: {
@@ -15,12 +16,13 @@ export function useResetPasswordForm({
       onChange: resetPasswordFormSchema,
       async onSubmitAsync({ value, signal }) {
         try {
-          await resetPasswordMutation.mutateAsync({
+          const results = await resetPasswordMutation.mutateAsync({
             body: {
               email: value.email,
             },
             signal,
           });
+          handleSuccess(results);
         } catch (exception: unknown) {
           const error = exception as useResetPasswordMutationType['error'];
           if (!error?.responseErrors) {

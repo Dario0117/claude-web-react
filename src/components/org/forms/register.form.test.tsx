@@ -116,10 +116,14 @@ describe('RegisterForm', () => {
 
   it('should call handleSuccess on successful registration', async () => {
     const user = userEvent.setup();
+    const mockData = {
+      responseData: ['Registration successful'],
+      responseErrors: null,
+    };
+    const mockMutateAsyncSuccess = vi.fn().mockResolvedValue(mockData);
     const successfulMutation = {
       ...mockRegisterMutation,
-      isSuccess: true,
-      data: { responseData: ['Registration successful'], responseErrors: null },
+      mutateAsync: mockMutateAsyncSuccess,
     } as unknown as useRegisterMutationType;
 
     render(
@@ -142,7 +146,7 @@ describe('RegisterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalled();
+      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
     });
   });
 

@@ -113,8 +113,6 @@ describe('UpdatePasswordForm', () => {
     const user = userEvent.setup();
     const mockData = ['Password updated'];
     mockUpdatePasswordMutation.mutateAsync.mockResolvedValue(mockData);
-    mockUpdatePasswordMutation.isSuccess = true;
-    mockUpdatePasswordMutation.data = mockData;
 
     render(
       <UpdatePasswordForm

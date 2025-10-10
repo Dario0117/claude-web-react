@@ -103,16 +103,24 @@ describe('ResetPasswordPage', () => {
   });
 
   it('should navigate to login page on successful reset', async () => {
+    const user = userEvent.setup();
     const mockData = { responseData: ['Email sent successfully'] };
+    const mockMutateAsync = vi.fn().mockResolvedValue(mockData);
     mockUseResetPasswordMutation.mockReturnValue(
       createMockMutation({
-        mutateAsync: vi.fn().mockResolvedValue({}),
-        isSuccess: true,
-        data: mockData,
+        mutateAsync: mockMutateAsync,
       }),
     );
 
     renderWithProviders(<ResetPasswordPage />);
+
+    const emailInput = screen.getByLabelText(/Email/);
+    const submitButton = screen.getByRole('button', {
+      name: 'Send reset email',
+    });
+
+    await user.type(emailInput, 'test@example.com');
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
@@ -260,15 +268,13 @@ describe('ResetPasswordPage', () => {
     const mockMutateAsync = vi.fn().mockImplementation(
       () =>
         new Promise((resolve) => {
-          setTimeout(() => resolve({}), 100);
+          setTimeout(() => resolve(mockData), 100);
         }),
     );
 
     mockUseResetPasswordMutation.mockReturnValue(
       createMockMutation({
         mutateAsync: mockMutateAsync,
-        isSuccess: true,
-        data: mockData,
       }),
     );
 

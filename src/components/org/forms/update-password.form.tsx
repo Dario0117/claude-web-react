@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUpdatePasswordForm } from './hooks/use-update-password-form';
 import type { UpdatePasswordFormProps } from './update-password.form.d';
@@ -7,17 +6,7 @@ export function UpdatePasswordForm({
   updatePasswordMutation,
   handleSuccess,
 }: UpdatePasswordFormProps) {
-  const form = useUpdatePasswordForm({ updatePasswordMutation });
-
-  useEffect(() => {
-    if (updatePasswordMutation.isSuccess) {
-      handleSuccess(updatePasswordMutation.data);
-    }
-  }, [
-    updatePasswordMutation.isSuccess,
-    updatePasswordMutation.data,
-    handleSuccess,
-  ]);
+  const form = useUpdatePasswordForm({ updatePasswordMutation, handleSuccess });
   return (
     <div className="flex flex-col gap-6">
       <Card>

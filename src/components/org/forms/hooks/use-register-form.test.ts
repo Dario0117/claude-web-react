@@ -11,6 +11,7 @@ vi.mock('@/lib/logger.utils', () => ({
 
 describe('useRegisterForm', () => {
   const mockMutateAsync = vi.fn();
+  const mockHandleSuccess = vi.fn();
   const mockRegisterMutation: useRegisterMutationType = {
     mutate: vi.fn(),
     mutateAsync: mockMutateAsync,
@@ -31,7 +32,10 @@ describe('useRegisterForm', () => {
 
   it('should initialize with default values', () => {
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     expect(result.current.state.values).toEqual({
@@ -43,10 +47,14 @@ describe('useRegisterForm', () => {
   });
 
   it('should call mutateAsync with correct data on successful submission', async () => {
-    mockMutateAsync.mockResolvedValue({ success: true });
+    const mockData = { success: true };
+    mockMutateAsync.mockResolvedValue(mockData);
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values
@@ -70,6 +78,8 @@ describe('useRegisterForm', () => {
       },
       signal: expect.any(AbortSignal),
     });
+
+    expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
   });
 
   it('should handle validation errors from server response', async () => {
@@ -84,7 +94,10 @@ describe('useRegisterForm', () => {
     mockMutateAsync.mockRejectedValue(mockError);
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values
@@ -112,7 +125,10 @@ describe('useRegisterForm', () => {
     mockMutateAsync.mockRejectedValue(unexpectedError);
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values
@@ -145,7 +161,10 @@ describe('useRegisterForm', () => {
     mockMutateAsync.mockRejectedValue(errorWithoutResponseErrors);
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values
@@ -177,7 +196,10 @@ describe('useRegisterForm', () => {
     mockMutateAsync.mockResolvedValue({ success: true });
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values
@@ -202,7 +224,10 @@ describe('useRegisterForm', () => {
     mockMutateAsync.mockResolvedValue({ success: true });
 
     const { result } = renderHook(() =>
-      useRegisterForm({ registerMutation: mockRegisterMutation }),
+      useRegisterForm({
+        registerMutation: mockRegisterMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set form values including confirm password

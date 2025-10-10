@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRegisterForm } from './hooks/use-register-form';
 import type { RegisterFormProps } from './register.form.d';
@@ -7,13 +6,7 @@ export function RegisterForm({
   registerMutation,
   handleSuccess,
 }: RegisterFormProps) {
-  const form = useRegisterForm({ registerMutation });
-
-  useEffect(() => {
-    if (registerMutation.isSuccess) {
-      handleSuccess(registerMutation.data);
-    }
-  }, [registerMutation.isSuccess, registerMutation.data, handleSuccess]);
+  const form = useRegisterForm({ registerMutation, handleSuccess });
 
   return (
     <div className="flex flex-col gap-6">

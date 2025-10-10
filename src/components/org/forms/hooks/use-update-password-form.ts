@@ -7,6 +7,7 @@ import type { UseUpdatePasswordFormProps } from './use-update-password-form.d';
 
 export function useUpdatePasswordForm({
   updatePasswordMutation,
+  handleSuccess,
 }: UseUpdatePasswordFormProps) {
   const { token } = useParams({
     from: '/(unauthenticated)/update-password/$token',
@@ -20,13 +21,14 @@ export function useUpdatePasswordForm({
       onChange: updatePasswordFormSchema,
       async onSubmitAsync({ value, signal }) {
         try {
-          await updatePasswordMutation.mutateAsync({
+          const results = await updatePasswordMutation.mutateAsync({
             body: {
               token: token,
               password: value.password,
             },
             signal,
           });
+          handleSuccess(results);
         } catch (exception: unknown) {
           const error = exception as useUpdatePasswordMutationType['error'];
           if (!error?.responseErrors) {
