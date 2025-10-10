@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
+import type { useLoginMutationType } from '@/services/users.http-service';
 import { useLoginForm } from './hooks/use-login-form';
+import type { LoginFormProps } from './login.form.d';
 
 // Mock LoginForm component to avoid router context dependencies
-// biome-ignore lint/suspicious/noExplicitAny: Storybook mock
-function MockLoginForm({ loginMutation }: { loginMutation: any }) {
-  const form = useLoginForm({ loginMutation });
+function MockLoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
+  const form = useLoginForm({ loginMutation, handleSuccess });
 
   return (
     <FormCard
@@ -149,6 +150,9 @@ export const Default: Story = {
         body: { username: string; password: string };
       }) => mockHandleLoginSuccess(body.username, body.password),
       error: null,
+    } as useLoginMutationType,
+    handleSuccess: (data) => {
+      console.log('Login successful:', data);
     },
   },
 };
@@ -162,6 +166,9 @@ export const WithError: Story = {
         body: { username: string; password: string };
       }) => mockHandleLoginError(body.username, body.password),
       error: null,
+    } as unknown as useLoginMutationType,
+    handleSuccess: (data) => {
+      console.log('Login successful:', data);
     },
   },
   parameters: {
@@ -183,6 +190,9 @@ export const NetworkError: Story = {
         body: { username: string; password: string };
       }) => mockHandleLoginNetworkError(body.username, body.password),
       error: null,
+    } as unknown as useLoginMutationType,
+    handleSuccess: (data) => {
+      console.log('Login successful:', data);
     },
   },
   parameters: {
@@ -216,6 +226,9 @@ export const Interactive: Story = {
         return mockHandleLoginError(body.username, body.password);
       },
       error: null,
+    } as useLoginMutationType,
+    handleSuccess: (data) => {
+      console.log('Login successful:', data);
     },
   },
   parameters: {

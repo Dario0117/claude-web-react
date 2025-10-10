@@ -1,3 +1,3 @@
 export interface FormErrorDisplayProps {
-  errors: string[];
+  errors: string[] | null | undefined;
 }

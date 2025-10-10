@@ -4,7 +4,10 @@ import type { useLoginMutationType } from '@/services/users.http-service';
 import { loginFormSchema } from '../validation/login-form.schema';
 import type { UseLoginFormProps } from './use-login-form.d';
 
-export function useLoginForm({ loginMutation }: UseLoginFormProps) {
+export function useLoginForm({
+  loginMutation,
+  handleSuccess,
+}: UseLoginFormProps) {
   const form = useForm({
     defaultValues: {
       username: '',
@@ -14,13 +17,14 @@ export function useLoginForm({ loginMutation }: UseLoginFormProps) {
       onChange: loginFormSchema,
       async onSubmitAsync({ value, signal }) {
         try {
-          await loginMutation.mutateAsync({
+          const results = await loginMutation.mutateAsync({
             body: {
               username: value.username,
               password: value.password,
             },
             signal,
           });
+          handleSuccess(results);
         } catch (exception: unknown) {
           const error = exception as useLoginMutationType['error'];
           if (!error?.responseErrors) {

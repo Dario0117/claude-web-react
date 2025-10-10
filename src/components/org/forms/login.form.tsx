@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
 import { FormErrorDisplay } from '@/components/ui/form-error-display';
@@ -8,13 +7,7 @@ import { useLoginForm } from './hooks/use-login-form';
 import type { LoginFormProps } from './login.form.d';
 
 export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
-  const form = useLoginForm({ loginMutation });
-
-  useEffect(() => {
-    if (loginMutation.isSuccess) {
-      handleSuccess(loginMutation.data);
-    }
-  }, [loginMutation.isSuccess, loginMutation.data, handleSuccess]);
+  const form = useLoginForm({ loginMutation, handleSuccess });
 
   return (
     <FormCard
@@ -78,11 +71,7 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
 
         <form.Subscribe selector={(state) => [state.errorMap]}>
           {([errorMap]) => {
-            const submitErrors = errorMap?.onSubmit;
-            if (!submitErrors) {
-              return null;
-            }
-            return <FormErrorDisplay errors={submitErrors} />;
+            return <FormErrorDisplay errors={errorMap?.onSubmit} />;
           }}
         </form.Subscribe>
 

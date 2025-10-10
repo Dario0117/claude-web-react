@@ -2,7 +2,7 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import type { FormErrorDisplayProps } from './form-error-display.d';
 
 export function FormErrorDisplay({ errors }: FormErrorDisplayProps) {
-  if (!errors.length) {
+  if (!errors || !errors.length) {
     return null;
   }
 

@@ -13,8 +13,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     expect(result.current.state.values.username).toBe('');
@@ -27,8 +31,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Try to submit with empty values
@@ -47,8 +55,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -77,9 +89,13 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
 
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -112,8 +128,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -146,8 +166,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -171,8 +195,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Should be able to set valid value
@@ -196,8 +224,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Should be able to set valid value
@@ -221,8 +253,12 @@ describe('useLoginForm', () => {
       error: null,
       // biome-ignore lint/suspicious/noExplicitAny: Test mock
     } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ loginMutation: mockLoginMutation }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
