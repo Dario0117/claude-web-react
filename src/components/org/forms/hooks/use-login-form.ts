@@ -1,14 +1,14 @@
-import { useForm } from '@tanstack/react-form';
 import { logError } from '@/lib/logger.utils';
 import type { useLoginMutationType } from '@/services/users.http-service';
 import { loginFormSchema } from '../validation/login-form.schema';
+import { useAppForm } from './app-form';
 import type { UseLoginFormProps } from './use-login-form.d';
 
 export function useLoginForm({
   loginMutation,
   handleSuccess,
 }: UseLoginFormProps) {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       username: '',
       password: '',

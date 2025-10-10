@@ -306,19 +306,32 @@ describe('UpdatePasswordForm', () => {
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Update password',
-    });
 
-    // Tab navigation should work
+    // Tab navigation should work through input fields
     await user.tab();
     expect(passwordInput).toHaveFocus();
 
     await user.tab();
     expect(confirmPasswordInput).toHaveFocus();
 
+    // Fill in both fields to enable the submit button
+    await user.click(passwordInput);
+    await user.type(passwordInput, 'testpassword');
+    await user.click(confirmPasswordInput);
+    await user.type(confirmPasswordInput, 'testpassword');
+
+    // Now the submit button should be enabled and focusable
+    const submitButton = screen.getByRole('button', {
+      name: 'Update password',
+    });
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+
     await user.tab();
-    expect(submitButton).toHaveFocus();
+    await waitFor(() => {
+      expect(submitButton).toHaveFocus();
+    });
   });
 
   it('should clear error map before submission', async () => {

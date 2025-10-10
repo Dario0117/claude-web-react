@@ -1,8 +1,8 @@
-import { useForm } from '@tanstack/react-form';
 import { useParams } from '@tanstack/react-router';
 import { logError } from '@/lib/logger.utils';
 import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { updatePasswordFormSchema } from '../validation/update-password-form.schema';
+import { useAppForm } from './app-form';
 import type { UseUpdatePasswordFormProps } from './use-update-password-form.d';
 
 export function useUpdatePasswordForm({
@@ -11,7 +11,7 @@ export function useUpdatePasswordForm({
   const { token } = useParams({
     from: '/(unauthenticated)/update-password/$token',
   });
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       password: '',
       confirm: '',

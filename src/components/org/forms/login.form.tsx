@@ -1,8 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
-import { FormErrorDisplay } from '@/components/ui/form-error-display';
-import { FormField } from '@/components/ui/form-field';
 import { useLoginForm } from './hooks/use-login-form';
 import type { LoginFormProps } from './login.form.d';
 
@@ -22,21 +19,19 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
         }}
       >
         <div className="flex flex-col gap-6">
-          <form.Field name="username">
+          <form.AppField name="username">
             {(field) => (
-              <FormField
-                field={field}
+              <field.AppFormField
                 label="Username"
                 placeholder="johndoe17"
                 required
               />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <form.Field name="password">
+          <form.AppField name="password">
             {(field) => (
-              <FormField
-                field={field}
+              <field.AppFormField
                 label="Password"
                 type="password"
                 placeholder="Password"
@@ -48,32 +43,20 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
                 >
                   Forgot your password?
                 </Link>
-              </FormField>
+              </field.AppFormField>
             )}
-          </form.Field>
+          </form.AppField>
 
           <div className="flex flex-col gap-3">
-            <form.Subscribe
-              selector={(state) => state.isValid && !state.isPristine}
-            >
-              {(canSubmit) => (
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={!canSubmit}
-                >
-                  Login
-                </Button>
-              )}
-            </form.Subscribe>
+            <form.AppForm>
+              <form.AppSubscribeSubmitButton label="Login" />
+            </form.AppForm>
           </div>
         </div>
 
-        <form.Subscribe selector={(state) => [state.errorMap]}>
-          {([errorMap]) => {
-            return <FormErrorDisplay errors={errorMap?.onSubmit} />;
-          }}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.AppSubscribeErrorButton />
+        </form.AppForm>
 
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account? <Link to="/register">Register</Link>

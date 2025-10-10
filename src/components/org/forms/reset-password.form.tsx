@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormErrorDisplay } from '@/components/ui/form-error-display';
-import { FormField } from '@/components/ui/form-field';
 import { useResetPasswordForm } from './hooks/use-reset-password-form';
 import type { ResetPasswordFormProps } from './reset-password.form.d';
 
@@ -36,35 +33,24 @@ export function ResetPasswordForm({
             }}
           >
             <div className="flex flex-col gap-6">
-              <form.Field name="email">
+              <form.AppField name="email">
                 {(field) => (
-                  <FormField
-                    field={field}
+                  <field.AppFormField
                     label="Email"
                     placeholder="johndoe17@mail.com"
                     required
                   />
                 )}
-              </form.Field>
+              </form.AppField>
               <div className="flex flex-col gap-3">
-                <Button
-                  type="submit"
-                  className="w-full"
-                >
-                  Send reset email
-                </Button>
+                <form.AppForm>
+                  <form.AppSubscribeSubmitButton label="Send reset email" />
+                </form.AppForm>
               </div>
             </div>
-
-            <form.Subscribe selector={(state) => [state.errorMap]}>
-              {([errorMap]) => {
-                const submitErrors = errorMap?.onSubmit;
-                if (!submitErrors) {
-                  return null;
-                }
-                return <FormErrorDisplay errors={submitErrors} />;
-              }}
-            </form.Subscribe>
+            <form.AppForm>
+              <form.AppSubscribeErrorButton />
+            </form.AppForm>
           </form>
         </CardContent>
       </Card>

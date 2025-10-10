@@ -1,11 +1,11 @@
-import { useForm } from '@tanstack/react-form';
 import { logError } from '@/lib/logger.utils';
 import type { useRegisterMutationType } from '@/services/users.http-service';
 import { registerFormSchema } from '../validation/register-form.schema';
+import { useAppForm } from './app-form';
 import type { UseRegisterFormProps } from './use-register-form.d';
 
 export function useRegisterForm({ registerMutation }: UseRegisterFormProps) {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       username: '',
       password: '',

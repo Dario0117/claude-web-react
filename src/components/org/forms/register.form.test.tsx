@@ -349,9 +349,8 @@ describe('RegisterForm', () => {
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
-    const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    // Tab navigation should work
+    // Tab navigation should work through input fields
     await user.tab();
     expect(usernameInput).toHaveFocus();
 
@@ -364,7 +363,25 @@ describe('RegisterForm', () => {
     await user.tab();
     expect(confirmPasswordInput).toHaveFocus();
 
+    // Fill in the form to enable the submit button
+    await user.click(usernameInput);
+    await user.type(usernameInput, 'testuser');
+    await user.click(emailInput);
+    await user.type(emailInput, 'test@example.com');
+    await user.click(passwordInput);
+    await user.type(passwordInput, 'testpassword');
+    await user.click(confirmPasswordInput);
+    await user.type(confirmPasswordInput, 'testpassword');
+
+    // Now the submit button should be enabled and focusable
+    const submitButton = screen.getByRole('button', { name: 'Register' });
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+
     await user.tab();
-    expect(submitButton).toHaveFocus();
+    await waitFor(() => {
+      expect(submitButton).toHaveFocus();
+    });
   });
 });

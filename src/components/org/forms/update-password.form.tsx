@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormErrorDisplay } from '@/components/ui/form-error-display';
-import { FormField } from '@/components/ui/form-field';
 import { useUpdatePasswordForm } from './hooks/use-update-password-form';
 import type { UpdatePasswordFormProps } from './update-password.form.d';
 
@@ -36,47 +33,36 @@ export function UpdatePasswordForm({
             }}
           >
             <div className="flex flex-col gap-6">
-              <form.Field name="password">
+              <form.AppField name="password">
                 {(field) => (
-                  <FormField
-                    field={field}
+                  <field.AppFormField
                     label="Password"
                     type="password"
                     placeholder="Password"
                     required
                   />
                 )}
-              </form.Field>
-              <form.Field name="confirm">
+              </form.AppField>
+              <form.AppField name="confirm">
                 {(field) => (
-                  <FormField
-                    field={field}
+                  <field.AppFormField
                     label="Confirm Password"
                     type="password"
                     placeholder="Confirm Password"
                     required
                   />
                 )}
-              </form.Field>
+              </form.AppField>
               <div className="flex flex-col gap-3">
-                <Button
-                  type="submit"
-                  className="w-full"
-                >
-                  Update password
-                </Button>
+                <form.AppForm>
+                  <form.AppSubscribeSubmitButton label="Update password" />
+                </form.AppForm>
               </div>
             </div>
 
-            <form.Subscribe selector={(state) => [state.errorMap]}>
-              {([errorMap]) => {
-                const submitErrors = errorMap?.onSubmit;
-                if (!submitErrors) {
-                  return null;
-                }
-                return <FormErrorDisplay errors={submitErrors} />;
-              }}
-            </form.Subscribe>
+            <form.AppForm>
+              <form.AppSubscribeErrorButton />
+            </form.AppForm>
           </form>
         </CardContent>
       </Card>

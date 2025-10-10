@@ -277,16 +277,26 @@ describe('ResetPasswordForm', () => {
     );
 
     const emailInput = screen.getByLabelText(/Email/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Send reset email',
-    });
 
-    // Tab navigation should work
+    // Tab navigation should work to email input
     await user.tab();
     expect(emailInput).toHaveFocus();
 
+    // Fill in email to enable the submit button
+    await user.type(emailInput, 'test@example.com');
+
+    // Now the submit button should be enabled and focusable
+    const submitButton = screen.getByRole('button', {
+      name: 'Send reset email',
+    });
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+
     await user.tab();
-    expect(submitButton).toHaveFocus();
+    await waitFor(() => {
+      expect(submitButton).toHaveFocus();
+    });
   });
 
   it('should clear error map before submission', async () => {
