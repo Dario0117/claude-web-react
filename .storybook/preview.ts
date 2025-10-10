@@ -1,6 +1,7 @@
 import type { Preview } from '@storybook/react-vite';
 import '../src/main.css';
 import { withThemeByClassName } from '@storybook/addon-themes';
+import { themes } from 'storybook/theming';
 
 export const decorators = [
   withThemeByClassName({
@@ -19,6 +20,10 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
+    },
+
+    docs: {
+      theme: themes.dark,
     },
 
     a11y: {

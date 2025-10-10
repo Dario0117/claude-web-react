@@ -1,33 +1,24 @@
 import { act, renderHook } from '@testing-library/react';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
 import { useLoginForm } from './use-login-form';
 
 describe('useLoginForm', () => {
-  const mockLoginSuccess: CoreHTTPResponse<LoginResponse> = {
-    data: {
-      success: true,
-      token: 'mock-token',
-      user: {
-        id: 1,
-        username: 'testuser',
-        email: 'test@example.com',
-      },
-    },
-    errors: null,
-  };
-
-  const mockLoginError: CoreHTTPResponse<LoginResponse> = {
-    data: null,
-    errors: {
-      message: 'Invalid credentials',
-      details: null,
-    },
+  const mockLoginSuccess = {
+    token: 'mock-token',
+    expiry: '2025-12-31T23:59:59Z',
   };
 
   it('should initialize with empty default values', () => {
-    const mockHandleLogin = vi.fn();
+    const mockLoginMutation = {
+      mutateAsync: vi.fn(),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     expect(result.current.state.values.username).toBe('');
@@ -35,9 +26,17 @@ describe('useLoginForm', () => {
   });
 
   it('should validate required fields', async () => {
-    const mockHandleLogin = vi.fn();
+    const mockLoginMutation = {
+      mutateAsync: vi.fn(),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Try to submit with empty values
@@ -47,13 +46,21 @@ describe('useLoginForm', () => {
 
     // Should have validation errors - TanStack form validates on submit
     // The form should prevent submission with invalid data
-    expect(mockHandleLogin).not.toHaveBeenCalled();
+    expect(mockLoginMutation.mutateAsync).not.toHaveBeenCalled();
   });
 
-  it('should call handleLogin on successful validation', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginSuccess);
+  it('should call loginMutation on successful validation', async () => {
+    const mockLoginMutation = {
+      mutateAsync: vi.fn().mockResolvedValue(mockLoginSuccess),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -67,17 +74,28 @@ describe('useLoginForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'password123');
+    expect(mockLoginMutation.mutateAsync).toHaveBeenCalledWith({
+      body: { username: 'testuser', password: 'password123' },
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it('should handle multiple form submissions', async () => {
-    const mockHandleLogin = vi
-      .fn()
-      .mockResolvedValueOnce(mockLoginError)
-      .mockResolvedValueOnce(mockLoginSuccess);
+    const mockLoginMutation = {
+      mutateAsync: vi
+        .fn()
+        .mockResolvedValueOnce(mockLoginSuccess)
+        .mockResolvedValueOnce(mockLoginSuccess),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
 
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -92,7 +110,7 @@ describe('useLoginForm', () => {
     });
 
     // Should have called login once
-    expect(mockHandleLogin).toHaveBeenCalledTimes(1);
+    expect(mockLoginMutation.mutateAsync).toHaveBeenCalledTimes(1);
 
     // The form state should exist
     expect(result.current.state).toBeDefined();
@@ -100,9 +118,22 @@ describe('useLoginForm', () => {
   });
 
   it('should set error map when login fails', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginError);
+    const mockError = {
+      responseErrors: {
+        nonFieldErrors: ['Invalid credentials'],
+      },
+    };
+    const mockLoginMutation = {
+      mutateAsync: vi.fn().mockRejectedValue(mockError),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -117,16 +148,30 @@ describe('useLoginForm', () => {
     });
 
     // Check that the error was set (may be in different structure)
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'wrongpassword');
+    expect(mockLoginMutation.mutateAsync).toHaveBeenCalledWith({
+      body: { username: 'testuser', password: 'wrongpassword' },
+      signal: expect.any(AbortSignal),
+    });
     expect(result.current.state.errorMap.onSubmit).toBeDefined();
   });
 
   it('should handle login function throwing an error', async () => {
-    const mockHandleLogin = vi
-      .fn()
-      .mockRejectedValue(new Error('Network error'));
+    const mockError = {
+      responseErrors: {
+        nonFieldErrors: ['Network error'],
+      },
+    };
+    const mockLoginMutation = {
+      mutateAsync: vi.fn().mockRejectedValue(mockError),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -135,18 +180,27 @@ describe('useLoginForm', () => {
       result.current.setFieldValue('password', 'password123');
     });
 
-    // Submit form - should not throw
+    // Submit form - should handle error gracefully
     await act(async () => {
-      await expect(result.current.handleSubmit()).rejects.toThrow(
-        'Network error',
-      );
+      await result.current.handleSubmit();
     });
+
+    // Check that error was processed and set in form state
+    expect(result.current.state.errorMap.onSubmit).toBeDefined();
   });
 
   it('should validate username field individually', () => {
-    const mockHandleLogin = vi.fn();
+    const mockLoginMutation = {
+      mutateAsync: vi.fn(),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Should be able to set valid value
@@ -165,9 +219,17 @@ describe('useLoginForm', () => {
   });
 
   it('should validate password field individually', () => {
-    const mockHandleLogin = vi.fn();
+    const mockLoginMutation = {
+      mutateAsync: vi.fn(),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Should be able to set valid value
@@ -186,9 +248,17 @@ describe('useLoginForm', () => {
   });
 
   it('should handle successful login without errors', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginSuccess);
+    const mockLoginMutation = {
+      mutateAsync: vi.fn().mockResolvedValue(mockLoginSuccess),
+      error: null,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any;
+    const mockHandleSuccess = vi.fn();
     const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+      useLoginForm({
+        loginMutation: mockLoginMutation,
+        handleSuccess: mockHandleSuccess,
+      }),
     );
 
     // Set valid values
@@ -203,7 +273,10 @@ describe('useLoginForm', () => {
     });
 
     // Should have called the login function
-    expect(mockHandleLogin).toHaveBeenCalledTimes(1);
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'password123');
+    expect(mockLoginMutation.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mockLoginMutation.mutateAsync).toHaveBeenCalledWith({
+      body: { username: 'testuser', password: 'password123' },
+      signal: expect.any(AbortSignal),
+    });
   });
 });

@@ -1,5 +1,21 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+import { useAuthenticationStore } from '@/stores/authentication.store';
+import type { Profile } from '@/stores/authentication.store.d';
 import { LoginPage } from './login.page';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
 
 interface LinkProps {
   children: React.ReactNode;
@@ -7,9 +23,9 @@ interface LinkProps {
   [key: string]: unknown;
 }
 
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
+// Mock the authentication store
+vi.mock('@/stores/authentication.store', () => ({
+  useAuthenticationStore: vi.fn(),
 }));
 
 // Mock the navigation hook
@@ -25,10 +41,18 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
+// Mock the useLoginMutation service hook
+vi.mock('@/services/users.http-service', () => ({
+  useLoginMutation: vi.fn(),
+}));
+
+const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
+const mockUseLoginMutation = vi.mocked(
+  await import('@/services/users.http-service'),
+).useLoginMutation;
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -37,20 +61,25 @@ mockUseNavigate.mockReturnValue(mockNavigate);
 describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuth.mockClear();
+    mockUseAuthenticationStore.mockClear();
+    mockUseLoginMutation.mockClear();
+
+    // Set up default mock for useLoginMutation
+    mockUseLoginMutation.mockReturnValue({
+      mutateAsync: vi.fn(),
+      error: null,
+      isSuccess: false,
+      data: null,
+      isLoading: false,
+      isError: false,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any);
   });
 
   it('should render login form when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
@@ -58,51 +87,34 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
 
-  it('should redirect to dashboard when user is already logged in', async () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+  it('should render login form regardless of authentication state', () => {
+    const mockUser: Profile = {
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+    };
 
-    render(<LoginPage />);
+    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
-    });
+    renderWithProviders(<LoginPage />);
+
+    // LoginPage should render the form even when user is logged in
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should not redirect when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should pass login function to LoginForm', () => {
-    const mockLogin = vi.fn();
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: mockLogin,
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The login function should be passed to LoginForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
@@ -110,16 +122,9 @@ describe('LoginPage', () => {
   });
 
   it('should have proper page structure and styling', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    const { container } = render(<LoginPage />);
+    const { container } = renderWithProviders(<LoginPage />);
 
     const section = container.querySelector('section');
     expect(section).toHaveClass(
@@ -136,49 +141,39 @@ describe('LoginPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should handle isLoggedIn state change', async () => {
+  it('should maintain consistent behavior on rerender', () => {
     // Start with user not logged in
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    const { rerender } = render(<LoginPage />);
+    const { rerender } = renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
 
-    // Change to logged in
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    // Change to logged in - component behavior should remain the same
+    const mockUser: Profile = {
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+    };
 
-    rerender(<LoginPage />);
+    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
-    });
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <LoginPage />
+      </QueryClientProvider>,
+    );
+
+    // Component should still render the form and not navigate
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should use correct navigation source', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     // This is verified by the component rendering without errors
@@ -186,16 +181,9 @@ describe('LoginPage', () => {
   });
 
   it('should render accessibility landmarks', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
 
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     const section = screen
       .getByText('Login to your account')

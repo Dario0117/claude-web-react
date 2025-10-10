@@ -1,12 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './main.css';
 import App from './app';
-import { ThemeProvider } from './theme-provider';
-
-const queryClient = new QueryClient();
+import { QueryProvider } from './context/query.provider';
+import { ThemeProvider } from './context/theme.provider';
 
 const rootElement = document.getElementById('root') as Element;
 if (!rootElement.innerHTML) {
@@ -17,10 +15,10 @@ if (!rootElement.innerHTML) {
         defaultTheme="system"
         storageKey="core-ui-theme"
       >
-        <QueryClientProvider client={queryClient}>
+        <QueryProvider>
           <App />
           <ReactQueryDevtools />
-        </QueryClientProvider>
+        </QueryProvider>
       </ThemeProvider>
     </StrictMode>,
   );
