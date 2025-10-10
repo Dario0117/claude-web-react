@@ -2,10 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { logError } from '@/lib/logger.utils';
 import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { resetPasswordFormSchema } from '../validation/reset-password-form.schema';
-
-interface UseResetPasswordFormProps {
-  resetPasswordMutation: useResetPasswordMutationType;
-}
+import type { UseResetPasswordFormProps } from './use-reset-password-form.d';
 
 export function useResetPasswordForm({
   resetPasswordMutation,

@@ -3,14 +3,11 @@ import { useParams } from '@tanstack/react-router';
 import { logError } from '@/lib/logger.utils';
 import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { updatePasswordFormSchema } from '../validation/update-password-form.schema';
-
-interface UseResetPasswordFormProps {
-  updatePasswordMutation: useUpdatePasswordMutationType;
-}
+import type { UseUpdatePasswordFormProps } from './use-update-password-form.d';
 
 export function useUpdatePasswordForm({
   updatePasswordMutation,
-}: UseResetPasswordFormProps) {
+}: UseUpdatePasswordFormProps) {
   const { token } = useParams({
     from: '/(unauthenticated)/update-password/$token',
   });
