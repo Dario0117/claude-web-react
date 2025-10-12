@@ -59,6 +59,46 @@ vi.mock('@/context/theme.provider', () => ({
   }),
 }));
 
+// Mock sidebar data with collapsible items containing subitems
+vi.mock('@/components/layout/data/sidebar-data', () => ({
+  sidebarData: {
+    teams: [],
+    navGroups: [
+      {
+        title: 'General',
+        items: [
+          {
+            title: 'Home',
+            url: '/',
+          },
+          {
+            title: 'Projects',
+            url: '/projects',
+          },
+        ],
+      },
+      {
+        title: 'Settings',
+        items: [
+          {
+            title: 'Account',
+            items: [
+              {
+                title: 'Profile',
+                url: '/account/profile',
+              },
+              {
+                title: 'Security',
+                url: '/account/security',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+}));
+
 describe('CommandMenu', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -151,5 +191,38 @@ describe('CommandMenu', () => {
       'Type a command or search...',
     );
     expect(input).toBeInTheDocument();
+  });
+
+  it('should render collapsible nav items with subitems', async () => {
+    renderWithProviders();
+    openCommandMenu();
+
+    // Check that subitems from Account collapsible are rendered
+    expect(await screen.findByText(/Profile/)).toBeInTheDocument();
+    expect(await screen.findByText(/Security/)).toBeInTheDocument();
+  });
+
+  it('should navigate to subitem url when subitem is selected', async () => {
+    const user = userEvent.setup();
+    renderWithProviders();
+    openCommandMenu();
+
+    // Find and click on the Profile subitem
+    const profileItem = await screen.findByText(/Profile/);
+    await user.click(profileItem);
+
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/account/profile' });
+  });
+
+  it('should navigate to url when regular nav item is selected', async () => {
+    const user = userEvent.setup();
+    renderWithProviders();
+    openCommandMenu();
+
+    // Find and click on the Home item
+    const homeItem = await screen.findByText('Home');
+    await user.click(homeItem);
+
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
   });
 });

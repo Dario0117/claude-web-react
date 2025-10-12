@@ -139,7 +139,7 @@ This is a React frontend template using modern tooling and patterns:
 
 - Unit tests for all new code
 - All test files follow the naming convention of `[file_tested_name].test.ts` or `[file_tested_name].test.tsx` and must be placed alongside the file being tested
-- Comprehensive test coverage (>85%) on each component but aim for 100% if possible
+- Comprehensive test coverage (>85%) on each component but aim for 100% if possible. To get all untested files, run `pnpm coverage` and when it finishes and all tests are passing, run `jq -r 'first(to_entries[] | select(any(.value.s[]; . == 0)) | .value)' coverage/coverage-final.json` to get one file that doesn't have enough coverage and add tests to them. Once that single file is done, run `pnpm coverage` again and check if there are any untested files left.
 - Don't write end to end tests, only unit and integration tests
 - Don't use mocks, stubs, or fakes, always use the real implementation, only mock external http requests using MSW, no component or function should be mocked, only external dependencies and requests.
 - Test components in isolation: each component should have its own test file. Focus on testing the component's behavior and user interactions, not implementation details. When testing composed components, verify the overall behavior rather than testing individual child components. For example, on `login.page.tsx`, there's no other logic other than the `LoginForm` component, so it's enough to test the `LoginForm` component in isolation. In this case we still need to create the test file, but add a comment saying that this component is a wrapper and the internal components are tested in isolation. Constantly check if this is still the case and if not, add more tests and remove the comment.

@@ -1,9 +1,15 @@
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useLogoutMutation } from '@/services/users.http-service';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 import type { SignOutDialogProps } from './sign-out-dialog.d';
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
-  const logout = useLogoutMutation();
+  const { setProfile } = useAuthenticationStore();
+  const logout = useLogoutMutation({
+    handleSuccess: () => {
+      setProfile(undefined);
+    },
+  });
 
   const handleSignOut = () => {
     logout.mutate({});

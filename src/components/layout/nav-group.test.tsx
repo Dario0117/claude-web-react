@@ -5,6 +5,14 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { NavGroup } from './nav-group';
 import type { NavItem } from './nav-group.d';
 
+// Create a mock function that we can control
+const mockUseLocation = vi.fn(
+  ({ select }: { select?: (location: { href: string }) => string } = {}) => {
+    const location = { href: '/' };
+    return select ? select(location) : location;
+  },
+);
+
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     to,
@@ -21,14 +29,8 @@ vi.mock('@tanstack/react-router', () => ({
       {children}
     </a>
   ),
-  useLocation: ({
-    select,
-  }: {
-    select?: (location: { href: string }) => string;
-  } = {}) => {
-    const location = { href: '/' };
-    return select ? select(location) : location;
-  },
+  useLocation: (params?: { select?: (location: { href: string }) => string }) =>
+    mockUseLocation(params),
 }));
 
 const mockMatchMedia = vi.fn().mockImplementation((query) => ({
@@ -210,5 +212,194 @@ describe('NavGroup', () => {
 
     expect(screen.getByText('Installation')).toBeInTheDocument();
     expect(screen.getByText('Configuration')).toBeInTheDocument();
+  });
+
+  it('should render collapsed dropdown when sidebar is collapsed and not mobile', () => {
+    const mockCollapsibleWithBadge: NavItem[] = [
+      {
+        title: 'Getting Started',
+        icon: FolderKanban,
+        badge: '5',
+        items: [
+          {
+            title: 'Installation',
+            url: '/docs/installation',
+            icon: FilePenLine,
+          },
+          {
+            title: 'Configuration',
+            url: '/docs/configuration',
+            icon: Layers,
+            badge: '2',
+          },
+        ],
+      },
+    ];
+
+    render(
+      <SidebarProvider defaultOpen={false}>
+        <NavGroup
+          title="General"
+          items={mockCollapsibleWithBadge}
+        />
+      </SidebarProvider>,
+    );
+
+    expect(screen.getByText('Getting Started')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('should open dropdown menu in collapsed state', async () => {
+    const user = userEvent.setup();
+    const mockCollapsibleWithBadge: NavItem[] = [
+      {
+        title: 'Getting Started',
+        icon: FolderKanban,
+        badge: '5',
+        items: [
+          {
+            title: 'Installation',
+            url: '/docs/installation',
+            icon: FilePenLine,
+          },
+          {
+            title: 'Configuration',
+            url: '/docs/configuration',
+            icon: Layers,
+            badge: '2',
+          },
+        ],
+      },
+    ];
+
+    render(
+      <SidebarProvider defaultOpen={false}>
+        <NavGroup
+          title="General"
+          items={mockCollapsibleWithBadge}
+        />
+      </SidebarProvider>,
+    );
+
+    const dropdownTrigger = screen.getByRole('button', {
+      name: /getting started/i,
+    });
+    await user.click(dropdownTrigger);
+
+    expect(screen.getByText('Installation')).toBeInTheDocument();
+    expect(screen.getByText('Configuration')).toBeInTheDocument();
+  });
+
+  it('should default open collapsible when current URL matches a child item', () => {
+    // Mock location to return a path that matches one of the child items
+    mockUseLocation.mockImplementation(
+      ({
+        select,
+      }: {
+        select?: (location: { href: string }) => string;
+      } = {}) => {
+        const location = { href: '/docs/installation' };
+        return select ? select(location) : location;
+      },
+    );
+
+    const mockCollapsibleWithUrl: NavItem[] = [
+      {
+        title: 'Documentation',
+        icon: FolderKanban,
+        items: [
+          {
+            title: 'Installation',
+            url: '/docs/installation',
+          },
+          {
+            title: 'Configuration',
+            url: '/docs/configuration',
+          },
+        ],
+      },
+    ];
+
+    render(
+      <SidebarProvider>
+        <NavGroup
+          title="General"
+          items={mockCollapsibleWithUrl}
+        />
+      </SidebarProvider>,
+    );
+
+    // The collapsible should be open by default because current URL matches a child item
+    expect(screen.getByText('Installation')).toBeInTheDocument();
+    expect(screen.getByText('Configuration')).toBeInTheDocument();
+
+    // Reset mock to default behavior for other tests
+    mockUseLocation.mockImplementation(
+      ({
+        select,
+      }: {
+        select?: (location: { href: string }) => string;
+      } = {}) => {
+        const location = { href: '/' };
+        return select ? select(location) : location;
+      },
+    );
+  });
+
+  it('should default open collapsible when current path segment matches parent URL', () => {
+    // Mock location to return a path where first segment matches parent URL
+    mockUseLocation.mockImplementation(
+      ({
+        select,
+      }: {
+        select?: (location: { href: string }) => string;
+      } = {}) => {
+        const location = { href: '/docs/advanced' };
+        return select ? select(location) : location;
+      },
+    );
+
+    const mockCollapsibleWithParentUrl: NavItem[] = [
+      {
+        title: 'Documentation',
+        url: '/docs',
+        icon: FolderKanban,
+        items: [
+          {
+            title: 'Installation',
+            url: '/docs/installation',
+          },
+          {
+            title: 'Configuration',
+            url: '/docs/configuration',
+          },
+        ],
+      },
+    ];
+
+    render(
+      <SidebarProvider>
+        <NavGroup
+          title="General"
+          items={mockCollapsibleWithParentUrl}
+        />
+      </SidebarProvider>,
+    );
+
+    // The collapsible should be open by default because /docs/advanced matches /docs parent segment
+    expect(screen.getByText('Installation')).toBeInTheDocument();
+    expect(screen.getByText('Configuration')).toBeInTheDocument();
+
+    // Reset mock to default behavior for other tests
+    mockUseLocation.mockImplementation(
+      ({
+        select,
+      }: {
+        select?: (location: { href: string }) => string;
+      } = {}) => {
+        const location = { href: '/' };
+        return select ? select(location) : location;
+      },
+    );
   });
 });

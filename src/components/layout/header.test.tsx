@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Header } from './header';
 
@@ -125,5 +125,95 @@ describe('Header', () => {
 
     const trigger = screen.getByRole('button');
     expect(trigger).toHaveClass('max-md:scale-125');
+  });
+
+  it('should apply shadow class when scrolled past 10px with fixed prop', async () => {
+    const { container } = renderHeader({ fixed: true });
+
+    const header = container.querySelector('header');
+    expect(header).toHaveClass('shadow-none');
+
+    // Simulate scrolling
+    Object.defineProperty(document.documentElement, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 15,
+    });
+    Object.defineProperty(document.body, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 15,
+    });
+
+    // Trigger scroll event
+    const scrollEvent = new Event('scroll');
+    document.dispatchEvent(scrollEvent);
+
+    await waitFor(() => {
+      expect(header).toHaveClass('shadow');
+    });
+  });
+
+  it('should apply backdrop blur styling when scrolled past 10px with fixed prop', async () => {
+    const { container } = renderHeader({ fixed: true });
+
+    const innerDiv = container.querySelector('header > div');
+    expect(innerDiv).not.toHaveClass(
+      'after:bg-background/20',
+      'after:absolute',
+      'after:inset-0',
+      'after:-z-10',
+      'after:backdrop-blur-lg',
+    );
+
+    // Simulate scrolling
+    Object.defineProperty(document.documentElement, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 20,
+    });
+    Object.defineProperty(document.body, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 20,
+    });
+
+    // Trigger scroll event
+    const scrollEvent = new Event('scroll');
+    document.dispatchEvent(scrollEvent);
+
+    await waitFor(() => {
+      expect(innerDiv).toHaveClass(
+        'after:bg-background/20',
+        'after:absolute',
+        'after:inset-0',
+        'after:-z-10',
+        'after:backdrop-blur-lg',
+      );
+    });
+  });
+
+  it('should not apply shadow when scrolled without fixed prop', () => {
+    const { container } = renderHeader({ fixed: false });
+
+    const header = container.querySelector('header');
+
+    // Simulate scrolling
+    Object.defineProperty(document.documentElement, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 15,
+    });
+    Object.defineProperty(document.body, 'scrollTop', {
+      writable: true,
+      configurable: true,
+      value: 15,
+    });
+
+    // Trigger scroll event
+    const scrollEvent = new Event('scroll');
+    document.dispatchEvent(scrollEvent);
+
+    expect(header).not.toHaveClass('shadow');
   });
 });

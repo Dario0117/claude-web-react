@@ -13,7 +13,7 @@ export type NavLink = BaseNavItem & {
 
 export type NavCollapsible = BaseNavItem & {
   items: (BaseNavItem & { url: LinkProps['to'] | (string & {}) })[];
-  url?: never;
+  url?: LinkProps['to'] | (string & {});
 };
 
 export type NavItem = NavCollapsible | NavLink;

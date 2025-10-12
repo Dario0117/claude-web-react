@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import React from 'react';
 import { ThemeProvider, useTheme } from './theme.provider';
 
 // Mock localStorage
@@ -250,30 +251,6 @@ describe('ThemeProvider', () => {
 });
 
 describe('useTheme', () => {
-  it('provides default behavior when used outside ThemeProvider', () => {
-    // Since the context provides default values, it won't throw
-    // Instead test that it provides the default theme
-    const TestHookComponent = () => {
-      const { theme, setTheme } = useTheme();
-      return (
-        <div>
-          <span data-testid="theme">{theme}</span>
-          <button
-            type="button"
-            onClick={() => setTheme('dark')}
-          >
-            Set Dark
-          </button>
-        </div>
-      );
-    };
-
-    render(<TestHookComponent />);
-
-    // Should use default theme value when outside provider
-    expect(screen.getByTestId('theme')).toHaveTextContent('system');
-  });
-
   it('returns theme context when used within ThemeProvider', () => {
     localStorageMock.getItem.mockReturnValue('light');
 
@@ -284,5 +261,53 @@ describe('useTheme', () => {
     );
 
     expect(screen.getByTestId('current-theme')).toHaveTextContent('light');
+  });
+
+  it('throws error when used outside ThemeProvider', () => {
+    // Component that tries to use useTheme outside provider
+    function ComponentWithoutProvider() {
+      useTheme();
+      return <div>Should not render</div>;
+    }
+
+    // Error boundary to catch the error
+    class ErrorBoundary extends React.Component<
+      { children: React.ReactNode },
+      { hasError: boolean; error: Error | null }
+    > {
+      constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return <div data-testid="error">{this.state.error?.message}</div>;
+        }
+        return this.props.children;
+      }
+    }
+
+    // Suppress error logging for this test since we expect an error
+    // biome-ignore lint/suspicious/noConsole: Need to suppress console.error for error boundary test
+    const originalError = globalThis.console.error;
+    globalThis.console.error = vi.fn();
+
+    render(
+      <ErrorBoundary>
+        <ComponentWithoutProvider />
+      </ErrorBoundary>,
+    );
+
+    expect(screen.getByTestId('error')).toHaveTextContent(
+      'useTheme must be used within a ThemeProvider',
+    );
+
+    // Restore console.error
+    globalThis.console.error = originalError;
   });
 });

@@ -1,62 +1,45 @@
-// We need to test the actual implementation by properly mocking import.meta.env
-// Since we can't easily mock import.meta in Vitest, let's test the actual behavior
-// by creating a utility function that we can test more directly
+import { getAppVersion } from './version.utils';
 
-describe('getAppVersion integration tests', () => {
-  it('should return a string value', async () => {
-    // Dynamic import to get the actual implementation
-    const { getAppVersion } = await import('./version.utils');
+describe('getAppVersion', () => {
+  const originalDEV = import.meta.env.DEV;
+  const originalVITE_APP_VERSION = import.meta.env.VITE_APP_VERSION;
 
+  afterEach(() => {
+    // Restore original values
+    import.meta.env.DEV = originalDEV;
+    import.meta.env.VITE_APP_VERSION = originalVITE_APP_VERSION;
+  });
+
+  it('should return a string value', () => {
     const version = getAppVersion();
 
     expect(typeof version).toBe('string');
     expect(version.length).toBeGreaterThan(0);
   });
 
-  it('should return "dev" in test environment since Vitest runs in development mode', async () => {
-    const { getAppVersion } = await import('./version.utils');
+  it('should return "dev" in development mode', () => {
+    import.meta.env.DEV = true;
 
     const version = getAppVersion();
 
-    // In test environment (which is development), it should return "dev"
     expect(version).toBe('dev');
   });
-});
 
-// Test the function logic by creating a testable version
-describe('getAppVersion logic tests', () => {
-  it('should return "dev" when DEV is true', () => {
-    // Test the logic by creating a local implementation
-    const testGetAppVersion = (isDev: boolean, appVersion?: string) => {
-      if (isDev) {
-        return 'dev';
-      }
-      return appVersion || 'unknown';
-    };
+  it('should return version from VITE_APP_VERSION in production mode', () => {
+    import.meta.env.DEV = false;
+    import.meta.env.VITE_APP_VERSION = 'abc123';
 
-    expect(testGetAppVersion(true, 'abc123')).toBe('dev');
+    const version = getAppVersion();
+
+    expect(version).toBe('abc123');
   });
 
-  it('should return the app version when DEV is false and version is set', () => {
-    const testGetAppVersion = (isDev: boolean, appVersion?: string) => {
-      if (isDev) {
-        return 'dev';
-      }
-      return appVersion || 'unknown';
-    };
+  it('should return "unknown" when VITE_APP_VERSION is not set in production', () => {
+    import.meta.env.DEV = false;
+    delete import.meta.env.VITE_APP_VERSION;
 
-    expect(testGetAppVersion(false, 'abc123')).toBe('abc123');
-  });
+    const version = getAppVersion();
 
-  it('should return "unknown" when DEV is false and version is not set', () => {
-    const testGetAppVersion = (isDev: boolean, appVersion?: string) => {
-      if (isDev) {
-        return 'dev';
-      }
-      return appVersion || 'unknown';
-    };
-
-    expect(testGetAppVersion(false, undefined)).toBe('unknown');
-    expect(testGetAppVersion(false, '')).toBe('unknown');
+    expect(version).toBe('unknown');
   });
 });

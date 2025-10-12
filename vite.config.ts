@@ -50,6 +50,8 @@ export default defineConfig(({ mode }) => {
           '**/vite.config.ts',
           '**/http-service-setup.ts',
           '**/*.stories.tsx',
+          '**/*.d.ts',
+          '**/src/routes/**',
         ],
       },
     },

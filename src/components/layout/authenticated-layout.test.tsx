@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { ThemeProvider } from '@/context/theme.provider';
 import { AuthenticatedLayout } from './authenticated-layout';
 
 const queryClient = new QueryClient({
@@ -13,6 +14,18 @@ vi.mock('@/lib/cookies', () => ({
   getCookie: vi.fn(() => 'true'),
   setCookie: vi.fn(),
 }));
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
@@ -69,9 +82,11 @@ beforeEach(() => {
 function renderAuthenticatedLayout(children?: React.ReactNode) {
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthenticatedLayout>
-        {children || <div data-testid="child-content">Child Content</div>}
-      </AuthenticatedLayout>
+      <ThemeProvider>
+        <AuthenticatedLayout>
+          {children || <div data-testid="child-content">Child Content</div>}
+        </AuthenticatedLayout>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 }

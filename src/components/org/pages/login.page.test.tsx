@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type { Profile } from '@/stores/authentication.store.d';
 import { LoginPage } from './login.page';
@@ -189,5 +190,47 @@ describe('LoginPage', () => {
       .getByText('Login to your account')
       .closest('section');
     expect(section).toBeInTheDocument();
+  });
+
+  it('should navigate to home page on successful login', async () => {
+    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
+
+    const mockSuccessData = {
+      responseData: {
+        token: 'test-token',
+        user: { id: '1', email: 'test@example.com' },
+      },
+    };
+
+    const mockMutateAsync = vi.fn().mockResolvedValue(mockSuccessData);
+
+    mockUseLoginMutation.mockReturnValue({
+      mutateAsync: mockMutateAsync,
+      error: null,
+      isSuccess: false,
+      data: null,
+      isLoading: false,
+      isError: false,
+      // biome-ignore lint/suspicious/noExplicitAny: Test mock
+    } as any);
+
+    renderWithProviders(<LoginPage />);
+
+    // Get the username and password fields
+    const usernameInput = screen.getByLabelText(/Username/);
+    const passwordInput = screen.getByLabelText(/Password/);
+    const submitButton = screen.getByRole('button', { name: 'Login' });
+
+    // Fill in the form
+    await userEvent.type(usernameInput, 'testuser');
+    await userEvent.type(passwordInput, 'password123');
+
+    // Submit the form
+    await userEvent.click(submitButton);
+
+    // Wait for the mutation to be called and navigation to occur
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
+    });
   });
 });

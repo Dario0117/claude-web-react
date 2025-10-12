@@ -1,6 +1,5 @@
 import { queryClient } from '@/context/query.provider';
 import { $api } from '@/http-service-setup';
-import { useAuthenticationStore } from '@/stores/authentication.store';
 
 export function useLoginMutation() {
   return $api.useMutation('post', '/api/v1/users/login');
@@ -8,11 +7,14 @@ export function useLoginMutation() {
 
 export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
-export function useLogoutMutation() {
-  const { setProfile } = useAuthenticationStore();
+export function useLogoutMutation({
+  handleSuccess,
+}: {
+  handleSuccess: () => void;
+}) {
   return $api.useMutation('post', '/api/v1/users/logout', {
     onSuccess: () => {
-      setProfile(undefined);
+      handleSuccess();
       queryClient.invalidateQueries({
         queryKey: ['get', '/api/v1/users/profile'],
       });
