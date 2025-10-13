@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { act } from 'react';
 import { SearchProvider } from '@/context/search.provider';
 
 const queryClient = new QueryClient({
@@ -20,14 +21,21 @@ const renderWithProviders = () => {
   );
 };
 
-const openCommandMenu = () => {
+const openCommandMenu = async () => {
   // Trigger Cmd+K to open command menu
-  const event = new KeyboardEvent('keydown', {
-    key: 'k',
-    metaKey: true,
-    bubbles: true,
+  await act(async () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+    await waitFor(() => {
+      expect(
+        screen.queryByPlaceholderText('Type a command or search...'),
+      ).toBeInTheDocument();
+    });
   });
-  document.dispatchEvent(event);
 };
 
 beforeAll(() => {
@@ -110,26 +118,26 @@ describe('CommandMenu', () => {
 
   it('should render command menu when open', async () => {
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
     expect(
-      await screen.findByPlaceholderText('Type a command or search...'),
+      screen.getByPlaceholderText('Type a command or search...'),
     ).toBeInTheDocument();
   });
 
   it('should render theme options', async () => {
     renderWithProviders();
-    openCommandMenu();
-    expect(await screen.findByText('Theme')).toBeInTheDocument();
-    expect(await screen.findByText('Light')).toBeInTheDocument();
-    expect(await screen.findByText('Dark')).toBeInTheDocument();
-    expect(await screen.findByText('System')).toBeInTheDocument();
+    await openCommandMenu();
+    expect(screen.getByText('Theme')).toBeInTheDocument();
+    expect(screen.getByText('Light')).toBeInTheDocument();
+    expect(screen.getByText('Dark')).toBeInTheDocument();
+    expect(screen.getByText('System')).toBeInTheDocument();
   });
 
   it('should call setTheme with light when Light is selected', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
-    const lightOption = await screen.findByText('Light');
+    await openCommandMenu();
+    const lightOption = screen.getByText('Light');
     await user.click(lightOption);
     expect(mockSetTheme).toHaveBeenCalledWith('light');
   });
@@ -137,8 +145,8 @@ describe('CommandMenu', () => {
   it('should call setTheme with dark when Dark is selected', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
-    const darkOption = await screen.findByText('Dark');
+    await openCommandMenu();
+    const darkOption = screen.getByText('Dark');
     await user.click(darkOption);
     expect(mockSetTheme).toHaveBeenCalledWith('dark');
   });
@@ -146,39 +154,35 @@ describe('CommandMenu', () => {
   it('should call setTheme with system when System is selected', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
-    const systemOption = await screen.findByText('System');
+    await openCommandMenu();
+    const systemOption = screen.getByText('System');
     await user.click(systemOption);
     expect(mockSetTheme).toHaveBeenCalledWith('system');
   });
 
   it('should render navigation groups from sidebar data', async () => {
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
     // Dialog renders in portal, just verify component renders
     expect(
-      await screen.findByPlaceholderText('Type a command or search...'),
+      screen.getByPlaceholderText('Type a command or search...'),
     ).toBeInTheDocument();
   });
 
   it('should navigate to url when navigation item is selected', async () => {
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
 
-    const input = await screen.findByPlaceholderText(
-      'Type a command or search...',
-    );
+    const input = screen.getByPlaceholderText('Type a command or search...');
     expect(input).toBeInTheDocument();
   });
 
   it('should show no results message when no matches found', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
 
-    const input = await screen.findByPlaceholderText(
-      'Type a command or search...',
-    );
+    const input = screen.getByPlaceholderText('Type a command or search...');
     await user.type(input, 'nonexistentcommand12345');
 
     expect(await screen.findByText('No results found.')).toBeInTheDocument();
@@ -186,29 +190,27 @@ describe('CommandMenu', () => {
 
   it('should render command input for searching', async () => {
     renderWithProviders();
-    openCommandMenu();
-    const input = await screen.findByPlaceholderText(
-      'Type a command or search...',
-    );
+    await openCommandMenu();
+    const input = screen.getByPlaceholderText('Type a command or search...');
     expect(input).toBeInTheDocument();
   });
 
   it('should render collapsible nav items with subitems', async () => {
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
 
     // Check that subitems from Account collapsible are rendered
-    expect(await screen.findByText(/Profile/)).toBeInTheDocument();
-    expect(await screen.findByText(/Security/)).toBeInTheDocument();
+    expect(screen.getByText(/Profile/)).toBeInTheDocument();
+    expect(screen.getByText(/Security/)).toBeInTheDocument();
   });
 
   it('should navigate to subitem url when subitem is selected', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
 
     // Find and click on the Profile subitem
-    const profileItem = await screen.findByText(/Profile/);
+    const profileItem = screen.getByText(/Profile/);
     await user.click(profileItem);
 
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/account/profile' });
@@ -217,10 +219,10 @@ describe('CommandMenu', () => {
   it('should navigate to url when regular nav item is selected', async () => {
     const user = userEvent.setup();
     renderWithProviders();
-    openCommandMenu();
+    await openCommandMenu();
 
     // Find and click on the Home item
-    const homeItem = await screen.findByText('Home');
+    const homeItem = screen.getByText('Home');
     await user.click(homeItem);
 
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });

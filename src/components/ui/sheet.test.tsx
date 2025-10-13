@@ -66,6 +66,7 @@ describe('Sheet', () => {
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Header Title</SheetTitle>
+            <SheetDescription>Header description</SheetDescription>
           </SheetHeader>
         </SheetContent>
       </Sheet>,

@@ -67,6 +67,7 @@ describe('Dialog', () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Dialog Title</DialogTitle>
+            <DialogDescription>Dialog description</DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>,
@@ -86,6 +87,7 @@ describe('Dialog', () => {
         <DialogContent showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>Dialog Title</DialogTitle>
+            <DialogDescription>Dialog description</DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>,
@@ -155,6 +157,7 @@ describe('Dialog', () => {
       <Dialog defaultOpen>
         <DialogContent>
           <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog description</DialogDescription>
         </DialogContent>
       </Dialog>,
     );
@@ -176,6 +179,7 @@ describe('Dialog', () => {
       <Dialog defaultOpen>
         <DialogContent>
           <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog description</DialogDescription>
         </DialogContent>
       </Dialog>,
     );
@@ -191,6 +195,8 @@ describe('Dialog', () => {
     render(
       <Dialog defaultOpen>
         <DialogContent>
+          <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog description</DialogDescription>
           <DialogClose>Custom Close</DialogClose>
         </DialogContent>
       </Dialog>,
@@ -239,6 +245,7 @@ describe('Dialog', () => {
         <DialogTrigger>Open Dialog</DialogTrigger>
         <DialogContent>
           <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog description</DialogDescription>
         </DialogContent>
       </Dialog>,
     );
@@ -260,6 +267,7 @@ describe('Dialog', () => {
         <DialogTrigger>Open Dialog</DialogTrigger>
         <DialogContent>
           <DialogTitle>Dialog Title</DialogTitle>
+          <DialogDescription>Dialog description</DialogDescription>
         </DialogContent>
       </Dialog>,
     );

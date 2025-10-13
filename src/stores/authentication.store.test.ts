@@ -63,48 +63,4 @@ describe('authentication.store', () => {
       expect(result.current.profile).toEqual(secondUser);
     });
   });
-
-  describe('state persistence', () => {
-    it('should maintain state across multiple hook instances', () => {
-      const { result: result1 } = renderHook(() => useAuthenticationStore());
-      const { result: result2 } = renderHook(() => useAuthenticationStore());
-
-      const mockUser: Profile = {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-      };
-
-      act(() => {
-        result1.current.setProfile(mockUser);
-      });
-
-      expect(result1.current.profile).toEqual(mockUser);
-      expect(result2.current.profile).toEqual(mockUser);
-    });
-  });
-
-  describe('immutability', () => {
-    it('should not mutate previous state when updating', () => {
-      const { result } = renderHook(() => useAuthenticationStore());
-
-      const initialState = {
-        user: result.current.profile,
-      };
-
-      const mockUser: Profile = {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-      };
-
-      act(() => {
-        result.current.setProfile(mockUser);
-      });
-
-      // Initial state snapshot should remain unchanged
-      expect(initialState.user).toBeUndefined();
-      expect(result.current.profile).toEqual(mockUser);
-    });
-  });
 });

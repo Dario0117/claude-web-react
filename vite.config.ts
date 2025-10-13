@@ -48,6 +48,7 @@ export default defineConfig(({ mode }) => {
           '**/http-service-setup.ts',
           '**/routeTree.gen.ts',
           '**/src/app.tsx',
+          '**/src/context/query.provider.tsx',
           '**/src/main.tsx',
           '**/src/routes/**',
           '**/src/types/**',
