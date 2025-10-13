@@ -54,3 +54,20 @@ export function useUpdatePasswordMutation() {
 export type useUpdatePasswordMutationType = ReturnType<
   typeof useUpdatePasswordMutation
 >;
+
+export function useLogoutAllMutation({
+  handleSuccess,
+}: {
+  handleSuccess: () => void;
+}) {
+  return $api.useMutation('post', '/api/v1/users/logoutall', {
+    onSuccess: () => {
+      handleSuccess();
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/v1/users/profile'],
+      });
+    },
+  });
+}
+
+export type useLogoutAllMutationType = ReturnType<typeof useLogoutAllMutation>;

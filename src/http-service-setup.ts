@@ -19,7 +19,8 @@ const authMiddleware: Middleware = {
 };
 
 const fetchClient = createFetchClient<paths>({
-  baseUrl: 'http://127.0.0.1:9000/',
+  fetch: (...args) => fetch(...args), // Fix issue with testing
+  baseUrl: import.meta.env.BACKEND_BASE_URL ?? 'http://127.0.0.1:9000',
   headers: {
     'Content-Type': 'application/json',
     'X-App-Version': getAppVersion(),

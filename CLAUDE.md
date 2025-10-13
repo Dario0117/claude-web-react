@@ -180,6 +180,12 @@ This is a React frontend template using modern tooling and patterns:
 - Avoid explicitly adding types if they can be inferred from upper levels in the code chain
 - Use generics and utility types for maximum type safety
 
+### API approach
+
+- All paths defined in the `paths` interface located in `src/types/api.generated.d.ts` file must be defined in the `src/services/[next-path-after-api-version].http-service.ts` file and they must have a corresponding MSW handler inside of `src/services/[next-path-after-api-version].http-service.handlers.ts` file.
+- All endpoints must be defined inside of `src/services/[next-path-after-api-version].http-service.ts` file and they must have a corresponding MSW handler inside of `src/services/[next-path-after-api-version].http-service.handlers.ts` file.
+- Only write tests for the http service if it has custom logic outside of invalidating queries, if it only exposes the query and mutation functions, don't write tests for it, create a test file and add a comment saying that no meaningful logic is implemented in the source file, so there's no need to test it.
+
 ##  STRICT RULES, DON'T BREAK THEM, ASK FIRST
 
 - Before starting any work, first execute `pnpm open-api` to generate the latest OpenAPI schema for API
@@ -195,3 +201,4 @@ This is a React frontend template using modern tooling and patterns:
 - Never re-export things from another files, refactor the code on the dependant file to use the new location of the thing you want to re-export
 - When asked to fix tests or add tests or fix typescript issues, don't change the tested code, accommodate the tests to comply with the code
 - When asked to fix typescript issues, don't create new types even if they were deleted from the code, it was deleted intentionally, only add new interfaces or types to existing ones unless the type is necessary for the code to work
+- Never run biome on unsafe mode to fix issues
