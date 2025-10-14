@@ -1,26 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { TeamSwitcher } from './team-switcher';
-
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-});
 
 const mockTeams = [
   {
@@ -41,7 +24,7 @@ const mockTeams = [
 ];
 
 function renderTeamSwitcher(teams = mockTeams) {
-  return render(
+  return renderWithProviders(
     <SidebarProvider>
       <TeamSwitcher teams={teams} />
     </SidebarProvider>,

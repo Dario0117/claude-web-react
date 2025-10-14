@@ -1,14 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '@/context/theme.provider';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { AuthenticatedLayout } from './authenticated-layout';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
 
 vi.mock('@/lib/cookies', () => ({
   getCookie: vi.fn(() => 'true'),
@@ -55,39 +47,11 @@ vi.mock('@tanstack/react-router', () => ({
   Outlet: () => <div data-testid="outlet">Outlet</div>,
 }));
 
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }));
-});
-
 function renderAuthenticatedLayout(children?: React.ReactNode) {
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthenticatedLayout>
-          {children || <div data-testid="child-content">Child Content</div>}
-        </AuthenticatedLayout>
-      </ThemeProvider>
-    </QueryClientProvider>,
+  return renderWithProviders(
+    <AuthenticatedLayout>
+      {children || <div data-testid="child-content">Child Content</div>}
+    </AuthenticatedLayout>,
   );
 }
 

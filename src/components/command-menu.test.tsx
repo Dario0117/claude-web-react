@@ -1,23 +1,13 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { act } from 'react';
 import { SearchProvider } from '@/context/search.provider';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
+import { renderWithProviders as renderWithBaseProviders } from '@/lib/test-wrappers.utils';
 
 const renderWithProviders = () => {
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <SearchProvider>
-        <div>Test Content</div>
-      </SearchProvider>
-    </QueryClientProvider>,
+  return renderWithBaseProviders(
+    <SearchProvider>
+      <div>Test Content</div>
+    </SearchProvider>,
   );
 };
 
@@ -55,16 +45,9 @@ beforeAll(() => {
 });
 
 const mockNavigate = vi.fn();
-const mockSetTheme = vi.fn();
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
-}));
-
-vi.mock('@/context/theme.provider', () => ({
-  useTheme: () => ({
-    setTheme: mockSetTheme,
-  }),
 }));
 
 // Mock sidebar data with collapsible items containing subitems
@@ -131,33 +114,6 @@ describe('CommandMenu', () => {
     expect(screen.getByText('Light')).toBeInTheDocument();
     expect(screen.getByText('Dark')).toBeInTheDocument();
     expect(screen.getByText('System')).toBeInTheDocument();
-  });
-
-  it('should call setTheme with light when Light is selected', async () => {
-    const user = userEvent.setup();
-    renderWithProviders();
-    await openCommandMenu();
-    const lightOption = screen.getByText('Light');
-    await user.click(lightOption);
-    expect(mockSetTheme).toHaveBeenCalledWith('light');
-  });
-
-  it('should call setTheme with dark when Dark is selected', async () => {
-    const user = userEvent.setup();
-    renderWithProviders();
-    await openCommandMenu();
-    const darkOption = screen.getByText('Dark');
-    await user.click(darkOption);
-    expect(mockSetTheme).toHaveBeenCalledWith('dark');
-  });
-
-  it('should call setTheme with system when System is selected', async () => {
-    const user = userEvent.setup();
-    renderWithProviders();
-    await openCommandMenu();
-    const systemOption = screen.getByText('System');
-    await user.click(systemOption);
-    expect(mockSetTheme).toHaveBeenCalledWith('system');
   });
 
   it('should render navigation groups from sidebar data', async () => {

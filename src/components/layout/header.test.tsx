@@ -1,27 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { Header } from './header';
 
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-});
-
 function renderHeader(props = {}) {
-  return render(
+  return renderWithProviders(
     <SidebarProvider>
       <Header {...props}>
         <div data-testid="header-content">Header Content</div>

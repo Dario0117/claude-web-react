@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { LayoutProvider } from '@/context/layout.provider';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { AppSidebar } from './app-sidebar';
 
 vi.mock('@tanstack/react-router', () => ({
@@ -28,33 +29,8 @@ vi.mock('@tanstack/react-router', () => ({
     return select ? select(location) : location;
   },
 }));
-
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }));
-});
-
 function renderAppSidebar() {
-  return render(
+  return renderWithProviders(
     <LayoutProvider>
       <SidebarProvider>
         <AppSidebar />

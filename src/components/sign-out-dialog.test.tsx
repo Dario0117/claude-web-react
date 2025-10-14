@@ -1,33 +1,14 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 import { SignOutDialog } from './sign-out-dialog';
-
-// Note: The handleSuccess callback in SignOutDialog (lines 9-11 in sign-out-dialog.tsx)
-// cannot be fully integration tested due to technical limitations with openapi-fetch.
-// The fetch client is created at module load time before MSW can intercept requests.
-// The callback logic (setProfile(undefined)) is simple and verified through code review.
-// The useLogoutMutation hook configuration is tested in users.http-service.test.tsx.
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
-};
 
 describe('SignOutDialog', () => {
   const mockOnOpenChange = vi.fn();
 
   beforeEach(() => {
     mockOnOpenChange.mockClear();
-    queryClient.clear();
   });
 
   it('should render dialog with title and description', () => {
@@ -55,6 +36,15 @@ describe('SignOutDialog', () => {
   });
 
   it('should trigger logout when sign out button is clicked', async () => {
+    const { result: res } = renderHook(() => useAuthenticationStore());
+    const profile = {
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+    };
+    act(() => {
+      res.current.setProfile(profile);
+    });
     const user = userEvent.setup();
     renderWithProviders(
       <SignOutDialog
@@ -69,10 +59,13 @@ describe('SignOutDialog', () => {
       throw new Error('Sign out button not found');
     }
 
+    const { result: preLogoutResult } = renderHook(() =>
+      useAuthenticationStore(),
+    );
+    expect(preLogoutResult.current.profile).toBe(profile);
     await user.click(signOutButton);
+    const { result } = renderHook(() => useAuthenticationStore());
 
-    // The button click triggers logout.mutate({}) which calls the API.
-    // Full integration testing of the handleSuccess callback that clears
-    // the user profile requires E2E testing due to openapi-fetch limitations.
+    expect(result.current.profile).toBeUndefined();
   });
 });

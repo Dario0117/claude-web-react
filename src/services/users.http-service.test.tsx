@@ -1,12 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { createQueryWrapper } from '@/lib/test-wrappers.utils';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
 import { useLogoutMutation } from './users.http-service';
 
 describe('useLogoutMutation', () => {
   it('should call handleSuccess callback when mutation succeeds', async () => {
     const handleSuccess = vi.fn();
     const { result } = renderHook(() => useLogoutMutation({ handleSuccess }), {
-      wrapper: createQueryWrapper(),
+      wrapper: createQueryThemeWrapper(),
     });
     result.current.mutate({});
 

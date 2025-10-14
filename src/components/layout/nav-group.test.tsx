@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FilePenLine, FolderKanban, Layers } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { NavGroup } from './nav-group';
 import type { NavItem } from './nav-group.d';
 
@@ -32,30 +33,6 @@ vi.mock('@tanstack/react-router', () => ({
   useLocation: (params?: { select?: (location: { href: string }) => string }) =>
     mockUseLocation(params),
 }));
-
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }));
-});
 
 const mockNavItems: NavItem[] = [
   {
@@ -95,7 +72,7 @@ const mockCollapsibleItems: NavItem[] = [
 ];
 
 function renderNavGroup(items: NavItem[] = mockNavItems) {
-  return render(
+  return renderWithProviders(
     <SidebarProvider>
       <NavGroup
         title="General"
@@ -236,7 +213,7 @@ describe('NavGroup', () => {
       },
     ];
 
-    render(
+    renderWithProviders(
       <SidebarProvider defaultOpen={false}>
         <NavGroup
           title="General"
@@ -272,7 +249,7 @@ describe('NavGroup', () => {
       },
     ];
 
-    render(
+    renderWithProviders(
       <SidebarProvider defaultOpen={false}>
         <NavGroup
           title="General"
@@ -320,7 +297,7 @@ describe('NavGroup', () => {
       },
     ];
 
-    render(
+    renderWithProviders(
       <SidebarProvider>
         <NavGroup
           title="General"
@@ -377,7 +354,7 @@ describe('NavGroup', () => {
       },
     ];
 
-    render(
+    renderWithProviders(
       <SidebarProvider>
         <NavGroup
           title="General"

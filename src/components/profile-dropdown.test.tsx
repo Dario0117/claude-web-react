@@ -1,20 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, renderHook, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useAuthenticationStore } from '@/stores/authentication.store';
 import { ProfileDropdown } from './profile-dropdown';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
-};
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
@@ -39,17 +27,17 @@ vi.mock('@tanstack/react-router', () => ({
   }),
 }));
 
-vi.mock('@/stores/authentication.store', () => ({
-  useAuthenticationStore: () => ({
-    profile: {
-      firstName: 'satnaing',
-      lastName: 'dev',
-      email: 'satnaingdev@gmail.com',
-    },
-  }),
-}));
-
 describe('ProfileDropdown', () => {
+  beforeAll(() => {
+    const { result: res } = renderHook(() => useAuthenticationStore());
+    act(() => {
+      res.current.setProfile({
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+      });
+    });
+  });
   it('should render profile avatar button', () => {
     renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
@@ -58,7 +46,8 @@ describe('ProfileDropdown', () => {
 
   it('should render avatar fallback', () => {
     renderWithProviders(<ProfileDropdown />);
-    expect(screen.getByText(/sd/i)).toBeInTheDocument();
+
+    expect(screen.getByText(/tu/i)).toBeInTheDocument();
   });
 
   it('should open dropdown menu when avatar is clicked', async () => {
@@ -66,8 +55,8 @@ describe('ProfileDropdown', () => {
     renderWithProviders(<ProfileDropdown />);
     const button = screen.getByRole('button');
     await user.click(button);
-    expect(screen.getByText('satnaing dev')).toBeInTheDocument();
-    expect(screen.getByText('satnaingdev@gmail.com')).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 
   it('should render menu items', async () => {

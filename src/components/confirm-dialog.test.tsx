@@ -16,8 +16,8 @@ describe('ConfirmDialog', () => {
 
   it('should render dialog with title and description', () => {
     render(<ConfirmDialog {...defaultProps} />);
-    expect(screen.getByText('Test Title')).toBeInTheDocument();
-    expect(screen.getByText('Test description')).toBeInTheDocument();
+    expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+    expect(screen.getByText(defaultProps.desc)).toBeInTheDocument();
   });
 
   it('should render default button texts', () => {

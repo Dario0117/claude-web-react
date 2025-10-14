@@ -1,15 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { NavUser } from './nav-user';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
@@ -31,30 +24,6 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => vi.fn(),
 }));
 
-const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-beforeEach(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: mockMatchMedia,
-  });
-
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }));
-});
-
 const mockUser = {
   name: 'John Doe',
   email: 'john.doe@example.com',
@@ -62,12 +31,10 @@ const mockUser = {
 };
 
 function renderNavUser(user = mockUser) {
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <NavUser user={user} />
-      </SidebarProvider>
-    </QueryClientProvider>,
+  return renderWithProviders(
+    <SidebarProvider>
+      <NavUser user={user} />
+    </SidebarProvider>,
   );
 }
 

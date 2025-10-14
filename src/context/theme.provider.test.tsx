@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
-import { ThemeProvider, useTheme } from './theme.provider';
+import { matchMediaMock, renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useTheme } from './theme.provider';
 
 // Mock localStorage
 const localStorageMock = {
@@ -12,23 +13,6 @@ const localStorageMock = {
 
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
-});
-
-// Mock matchMedia
-const matchMediaMock = vi.fn().mockImplementation((query) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: vi.fn(),
-  removeListener: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  dispatchEvent: vi.fn(),
-}));
-
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: matchMediaMock,
 });
 
 // Test component that uses the theme hook
@@ -94,11 +78,7 @@ describe('ThemeProvider', () => {
   });
 
   it('renders children correctly', () => {
-    render(
-      <ThemeProvider>
-        <div data-testid="child">Test content</div>
-      </ThemeProvider>,
-    );
+    renderWithProviders(<div data-testid="child">Test content</div>);
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
   });
@@ -106,11 +86,9 @@ describe('ThemeProvider', () => {
   it('uses default theme when no localStorage value exists', () => {
     localStorageMock.getItem.mockReturnValue(null);
 
-    render(
-      <ThemeProvider defaultTheme="light">
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />, {
+      defaultTheme: 'light',
+    });
 
     expect(screen.getByTestId('current-theme')).toHaveTextContent('light');
   });
@@ -118,11 +96,7 @@ describe('ThemeProvider', () => {
   it('uses theme from localStorage when available', () => {
     localStorageMock.getItem.mockReturnValue('dark');
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(screen.getByTestId('current-theme')).toHaveTextContent('dark');
   });
@@ -130,11 +104,7 @@ describe('ThemeProvider', () => {
   it('applies light theme class to document element', () => {
     localStorageMock.getItem.mockReturnValue('light');
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(document.documentElement.classList.remove).toHaveBeenCalledWith(
       'light',
@@ -148,11 +118,7 @@ describe('ThemeProvider', () => {
   it('applies dark theme class to document element', () => {
     localStorageMock.getItem.mockReturnValue('dark');
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(document.documentElement.classList.remove).toHaveBeenCalledWith(
       'light',
@@ -165,11 +131,7 @@ describe('ThemeProvider', () => {
     localStorageMock.getItem.mockReturnValue('system');
     matchMediaMock.mockReturnValue({ matches: true });
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(document.documentElement.classList.remove).toHaveBeenCalledWith(
       'light',
@@ -182,11 +144,7 @@ describe('ThemeProvider', () => {
     localStorageMock.getItem.mockReturnValue('system');
     matchMediaMock.mockReturnValue({ matches: false });
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(document.documentElement.classList.remove).toHaveBeenCalledWith(
       'light',
@@ -200,11 +158,9 @@ describe('ThemeProvider', () => {
   it('updates theme and saves to localStorage when setTheme is called', () => {
     localStorageMock.getItem.mockReturnValue('light');
 
-    render(
-      <ThemeProvider storageKey="test-theme">
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />, {
+      storageKey: 'test-theme',
+    });
 
     const setDarkButton = screen.getByTestId('set-dark');
 
@@ -220,11 +176,9 @@ describe('ThemeProvider', () => {
     const customKey = 'my-custom-theme-key';
     localStorageMock.getItem.mockReturnValue('dark');
 
-    render(
-      <ThemeProvider storageKey={customKey}>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />, {
+      storageKey: customKey,
+    });
 
     expect(localStorageMock.getItem).toHaveBeenCalledWith(customKey);
   });
@@ -232,11 +186,7 @@ describe('ThemeProvider', () => {
   it('updates document classes when theme changes', () => {
     localStorageMock.getItem.mockReturnValue('light');
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     const setDarkButton = screen.getByTestId('set-dark');
 
@@ -254,11 +204,7 @@ describe('useTheme', () => {
   it('returns theme context when used within ThemeProvider', () => {
     localStorageMock.getItem.mockReturnValue('light');
 
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>,
-    );
+    renderWithProviders(<TestComponent />);
 
     expect(screen.getByTestId('current-theme')).toHaveTextContent('light');
   });
