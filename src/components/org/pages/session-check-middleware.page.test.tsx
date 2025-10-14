@@ -1,21 +1,8 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type { Profile } from '@/stores/authentication.store.d';
 import { SessionCheckMiddleware } from './session-check-middleware.page';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
-};
 
 // Mock the authentication store
 vi.mock('@/stores/authentication.store', () => ({

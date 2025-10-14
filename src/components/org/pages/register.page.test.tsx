@@ -1,5 +1,5 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { RegisterPage } from './register.page';
 
 interface LinkProps {
@@ -46,27 +46,13 @@ const mockUseNavigate = vi.mocked(
 const mockNavigate = vi.fn();
 mockUseNavigate.mockReturnValue(mockNavigate);
 
-// Test wrapper with QueryClient
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
 describe('RegisterPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
   });
 
   it('should render register form', () => {
-    render(<RegisterPage />, { wrapper: TestWrapper });
+    renderWithProviders(<RegisterPage />);
 
     // Check that the register form is rendered
     // The exact elements depend on the RegisterForm implementation
@@ -85,7 +71,7 @@ describe('RegisterPage', () => {
   });
 
   it('should have proper page structure', () => {
-    const { container } = render(<RegisterPage />, { wrapper: TestWrapper });
+    const { container } = renderWithProviders(<RegisterPage />);
 
     const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
@@ -95,14 +81,14 @@ describe('RegisterPage', () => {
   });
 
   it('should render without errors when useAuth is available', () => {
-    render(<RegisterPage />, { wrapper: TestWrapper });
+    renderWithProviders(<RegisterPage />);
 
     // The component should render without errors
     expect(document.querySelector('section')).toBeInTheDocument();
   });
 
   it('should have accessibility structure', () => {
-    render(<RegisterPage />, { wrapper: TestWrapper });
+    renderWithProviders(<RegisterPage />);
 
     const section = document.querySelector('section');
     expect(section).toBeInTheDocument();
@@ -111,7 +97,7 @@ describe('RegisterPage', () => {
   it('should call navigate with /login when handleSuccess is invoked', () => {
     mockNavigate.mockClear();
 
-    render(<RegisterPage />, { wrapper: TestWrapper });
+    renderWithProviders(<RegisterPage />);
 
     // Verify that the mock form is rendered
     expect(screen.getByTestId('mock-register-form')).toBeInTheDocument();

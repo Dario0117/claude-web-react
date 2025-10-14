@@ -1,20 +1,7 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { UpdatePasswordPage } from './update-pw.page';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
-};
 
 // Mock the services
 vi.mock('@/services/users.http-service', () => ({
@@ -120,11 +107,7 @@ describe('UpdatePasswordPage', () => {
     mockUpdatePasswordMutation.isSuccess = true;
     mockUpdatePasswordMutation.data = mockData;
     mockUseUpdatePasswordMutation.mockReturnValue(mockUpdatePasswordMutation);
-    rerender(
-      <QueryClientProvider client={queryClient}>
-        <UpdatePasswordPage />
-      </QueryClientProvider>,
-    );
+    rerender(<UpdatePasswordPage />);
 
     // Now navigation should happen
     await waitFor(() => {
