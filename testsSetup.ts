@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { setupServer } from 'msw/node';
 import { MSWSuccessHandlers } from './src/lib/test.utils';
 
-const server = setupServer(...MSWSuccessHandlers());
+export const server = setupServer(...MSWSuccessHandlers());
 
 beforeAll(() => {
   server.listen({

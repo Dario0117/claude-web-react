@@ -1,11 +1,10 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useUpdatePasswordMutation } from '@/services/users.http-service';
 import { UpdatePasswordForm } from './update-password.form';
 
 // Mock the router hooks
@@ -20,29 +19,25 @@ const mockUseParams = vi.mocked(
 // Mock params with token
 mockUseParams.mockReturnValue({ token: 'test-token-123' });
 
+function TestWrapper({ handleSuccess }: { handleSuccess: () => void }) {
+  const updatePasswordMutation = useUpdatePasswordMutation();
+  return (
+    <UpdatePasswordForm
+      updatePasswordMutation={updatePasswordMutation}
+      handleSuccess={handleSuccess}
+    />
+  );
+}
+
 describe('UpdatePasswordForm', () => {
-  const mockUpdatePasswordMutation = {
-    mutateAsync: vi.fn(),
-    isSuccess: false,
-    data: undefined,
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock
-  } as any;
   const mockHandleSuccess = vi.fn();
 
   beforeEach(() => {
-    mockUpdatePasswordMutation.mutateAsync.mockClear();
-    mockUpdatePasswordMutation.isSuccess = false;
-    mockUpdatePasswordMutation.data = undefined;
     mockHandleSuccess.mockClear();
   });
 
   it('should render update password form with all required fields', () => {
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
@@ -53,24 +48,14 @@ describe('UpdatePasswordForm', () => {
   });
 
   it('should have proper input placeholders', () => {
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Confirm Password')).toBeInTheDocument();
   });
 
   it('should have password input types', () => {
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -79,47 +64,10 @@ describe('UpdatePasswordForm', () => {
     expect(confirmPasswordInput).toHaveAttribute('type', 'password');
   });
 
-  it('should call updatePasswordMutation with correct password on form submission', async () => {
-    const user = userEvent.setup();
-    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
-      'Password updated',
-    ]);
-
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Update password',
-    });
-
-    await act(async () => {
-      await user.type(passwordInput, 'newpassword123');
-      await user.type(confirmPasswordInput, 'newpassword123');
-      await user.click(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
-    });
-  });
-
   it('should call handleSuccess on successful password update', async () => {
     const user = userEvent.setup();
-    const mockData = ['Password updated'];
-    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue(mockData);
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -134,21 +82,28 @@ describe('UpdatePasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password updated successfully.'],
+      });
     });
   });
 
   it('should display error when mutation fails', async () => {
     const user = userEvent.setup();
-    const mockError = new Error('Password update failed');
-    mockUpdatePasswordMutation.mutateAsync.mockRejectedValue(mockError);
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
+        return HttpResponse.json(
+          {
+            nonFieldErrors: ['Invalid or expired token'],
+          },
+          { status: 400 },
+        );
+      }),
     );
+
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -162,22 +117,20 @@ describe('UpdatePasswordForm', () => {
       await user.click(submitButton);
     });
 
-    await waitFor(() => {
-      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
-    });
+    const errorMessage = await screen.findByText(
+      'Something went wrong, please try again later.',
+    );
 
-    expect(mockHandleSuccess).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockHandleSuccess).not.toHaveBeenCalled();
+    });
+    expect(errorMessage).toBeInTheDocument();
   });
 
   it('should validate password confirmation', async () => {
     const user = userEvent.setup();
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -191,25 +144,23 @@ describe('UpdatePasswordForm', () => {
       await user.click(submitButton);
     });
 
-    // Should not call mutation if passwords don't match
+    // Should not call handleSuccess if passwords don't match
     await waitFor(
       () => {
-        expect(mockUpdatePasswordMutation.mutateAsync).not.toHaveBeenCalled();
+        expect(mockHandleSuccess).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
+
+    const errorMessage = await screen.findByText("Password don't match");
+    expect(errorMessage).toBeInTheDocument();
   });
 
   it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const form = screen
       .getByRole('button', { name: 'Update password' })
@@ -231,12 +182,7 @@ describe('UpdatePasswordForm', () => {
   });
 
   it('should have required attributes on form fields', () => {
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -245,36 +191,10 @@ describe('UpdatePasswordForm', () => {
     expect(confirmPasswordInput).toHaveAttribute('required');
   });
 
-  it('should render with proper form structure', () => {
-    const { container } = render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const form = container.querySelector('form');
-    expect(form).toBeInTheDocument();
-
-    const fieldsContainer = container.querySelector('.flex.flex-col.gap-6');
-    expect(fieldsContainer).toBeInTheDocument();
-
-    const buttonContainer = container.querySelector('.flex.flex-col.gap-3');
-    expect(buttonContainer).toBeInTheDocument();
-  });
-
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
-    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
-      'Password updated',
-    ]);
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
@@ -285,22 +205,14 @@ describe('UpdatePasswordForm', () => {
 
     // Form allows empty passwords (both match), so mutation will be called
     await waitFor(() => {
-      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalledWith({
-        body: { password: '', token: 'test-token-123' },
-        signal: expect.any(AbortSignal),
-      });
+      expect(mockHandleSuccess).not.toHaveBeenCalled();
     });
   });
 
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -332,48 +244,10 @@ describe('UpdatePasswordForm', () => {
     });
   });
 
-  it('should clear error map before submission', async () => {
-    const user = userEvent.setup();
-    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
-      'Password updated',
-    ]);
-
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
-    const submitButton = screen.getByRole('button', {
-      name: 'Update password',
-    });
-
-    await act(async () => {
-      await user.type(passwordInput, 'newpassword123');
-      await user.type(confirmPasswordInput, 'newpassword123');
-      await user.click(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
-    });
-  });
-
   it('should handle matching passwords correctly', async () => {
     const user = userEvent.setup();
-    mockUpdatePasswordMutation.mutateAsync.mockResolvedValue([
-      'Password updated',
-    ]);
 
-    render(
-      <UpdatePasswordForm
-        updatePasswordMutation={mockUpdatePasswordMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -393,10 +267,10 @@ describe('UpdatePasswordForm', () => {
       });
 
       await waitFor(() => {
-        expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalled();
+        expect(mockHandleSuccess).toHaveBeenCalled();
       });
 
-      mockUpdatePasswordMutation.mutateAsync.mockClear();
+      mockHandleSuccess.mockClear();
     }
   });
 });

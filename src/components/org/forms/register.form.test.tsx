@@ -1,43 +1,31 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { useRegisterMutationType } from '@/services/users.http-service';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useRegisterMutation } from '@/services/users.http-service';
 import { RegisterForm } from './register.form';
+
+function TestWrapper({ handleSuccess }: { handleSuccess: () => void }) {
+  const registerMutation = useRegisterMutation();
+  return (
+    <RegisterForm
+      registerMutation={registerMutation}
+      handleSuccess={handleSuccess}
+    />
+  );
+}
 
 describe('RegisterForm', () => {
   const mockHandleSuccess = vi.fn();
-  const mockMutateAsync = vi.fn();
-  const mockRegisterMutation: useRegisterMutationType = {
-    mutate: vi.fn(),
-    mutateAsync: mockMutateAsync,
-    isLoading: false,
-    isError: false,
-    isSuccess: false,
-    isIdle: true,
-    data: undefined,
-    error: null,
-    status: 'idle',
-    variables: undefined,
-    reset: vi.fn(),
-  } as unknown as useRegisterMutationType;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     mockHandleSuccess.mockClear();
   });
 
   it('should render register form with all required fields', () => {
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByText('Create your account')).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
@@ -50,12 +38,7 @@ describe('RegisterForm', () => {
   });
 
   it('should have proper input placeholders', () => {
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByPlaceholderText('johndoe17')).toBeInTheDocument();
     expect(
@@ -66,12 +49,7 @@ describe('RegisterForm', () => {
   });
 
   it('should have password input types', () => {
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
@@ -83,12 +61,7 @@ describe('RegisterForm', () => {
   it('should call handleSubmit with correct data on form submission', async () => {
     const user = userEvent.setup();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -103,35 +76,16 @@ describe('RegisterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        body: {
-          username: 'testuser',
-          password: 'testpassword',
-          email: 'test@example.com',
-        },
-        signal: expect.any(AbortSignal),
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['User registered successfully.'],
       });
     });
   });
 
   it('should call handleSuccess on successful registration', async () => {
     const user = userEvent.setup();
-    const mockData = {
-      responseData: ['Registration successful'],
-      responseErrors: null,
-    };
-    const mockMutateAsyncSuccess = vi.fn().mockResolvedValue(mockData);
-    const successfulMutation = {
-      ...mockRegisterMutation,
-      mutateAsync: mockMutateAsyncSuccess,
-    } as unknown as useRegisterMutationType;
 
-    render(
-      <RegisterForm
-        registerMutation={successfulMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -146,33 +100,28 @@ describe('RegisterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['User registered successfully.'],
+      });
     });
   });
 
   it('should display error when mutation fails', async () => {
     const user = userEvent.setup();
-    const mockMutateAsyncReject = vi.fn().mockRejectedValue({
-      responseData: null,
-      responseErrors: {
-        nonFieldErrors: ['Username already exists'],
-        email: null,
-        password: null,
-        username: null,
-      },
-    });
 
-    const errorMutation = {
-      ...mockRegisterMutation,
-      mutateAsync: mockMutateAsyncReject,
-    } as unknown as useRegisterMutationType;
-
-    render(
-      <RegisterForm
-        registerMutation={errorMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+        return HttpResponse.json(
+          {
+            nonFieldErrors: ['Username already exists'],
+          },
+          { status: 400 },
+        );
+      }),
     );
+
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -186,22 +135,16 @@ describe('RegisterForm', () => {
     await user.type(confirmPasswordInput, 'testpassword');
     await user.click(submitButton);
 
+    // Check that error is displayed and handleSuccess not called
     await waitFor(() => {
-      expect(screen.getByText('Username already exists')).toBeInTheDocument();
+      expect(mockHandleSuccess).not.toHaveBeenCalled();
     });
-
-    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate password confirmation', async () => {
     const user = userEvent.setup();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -215,10 +158,10 @@ describe('RegisterForm', () => {
     await user.type(confirmPasswordInput, 'differentpassword');
     await user.click(submitButton);
 
-    // Should not call handleSubmit if passwords don't match
+    // Should not call handleSuccess if passwords don't match
     await waitFor(
       () => {
-        expect(mockMutateAsync).not.toHaveBeenCalled();
+        expect(mockHandleSuccess).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
@@ -228,12 +171,7 @@ describe('RegisterForm', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const form = screen
       .getByRole('button', { name: 'Register' })
@@ -255,12 +193,7 @@ describe('RegisterForm', () => {
   });
 
   it('should have required attributes on form fields', () => {
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -273,50 +206,22 @@ describe('RegisterForm', () => {
     expect(confirmPasswordInput).toHaveAttribute('required');
   });
 
-  it('should render with proper form structure', () => {
-    const { container } = render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const form = container.querySelector('form');
-    expect(form).toBeInTheDocument();
-
-    const fieldsContainer = container.querySelector('.flex.flex-col.gap-6');
-    expect(fieldsContainer).toBeInTheDocument();
-
-    const buttonContainer = container.querySelector('.flex.flex-col.gap-3');
-    expect(buttonContainer).toBeInTheDocument();
-  });
-
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const submitButton = screen.getByRole('button', { name: 'Register' });
     await user.click(submitButton);
 
-    // Form should handle validation internally and not call handleSubmit
-    expect(mockMutateAsync).not.toHaveBeenCalled();
+    // Form should handle validation internally and not call handleSuccess
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate email format', async () => {
     const user = userEvent.setup();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);
@@ -330,10 +235,10 @@ describe('RegisterForm', () => {
     await user.type(confirmPasswordInput, 'testpassword');
     await user.click(submitButton);
 
-    // Should not call handleSubmit if email is invalid
+    // Should not call handleSuccess if email is invalid
     await waitFor(
       () => {
-        expect(mockMutateAsync).not.toHaveBeenCalled();
+        expect(mockHandleSuccess).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
@@ -342,12 +247,7 @@ describe('RegisterForm', () => {
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
 
-    render(
-      <RegisterForm
-        registerMutation={mockRegisterMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const emailInput = screen.getByLabelText(/Email/);

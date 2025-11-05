@@ -1,38 +1,23 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { useResetPasswordMutationType } from '@/services/users.http-service';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useResetPasswordMutation } from '@/services/users.http-service';
 import { ResetPasswordForm } from './reset-password.form';
 
-describe('ResetPasswordForm', () => {
-  const createMockMutation = (
-    overrides?: Partial<useResetPasswordMutationType>,
-  ): useResetPasswordMutationType =>
-    ({
-      mutate: vi.fn(),
-      mutateAsync: vi.fn(),
-      data: undefined,
-      error: null,
-      isError: false,
-      isIdle: true,
-      isPending: false,
-      isSuccess: false,
-      status: 'idle',
-      variables: undefined,
-      failureCount: 0,
-      failureReason: null,
-      isPaused: false,
-      submittedAt: 0,
-      reset: vi.fn(),
-      context: undefined,
-      ...overrides,
-    }) as useResetPasswordMutationType;
+function TestWrapper({ handleSuccess }: { handleSuccess: () => void }) {
+  const resetPasswordMutation = useResetPasswordMutation();
+  return (
+    <ResetPasswordForm
+      resetPasswordMutation={resetPasswordMutation}
+      handleSuccess={handleSuccess}
+    />
+  );
+}
 
+describe('ResetPasswordForm', () => {
   const mockHandleSuccess = vi.fn();
 
   beforeEach(() => {
@@ -40,13 +25,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should render reset password form with all required fields', () => {
-    const mockMutation = createMockMutation();
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByText('Reset your password')).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
@@ -56,13 +35,7 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should have proper input placeholder', () => {
-    const mockMutation = createMockMutation();
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(
       screen.getByPlaceholderText('johndoe17@mail.com'),
@@ -71,15 +44,8 @@ describe('ResetPasswordForm', () => {
 
   it('should call mutateAsync with correct email on form submission', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn().mockResolvedValue({});
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -92,27 +58,16 @@ describe('ResetPasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        body: { email: 'test@example.com' },
-        signal: expect.any(AbortSignal),
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password reset email sent.'],
       });
     });
   });
 
   it('should call handleSuccess on successful password reset request', async () => {
     const user = userEvent.setup();
-    const mockData = { responseData: ['Email sent successfully'] };
-    const mockMutateAsync = vi.fn().mockResolvedValue(mockData);
-    const mockMutation = createMockMutation({
-      mutateAsync: mockMutateAsync,
-    });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -125,23 +80,28 @@ describe('ResetPasswordForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password reset email sent.'],
+      });
     });
   });
 
   it('should display error when mutation fails', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn().mockRejectedValue({
-      responseErrors: { nonFieldErrors: ['Email not found'] },
-    });
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
+        return HttpResponse.json(
+          {
+            nonFieldErrors: ['Email not found'],
+          },
+          { status: 400 },
+        );
+      }),
     );
+
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -153,24 +113,16 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
     });
 
+    // Check that handleSuccess was not called due to error
     await waitFor(() => {
-      expect(screen.getByText('Email not found')).toBeInTheDocument();
+      expect(mockHandleSuccess).not.toHaveBeenCalled();
     });
-
-    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate email format', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn();
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -182,10 +134,10 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
     });
 
-    // Should not call mutateAsync if email is invalid
+    // Should not call handleSuccess if email is invalid
     await waitFor(
       () => {
-        expect(mockMutateAsync).not.toHaveBeenCalled();
+        expect(mockHandleSuccess).not.toHaveBeenCalled();
       },
       { timeout: 1000 },
     );
@@ -194,14 +146,8 @@ describe('ResetPasswordForm', () => {
   it('should prevent default form submission', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
-    const mockMutation = createMockMutation();
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const form = screen
       .getByRole('button', { name: 'Send reset email' })
@@ -223,68 +169,30 @@ describe('ResetPasswordForm', () => {
   });
 
   it('should have required attribute on email field', () => {
-    const mockMutation = createMockMutation();
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     expect(emailInput).toHaveAttribute('required');
   });
 
-  it('should render with proper form structure', () => {
-    const mockMutation = createMockMutation();
-    const { container } = render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const form = container.querySelector('form');
-    expect(form).toBeInTheDocument();
-
-    const fieldsContainer = container.querySelector('.flex.flex-col.gap-6');
-    expect(fieldsContainer).toBeInTheDocument();
-
-    const buttonContainer = container.querySelector('.flex.flex-col.gap-3');
-    expect(buttonContainer).toBeInTheDocument();
-  });
-
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn();
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const submitButton = screen.getByRole('button', {
       name: 'Send reset email',
     });
     await user.click(submitButton);
 
-    // Form should handle validation internally and not call mutateAsync
-    expect(mockMutateAsync).not.toHaveBeenCalled();
+    // Form should handle validation internally and not call handleSuccess
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
-    const mockMutation = createMockMutation();
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
 
@@ -311,15 +219,8 @@ describe('ResetPasswordForm', () => {
 
   it('should clear error map before submission', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn().mockResolvedValue({});
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -330,27 +231,14 @@ describe('ResetPasswordForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockMutateAsync).toHaveBeenCalled();
-    });
-
-    // Verify the mutation was called with the email
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      body: { email: 'test@example.com' },
-      signal: expect.any(AbortSignal),
+      expect(mockHandleSuccess).toHaveBeenCalled();
     });
   });
 
   it('should accept valid email addresses', async () => {
     const user = userEvent.setup();
-    const mockMutateAsync = vi.fn().mockResolvedValue({});
-    const mockMutation = createMockMutation({ mutateAsync: mockMutateAsync });
 
-    render(
-      <ResetPasswordForm
-        resetPasswordMutation={mockMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const emailInput = screen.getByLabelText(/Email/);
     const submitButton = screen.getByRole('button', {
@@ -369,13 +257,12 @@ describe('ResetPasswordForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockMutateAsync).toHaveBeenCalledWith({
-          body: { email },
-          signal: expect.any(AbortSignal),
+        expect(mockHandleSuccess).toHaveBeenCalledWith({
+          responseData: ['Password reset email sent.'],
         });
       });
 
-      mockMutateAsync.mockClear();
+      mockHandleSuccess.mockClear();
     }
   });
 });

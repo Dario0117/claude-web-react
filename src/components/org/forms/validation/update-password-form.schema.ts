@@ -1,7 +1,7 @@
 import * as z from 'zod';
 export const updatePasswordFormSchema = z
   .object({
-    password: z.string(),
+    password: z.string().trim().min(1),
     confirm: z.string(),
   })
   .refine((data) => data.password === data.confirm, {

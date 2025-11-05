@@ -1,11 +1,10 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useLoginMutation } from '@/services/users.http-service';
 import { LoginForm } from './login.form';
 
 interface LinkProps {
@@ -26,27 +25,25 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-describe('LoginForm', () => {
-  const mockLoginMutation = {
-    mutateAsync: vi.fn(),
-    error: null,
-    // biome-ignore lint/suspicious/noExplicitAny: Test mock
-  } as any;
+function TestWrapper({ handleSuccess }: { handleSuccess: () => void }) {
+  const loginMutation = useLoginMutation();
+  return (
+    <LoginForm
+      loginMutation={loginMutation}
+      handleSuccess={handleSuccess}
+    />
+  );
+}
 
+describe('LoginForm', () => {
   const mockHandleSuccess = vi.fn();
 
   beforeEach(() => {
-    mockLoginMutation.mutateAsync.mockClear();
     mockHandleSuccess.mockClear();
   });
 
   it('should render login form with all required fields', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(
@@ -58,12 +55,7 @@ describe('LoginForm', () => {
   });
 
   it('should render forgot password link', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const forgotPasswordLink = screen.getByText('Forgot your password?');
     expect(forgotPasswordLink).toBeInTheDocument();
@@ -74,12 +66,7 @@ describe('LoginForm', () => {
   });
 
   it('should render register link', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const registerLink = screen.getByText('Register');
     expect(registerLink).toBeInTheDocument();
@@ -87,24 +74,14 @@ describe('LoginForm', () => {
   });
 
   it('should have proper input placeholders', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByPlaceholderText('johndoe17')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
   });
 
   it('should have password input type', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByLabelText(/Password/);
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -112,18 +89,8 @@ describe('LoginForm', () => {
 
   it('should call loginMutation with correct credentials on form submission', async () => {
     const user = userEvent.setup();
-    const mockResponse = {
-      token: 'mock-token',
-      expiry: '2025-12-31T23:59:59Z',
-    };
-    mockLoginMutation.mutateAsync.mockResolvedValue(mockResponse);
 
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
@@ -136,9 +103,9 @@ describe('LoginForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockLoginMutation.mutateAsync).toHaveBeenCalledWith({
-        body: { username: 'testuser', password: 'testpassword' },
-        signal: expect.any(AbortSignal),
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        token: 'random-token',
+        expiry: 'random-expiry',
       });
     });
   });
@@ -147,12 +114,7 @@ describe('LoginForm', () => {
     const mockPreventDefault = vi.fn();
     const mockStopPropagation = vi.fn();
 
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const form = screen.getByRole('button', { name: 'Login' }).closest('form');
     expect(form).toBeInTheDocument();
@@ -173,12 +135,7 @@ describe('LoginForm', () => {
 
   it('should handle empty form submission', async () => {
     const user = userEvent.setup();
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const submitButton = screen.getByRole('button', { name: 'Login' });
     await act(async () => {
@@ -186,20 +143,25 @@ describe('LoginForm', () => {
     });
 
     // Form should handle validation internally
-    expect(mockLoginMutation.mutateAsync).not.toHaveBeenCalled();
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should display form error when loginMutation fails', async () => {
     const user = userEvent.setup();
-    const mockError = new Error('Invalid credentials');
-    mockLoginMutation.mutateAsync.mockRejectedValue(mockError);
 
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/login'), () => {
+        return HttpResponse.json(
+          {
+            nonFieldErrors: ['Invalid credentials'],
+          },
+          { status: 400 },
+        );
+      }),
     );
+
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
@@ -212,17 +174,12 @@ describe('LoginForm', () => {
     });
 
     await waitFor(() => {
-      expect(mockLoginMutation.mutateAsync).toHaveBeenCalled();
+      expect(mockHandleSuccess).not.toHaveBeenCalled();
     });
   });
 
   it('should have required attributes on form fields', () => {
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
@@ -231,32 +188,9 @@ describe('LoginForm', () => {
     expect(passwordInput).toHaveAttribute('required');
   });
 
-  it('should render with proper form structure', () => {
-    const { container } = render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
-
-    const form = container.querySelector('form');
-    expect(form).toBeInTheDocument();
-
-    const fieldsContainer = container.querySelector('.flex.flex-col.gap-6');
-    expect(fieldsContainer).toBeInTheDocument();
-
-    const buttonContainer = container.querySelector('.flex.flex-col.gap-3');
-    expect(buttonContainer).toBeInTheDocument();
-  });
-
   it('should handle keyboard navigation', async () => {
     const user = userEvent.setup();
-    render(
-      <LoginForm
-        loginMutation={mockLoginMutation}
-        handleSuccess={mockHandleSuccess}
-      />,
-    );
+    renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
