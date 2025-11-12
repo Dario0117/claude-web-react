@@ -48,7 +48,7 @@ describe('AppFormField', () => {
             <field.AppFormField
               label={label}
               placeholder={placeholder}
-              type={type as React.ComponentPropsWithoutRef<'input'>['type']}
+              type={type}
               required={required}
             >
               {children}
@@ -81,6 +81,7 @@ describe('AppFormField', () => {
 
     const requiredIndicator = screen.getByText('*');
     expect(requiredIndicator).toBeInTheDocument();
+    expect(screen.getByLabelText('Email*')).toBeInTheDocument();
   });
 
   it('should not render required indicator when required is false', () => {
@@ -92,6 +93,7 @@ describe('AppFormField', () => {
     );
 
     expect(screen.queryByText('*')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
   });
 
   it('should render input with correct type attribute', () => {
@@ -194,11 +196,12 @@ describe('AppFormField', () => {
 
   it('should set aria-describedby when field has error', async () => {
     const user = userEvent.setup();
+    const errorMessage = 'Password is required';
     render(
       <TestFormWrapper
         label="Password"
         hasError={true}
-        errorMessage="Password is required"
+        errorMessage={errorMessage}
       />,
     );
 
@@ -211,6 +214,7 @@ describe('AppFormField', () => {
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-describedby', 'testField-error');
     });
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
   it('should render error message with role alert', async () => {
