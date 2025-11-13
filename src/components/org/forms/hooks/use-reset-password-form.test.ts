@@ -1,40 +1,39 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
+import { useResetPasswordMutation } from '@/services/users.http-service';
 import { useResetPasswordForm } from './use-reset-password-form';
 
 describe('useResetPasswordForm', () => {
-  const mockResetPasswordSuccess = {
-    message: 'Password reset email sent',
-  };
-
   it('should initialize with empty default values', () => {
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     expect(result.current.state.values.email).toBe('');
   });
 
   it('should validate required email field', async () => {
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Try to submit with empty email
@@ -43,21 +42,20 @@ describe('useResetPasswordForm', () => {
     });
 
     // Should have validation errors - form validates on submit
-    expect(mockResetPasswordMutation.mutateAsync).not.toHaveBeenCalled();
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should call resetPasswordMutation on successful validation', async () => {
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn().mockResolvedValue(mockResetPasswordSuccess),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid email
@@ -70,24 +68,24 @@ describe('useResetPasswordForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockResetPasswordMutation.mutateAsync).toHaveBeenCalledWith({
-      body: { email: 'test@example.com' },
-      signal: expect.any(AbortSignal),
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password reset email sent.'],
+      });
     });
   });
 
   it('should call handleSuccess after successful password reset request', async () => {
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn().mockResolvedValue(mockResetPasswordSuccess),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid email
@@ -100,26 +98,40 @@ describe('useResetPasswordForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockHandleSuccess).toHaveBeenCalledWith(mockResetPasswordSuccess);
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password reset email sent.'],
+      });
+    });
   });
 
   it('should set error map when reset password fails with responseErrors', async () => {
-    const mockError = {
-      responseErrors: {
-        nonFieldErrors: ['Email not found'],
-      },
-    };
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn().mockRejectedValue(mockError),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
-    const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
+        return HttpResponse.json(
+          {
+            responseData: null,
+            responseErrors: {
+              nonFieldErrors: ['Email not found'],
+              email: ['This email address is not registered'],
+            },
+          },
+          { status: 400 },
+        );
       }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid email
@@ -133,26 +145,35 @@ describe('useResetPasswordForm', () => {
     });
 
     // Check that the error was set
-    expect(mockResetPasswordMutation.mutateAsync).toHaveBeenCalledWith({
-      body: { email: 'notfound@example.com' },
-      signal: expect.any(AbortSignal),
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Email not found',
+      );
     });
-    expect(result.current.state.errorMap.onSubmit).toBeDefined();
+    expect(result.current.state.fieldMeta.email.errorMap.onSubmit?.[0]).toBe(
+      'This email address is not registered',
+    );
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected error without responseErrors', async () => {
-    const mockError = new Error('Network error');
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn().mockRejectedValue(mockError),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
-    const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to return an error without responseErrors
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
+        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
       }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid email
@@ -166,21 +187,25 @@ describe('useResetPasswordForm', () => {
     });
 
     // Check that error was processed and set in form state
-    expect(result.current.state.errorMap.onSubmit).toBeDefined();
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Something went wrong, please try again later.',
+      );
+    });
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate email field individually', () => {
-    const mockResetPasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useResetPasswordForm({
-        resetPasswordMutation: mockResetPasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const resetPasswordMutation = useResetPasswordMutation();
+        return useResetPasswordForm({
+          resetPasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Should be able to set valid email

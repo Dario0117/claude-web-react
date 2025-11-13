@@ -1,4 +1,9 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
+import { useUpdatePasswordMutation } from '@/services/users.http-service';
 import { useUpdatePasswordForm } from './use-update-password-form';
 
 // Mock useParams
@@ -7,22 +12,17 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 describe('useUpdatePasswordForm', () => {
-  const mockUpdatePasswordSuccess = {
-    message: 'Password updated successfully',
-  };
-
   it('should initialize with empty default values', () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     expect(result.current.state.values.password).toBe('');
@@ -30,17 +30,16 @@ describe('useUpdatePasswordForm', () => {
   });
 
   it('should handle validation on submit', async () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Try to submit with empty passwords
@@ -54,17 +53,16 @@ describe('useUpdatePasswordForm', () => {
   });
 
   it('should call updatePasswordMutation on successful validation', async () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn().mockResolvedValue(mockUpdatePasswordSuccess),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid passwords
@@ -78,24 +76,24 @@ describe('useUpdatePasswordForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalledWith({
-      body: { token: 'test-token-123', password: 'NewPassword123!' },
-      signal: expect.any(AbortSignal),
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password updated successfully.'],
+      });
     });
   });
 
   it('should call handleSuccess after successful password update', async () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn().mockResolvedValue(mockUpdatePasswordSuccess),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid passwords
@@ -109,26 +107,41 @@ describe('useUpdatePasswordForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockHandleSuccess).toHaveBeenCalledWith(mockUpdatePasswordSuccess);
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['Password updated successfully.'],
+      });
+    });
   });
 
   it('should set error map when update password fails with responseErrors', async () => {
-    const mockError = {
-      responseErrors: {
-        nonFieldErrors: ['Invalid or expired token'],
-      },
-    };
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn().mockRejectedValue(mockError),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
-    const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
+        return HttpResponse.json(
+          {
+            responseData: null,
+            responseErrors: {
+              nonFieldErrors: ['Invalid or expired token'],
+              password: ['Password must be at least 12 characters'],
+              confirm: ['Passwords do not match'],
+            },
+          },
+          { status: 400 },
+        );
       }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid passwords
@@ -143,26 +156,38 @@ describe('useUpdatePasswordForm', () => {
     });
 
     // Check that the error was set
-    expect(mockUpdatePasswordMutation.mutateAsync).toHaveBeenCalledWith({
-      body: { token: 'test-token-123', password: 'NewPassword123!' },
-      signal: expect.any(AbortSignal),
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Invalid or expired token',
+      );
     });
-    expect(result.current.state.errorMap.onSubmit).toBeDefined();
+    expect(result.current.state.fieldMeta.password.errorMap.onSubmit?.[0]).toBe(
+      'Password must be at least 12 characters',
+    );
+    expect(result.current.state.fieldMeta.confirm.errorMap.onSubmit?.[0]).toBe(
+      'Passwords do not match',
+    );
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected error without responseErrors', async () => {
-    const mockError = new Error('Network error');
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn().mockRejectedValue(mockError),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
-    const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to return an error without responseErrors
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
+        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
       }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid passwords
@@ -177,21 +202,25 @@ describe('useUpdatePasswordForm', () => {
     });
 
     // Check that error was processed and set in form state
-    expect(result.current.state.errorMap.onSubmit).toBeDefined();
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Something went wrong, please try again later.',
+      );
+    });
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate password field individually', () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Should be able to set valid password
@@ -210,17 +239,16 @@ describe('useUpdatePasswordForm', () => {
   });
 
   it('should validate confirm field individually', () => {
-    const mockUpdatePasswordMutation = {
-      mutateAsync: vi.fn(),
-      error: null,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any;
     const mockHandleSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useUpdatePasswordForm({
-        updatePasswordMutation: mockUpdatePasswordMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const updatePasswordMutation = useUpdatePasswordMutation();
+        return useUpdatePasswordForm({
+          updatePasswordMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Should be able to set valid confirm password

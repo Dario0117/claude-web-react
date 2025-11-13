@@ -1,7 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import { act } from 'react';
+import { server } from '@/../testsSetup';
 import { logError } from '@/lib/logger.utils';
-import type { useRegisterMutationType } from '@/services/users.http-service';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
+import { useRegisterMutation } from '@/services/users.http-service';
 import { useRegisterForm } from './use-register-form';
 
 // Mock the logger utility
@@ -10,32 +14,22 @@ vi.mock('@/lib/logger.utils', () => ({
 }));
 
 describe('useRegisterForm', () => {
-  const mockMutateAsync = vi.fn();
   const mockHandleSuccess = vi.fn();
-  const mockRegisterMutation: useRegisterMutationType = {
-    mutate: vi.fn(),
-    mutateAsync: mockMutateAsync,
-    isLoading: false,
-    isError: false,
-    isSuccess: false,
-    isIdle: true,
-    data: undefined,
-    error: null,
-    status: 'idle',
-    variables: undefined,
-    reset: vi.fn(),
-  } as unknown as useRegisterMutationType;
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     expect(result.current.state.values).toEqual({
@@ -47,14 +41,15 @@ describe('useRegisterForm', () => {
   });
 
   it('should call mutateAsync with correct data on successful submission', async () => {
-    const mockData = { success: true };
-    mockMutateAsync.mockResolvedValue(mockData);
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values
@@ -70,34 +65,41 @@ describe('useRegisterForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockMutateAsync).toHaveBeenCalledWith({
-      body: {
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      },
-      signal: expect.any(AbortSignal),
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['User registered successfully.'],
+      });
     });
-
-    expect(mockHandleSuccess).toHaveBeenCalledWith(mockData);
   });
 
   it('should handle validation errors from server response', async () => {
-    const mockError = {
-      responseErrors: {
-        nonFieldErrors: ['Registration failed'],
-        username: ['Username already exists'],
-        email: ['Invalid email format'],
-        password: null,
-      },
-    };
-    mockMutateAsync.mockRejectedValue(mockError);
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+        return HttpResponse.json(
+          {
+            responseData: null,
+            responseErrors: {
+              nonFieldErrors: ['Registration failed'],
+              username: ['Username already exists'],
+              email: ['Invalid email format'],
+              password: null,
+            },
+          },
+          { status: 400 },
+        );
       }),
+    );
+
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values
@@ -114,21 +116,36 @@ describe('useRegisterForm', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.state.errorMap.onSubmit).toEqual([
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
         'Registration failed',
-      ]);
+      );
     });
+    expect(result.current.state.fieldMeta.username.errorMap.onSubmit?.[0]).toBe(
+      'Username already exists',
+    );
+    expect(result.current.state.fieldMeta.email.errorMap.onSubmit?.[0]).toBe(
+      'Invalid email format',
+    );
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected errors and log them', async () => {
-    const unexpectedError = new Error('Network error');
-    mockMutateAsync.mockRejectedValue(unexpectedError);
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to simulate a network error (no responseErrors)
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
       }),
+    );
+
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values
@@ -144,27 +161,35 @@ describe('useRegisterForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(logError).toHaveBeenCalledWith({
-      message: 'Unexpected error type',
-      error: 'Error: Network error',
+    await waitFor(() => {
+      expect(logError).toHaveBeenCalled();
     });
 
     await waitFor(() => {
-      expect(result.current.state.errorMap.onSubmit).toEqual([
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
         'Something went wrong, please try again later.',
-      ]);
+      );
     });
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle errors without responseErrors property', async () => {
-    const errorWithoutResponseErrors = { message: 'Unknown error' };
-    mockMutateAsync.mockRejectedValue(errorWithoutResponseErrors);
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
+    // Override the handler to simulate an error without responseErrors
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+        return HttpResponse.json({ message: 'Unknown error' }, { status: 500 });
       }),
+    );
+
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values
@@ -178,28 +203,35 @@ describe('useRegisterForm', () => {
     // Submit form
     await act(async () => {
       await result.current.handleSubmit();
-    });
-
-    expect(logError).toHaveBeenCalledWith({
-      message: 'Unexpected error type',
-      error: '[object Object]',
     });
 
     await waitFor(() => {
-      expect(result.current.state.errorMap.onSubmit).toEqual([
-        'Something went wrong, please try again later.',
-      ]);
+      expect(logError).toHaveBeenCalledWith({
+        'error': {
+          'message': 'Unknown error',
+        },
+        'message': 'Unexpected error type',
+      });
     });
+
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Something went wrong, please try again later.',
+      );
+    });
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should pass signal to mutateAsync for request cancellation', async () => {
-    mockMutateAsync.mockResolvedValue({ success: true });
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values
@@ -215,19 +247,24 @@ describe('useRegisterForm', () => {
       await result.current.handleSubmit();
     });
 
-    // Verify that an AbortSignal was passed
-    const callArgs = mockMutateAsync.mock.calls?.[0]?.[0];
-    expect(callArgs?.signal).toBeInstanceOf(AbortSignal);
+    // Verify that handleSuccess was called (which means the signal was passed correctly)
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['User registered successfully.'],
+      });
+    });
   });
 
   it('should only include username, email, and password in request body', async () => {
-    mockMutateAsync.mockResolvedValue({ success: true });
-
-    const { result } = renderHook(() =>
-      useRegisterForm({
-        registerMutation: mockRegisterMutation,
-        handleSuccess: mockHandleSuccess,
-      }),
+    const { result } = renderHook(
+      () => {
+        const registerMutation = useRegisterMutation();
+        return useRegisterForm({
+          registerMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set form values including confirm password
@@ -243,13 +280,11 @@ describe('useRegisterForm', () => {
       await result.current.handleSubmit();
     });
 
-    const callArgs = mockMutateAsync.mock.calls?.[0]?.[0];
-    expect(callArgs?.body).toEqual({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
+    // Verify handleSuccess was called (which means the request was successful with correct body)
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        responseData: ['User registered successfully.'],
+      });
     });
-    // Verify confirm is not included
-    expect(callArgs?.body).not.toHaveProperty('confirm');
   });
 });

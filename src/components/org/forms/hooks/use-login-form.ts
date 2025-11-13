@@ -30,7 +30,7 @@ export function useLoginForm({
           if (!error?.responseErrors) {
             logError({
               message: 'Unexpected error type',
-              error: String(error),
+              error,
             });
             return {
               form: ['Something went wrong, please try again later.'],
