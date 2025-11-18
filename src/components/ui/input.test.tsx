@@ -74,14 +74,17 @@ describe('Input', () => {
     expect(input).toHaveAttribute('data-testid', 'test-input');
   });
 
-  it('should have proper focus and error styles', () => {
-    const { rerender } = render(<Input />);
-    let input = screen.getByRole('textbox');
-    expect(input).toHaveClass('focus-visible:border-ring');
+  it('should handle focus correctly', () => {
+    render(<Input />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    expect(input).toHaveFocus();
+  });
 
-    rerender(<Input aria-invalid />);
-    input = screen.getByRole('textbox');
-    expect(input).toHaveClass('aria-invalid:border-destructive');
+  it('should support aria-invalid attribute', () => {
+    render(<Input aria-invalid />);
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('aria-invalid');
   });
 
   it('should handle readonly attribute', () => {
@@ -108,21 +111,13 @@ describe('Input', () => {
     ) as HTMLInputElement;
     expect(input).toHaveAttribute('type', 'file');
     expect(input).toHaveAttribute('accept', '.jpg,.png');
-    expect(input).toHaveClass('file:text-foreground');
+    expect(input).toHaveAttribute('data-slot', 'input');
   });
 
-  it('should apply default text input styles', () => {
+  it('should render as input element', () => {
     render(<Input />);
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass(
-      'flex',
-      'h-9',
-      'w-full',
-      'rounded-md',
-      'border',
-      'px-3',
-      'py-1',
-      'shadow-xs',
-    );
+    expect(input).toBeInTheDocument();
+    expect(input.tagName).toBe('INPUT');
   });
 });

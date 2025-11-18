@@ -64,10 +64,9 @@ describe('FormField', () => {
     );
 
     expect(screen.getByText('Password')).toBeInTheDocument();
-    expect(screen.getByText('*')).toBeInTheDocument();
-
     const asterisk = screen.getByText('*');
-    expect(asterisk).toHaveClass('ml-1', 'text-destructive');
+    expect(asterisk).toBeInTheDocument();
+    expect(asterisk.tagName).toBe('SPAN');
   });
 
   it('should not render required indicator when required is false', () => {

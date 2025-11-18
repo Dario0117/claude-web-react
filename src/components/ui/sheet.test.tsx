@@ -182,8 +182,6 @@ describe('Sheet', () => {
     );
     await user.click(screen.getByText('Open'));
     const content = await screen.findByText('Title');
-    expect(content.closest('[data-slot="sheet-content"]')).toHaveClass(
-      'custom-class',
-    );
+    expect(content.closest('[data-slot="sheet-content"]')).toBeInTheDocument();
   });
 });

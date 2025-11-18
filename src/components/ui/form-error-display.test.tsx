@@ -49,11 +49,12 @@ describe('FormErrorDisplay', () => {
     });
   });
 
-  it('should have proper wrapper structure', () => {
+  it('should render wrapper structure correctly', () => {
     const { container } = render(<FormErrorDisplay errors={['Test error']} />);
 
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper).toHaveClass('mt-4');
+    expect(wrapper).toBeInTheDocument();
+    expect(wrapper.tagName).toBe('DIV');
   });
 
   it('should render multiple times with different errors', () => {

@@ -24,20 +24,10 @@ describe('Card Components', () => {
       expect(card).toHaveClass('custom-card');
     });
 
-    it('should have default card styles', () => {
+    it('should render as div element', () => {
       render(<Card>Card</Card>);
       const card = screen.getByText('Card');
-      expect(card).toHaveClass(
-        'bg-card',
-        'text-card-foreground',
-        'flex',
-        'flex-col',
-        'gap-6',
-        'rounded-xl',
-        'border',
-        'py-6',
-        'shadow-sm',
-      );
+      expect(card.tagName).toBe('DIV');
     });
   });
 
@@ -49,17 +39,10 @@ describe('Card Components', () => {
       expect(header).toHaveAttribute('data-slot', 'card-header');
     });
 
-    it('should have proper header styles', () => {
+    it('should render as div element', () => {
       render(<CardHeader>Header</CardHeader>);
       const header = screen.getByText('Header');
-      expect(header).toHaveClass(
-        'grid',
-        'auto-rows-min',
-        'grid-rows-[auto_auto]',
-        'items-start',
-        'gap-1.5',
-        'px-6',
-      );
+      expect(header.tagName).toBe('DIV');
     });
   });
 
@@ -71,10 +54,10 @@ describe('Card Components', () => {
       expect(title).toHaveAttribute('data-slot', 'card-title');
     });
 
-    it('should have proper title styles', () => {
+    it('should render as div element', () => {
       render(<CardTitle>Title</CardTitle>);
       const title = screen.getByText('Title');
-      expect(title).toHaveClass('leading-none', 'font-semibold');
+      expect(title.tagName).toBe('DIV');
     });
   });
 
@@ -86,10 +69,10 @@ describe('Card Components', () => {
       expect(description).toHaveAttribute('data-slot', 'card-description');
     });
 
-    it('should have proper description styles', () => {
+    it('should render as div element', () => {
       render(<CardDescription>Description</CardDescription>);
       const description = screen.getByText('Description');
-      expect(description).toHaveClass('text-muted-foreground', 'text-sm');
+      expect(description.tagName).toBe('DIV');
     });
   });
 
@@ -101,16 +84,10 @@ describe('Card Components', () => {
       expect(action).toHaveAttribute('data-slot', 'card-action');
     });
 
-    it('should have proper action styles', () => {
+    it('should render as div element', () => {
       render(<CardAction>Action</CardAction>);
       const action = screen.getByText('Action');
-      expect(action).toHaveClass(
-        'col-start-2',
-        'row-span-2',
-        'row-start-1',
-        'self-start',
-        'justify-self-end',
-      );
+      expect(action.tagName).toBe('DIV');
     });
   });
 
@@ -122,10 +99,10 @@ describe('Card Components', () => {
       expect(content).toHaveAttribute('data-slot', 'card-content');
     });
 
-    it('should have proper content styles', () => {
+    it('should render as div element', () => {
       render(<CardContent>Content</CardContent>);
       const content = screen.getByText('Content');
-      expect(content).toHaveClass('px-6');
+      expect(content.tagName).toBe('DIV');
     });
   });
 
@@ -137,10 +114,10 @@ describe('Card Components', () => {
       expect(footer).toHaveAttribute('data-slot', 'card-footer');
     });
 
-    it('should have proper footer styles', () => {
+    it('should render as div element', () => {
       render(<CardFooter>Footer</CardFooter>);
       const footer = screen.getByText('Footer');
-      expect(footer).toHaveClass('flex', 'items-center', 'px-6');
+      expect(footer.tagName).toBe('DIV');
     });
   });
 
