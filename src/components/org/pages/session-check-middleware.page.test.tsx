@@ -1,7 +1,10 @@
 import { screen, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
 import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import type { useProfileQueryReturnType } from '@/services/users.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { Profile } from '@/stores/authentication.store.d';
 import { SessionCheckMiddleware } from './session-check-middleware.page';
 
 // Mock the authentication store
@@ -14,21 +17,7 @@ vi.mock('@tanstack/react-router', () => ({
   Navigate: ({ to }: { to: string }) => <div data-testid="navigate">{to}</div>,
 }));
 
-// Mock the profile query
-vi.mock('@/services/users.http-service', () => ({
-  useProfileQuery: vi.fn(),
-}));
-
 const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
-const mockUseProfileQuery = vi.mocked(
-  await import('@/services/users.http-service'),
-).useProfileQuery;
-
-const mockProfile: Profile = {
-  firstName: 'Test',
-  lastName: 'User',
-  email: 'test@example.com',
-};
 
 describe('SessionCheckMiddleware', () => {
   const mockSetProfile = vi.fn();
@@ -42,11 +31,16 @@ describe('SessionCheckMiddleware', () => {
 
   describe('Loading state', () => {
     it('should render null when loading', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: undefined,
-        isLoading: true,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
+      // Mock the profile endpoint to delay response to simulate loading
+      server.use(
+        http.get(
+          buildBackendUrl('/api/v1/users/profile'),
+          async () =>
+            new Promise(() => {
+              // Never resolves to keep loading state
+            }),
+        ),
+      );
 
       const { container } = renderWithProviders(
         <SessionCheckMiddleware
@@ -57,19 +51,15 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
+      // Initially should be loading (null)
       expect(container.firstChild).toBeNull();
       expect(screen.queryByText('Child Content')).not.toBeInTheDocument();
     });
   });
 
   describe('When profile exists - redirect scenario', () => {
-    it('should redirect when profile exists and whenProfileExist is true', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: mockProfile },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
+    it('should redirect when profile exists and whenProfileExist is true', async () => {
+      // Use default MSW handler which returns a profile
       renderWithProviders(
         <SessionCheckMiddleware
           to="/"
@@ -79,17 +69,14 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
-      expect(screen.getByTestId('navigate')).toHaveTextContent('/');
+      await waitFor(() => {
+        expect(screen.getByTestId('navigate')).toHaveTextContent('/');
+      });
       expect(screen.queryByText('Child Content')).not.toBeInTheDocument();
     });
 
-    it('should render children when profile exists and whenProfileExist is false', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: mockProfile },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
+    it('should render children when profile exists and whenProfileExist is false', async () => {
+      // Use default MSW handler which returns a profile
       renderWithProviders(
         <SessionCheckMiddleware
           to="/login"
@@ -99,60 +86,24 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
-      expect(screen.getByText('Child Content')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Child Content')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('navigate')).not.toBeInTheDocument();
     });
   });
 
   describe('When profile does not exist - redirect scenario', () => {
-    it('should redirect when profile does not exist and whenProfileExist is false', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: undefined },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
-      renderWithProviders(
-        <SessionCheckMiddleware
-          to="/login"
-          whenProfileExist={false}
-        >
-          <div>Child Content</div>
-        </SessionCheckMiddleware>,
+    it('should redirect when profile does not exist and whenProfileExist is false', async () => {
+      // Override MSW handler to return undefined profile
+      server.use(
+        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
+          const data = {
+            responseData: undefined,
+          } as unknown as useProfileQueryReturnType['data'];
+          return HttpResponse.json(data);
+        }),
       );
-
-      expect(screen.getByTestId('navigate')).toHaveTextContent('/login');
-      expect(screen.queryByText('Child Content')).not.toBeInTheDocument();
-    });
-
-    it('should render children when profile does not exist and whenProfileExist is true', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: undefined },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
-      renderWithProviders(
-        <SessionCheckMiddleware
-          to="/"
-          whenProfileExist={true}
-        >
-          <div>Child Content</div>
-        </SessionCheckMiddleware>,
-      );
-
-      expect(screen.getByText('Child Content')).toBeInTheDocument();
-      expect(screen.queryByTestId('navigate')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Profile setting', () => {
-    it('should call setProfile when profile data is available', async () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: mockProfile },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
 
       renderWithProviders(
         <SessionCheckMiddleware
@@ -164,16 +115,68 @@ describe('SessionCheckMiddleware', () => {
       );
 
       await waitFor(() => {
-        expect(mockSetProfile).toHaveBeenCalledWith(mockProfile);
+        expect(screen.getByTestId('navigate')).toHaveTextContent('/login');
+      });
+      expect(screen.queryByText('Child Content')).not.toBeInTheDocument();
+    });
+
+    it('should render children when profile does not exist and whenProfileExist is true', async () => {
+      // Override MSW handler to return undefined profile
+      server.use(
+        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
+          const data = {
+            responseData: undefined,
+          } as unknown as useProfileQueryReturnType['data'];
+          return HttpResponse.json(data);
+        }),
+      );
+
+      renderWithProviders(
+        <SessionCheckMiddleware
+          to="/"
+          whenProfileExist={true}
+        >
+          <div>Child Content</div>
+        </SessionCheckMiddleware>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Child Content')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('navigate')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Profile setting', () => {
+    it('should call setProfile when profile data is available', async () => {
+      // Use default MSW handler which returns a profile
+      renderWithProviders(
+        <SessionCheckMiddleware
+          to="/login"
+          whenProfileExist={false}
+        >
+          <div>Child Content</div>
+        </SessionCheckMiddleware>,
+      );
+
+      await waitFor(() => {
+        expect(mockSetProfile).toHaveBeenCalledWith({
+          firstName: 'test',
+          lastName: 'test2',
+          email: 't@t.com',
+        });
       });
     });
 
-    it('should not call setProfile when profile data is undefined', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: undefined },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
+    it('should not call setProfile when profile data is undefined', async () => {
+      server.use(
+        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
+          const data = {
+            responseData: undefined,
+          } as unknown as useProfileQueryReturnType['data'];
+          return HttpResponse.json(data);
+        }),
+      );
 
       renderWithProviders(
         <SessionCheckMiddleware
@@ -184,36 +187,23 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
-      expect(mockSetProfile).not.toHaveBeenCalled();
-    });
-
-    it('should not call setProfile when data is null', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: null,
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
-      renderWithProviders(
-        <SessionCheckMiddleware
-          to="/login"
-          whenProfileExist={false}
-        >
-          <div>Child Content</div>
-        </SessionCheckMiddleware>,
-      );
+      // Wait for the query to complete
+      await waitFor(() => {
+        expect(screen.getByTestId('navigate')).toBeInTheDocument();
+      });
 
       expect(mockSetProfile).not.toHaveBeenCalled();
     });
   });
 
   describe('Edge cases', () => {
-    it('should handle data without responseData property', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: {},
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
+    it('should handle data without responseData property', async () => {
+      server.use(
+        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
+          // Return empty object (no responseData property)
+          return HttpResponse.json({});
+        }),
+      );
 
       renderWithProviders(
         <SessionCheckMiddleware
@@ -224,16 +214,13 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
-      expect(screen.getByTestId('navigate')).toHaveTextContent('/login');
+      await waitFor(() => {
+        expect(screen.getByTestId('navigate')).toHaveTextContent('/login');
+      });
     });
 
-    it('should handle complex children', () => {
-      mockUseProfileQuery.mockReturnValue({
-        data: { responseData: mockProfile },
-        isLoading: false,
-        // biome-ignore lint/suspicious/noExplicitAny: Test mock
-      } as any);
-
+    it('should handle complex children', async () => {
+      // Use default MSW handler which returns a profile
       renderWithProviders(
         <SessionCheckMiddleware
           to="/login"
@@ -247,7 +234,9 @@ describe('SessionCheckMiddleware', () => {
         </SessionCheckMiddleware>,
       );
 
-      expect(screen.getByText('Title')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Title')).toBeInTheDocument();
+      });
       expect(screen.getByText('Paragraph')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: 'Action' }),

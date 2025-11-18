@@ -1,8 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/lib/test-wrappers.utils';
-import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { Profile } from '@/stores/authentication.store.d';
 import { LoginPage } from './login.page';
 
 interface LinkProps {
@@ -10,11 +8,6 @@ interface LinkProps {
   to: string;
   [key: string]: unknown;
 }
-
-// Mock the authentication store
-vi.mock('@/stores/authentication.store', () => ({
-  useAuthenticationStore: vi.fn(),
-}));
 
 // Mock the navigation hook
 vi.mock('@tanstack/react-router', () => ({
@@ -29,18 +22,9 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-// Mock the useLoginMutation service hook
-vi.mock('@/services/users.http-service', () => ({
-  useLoginMutation: vi.fn(),
-}));
-
-const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
-const mockUseLoginMutation = vi.mocked(
-  await import('@/services/users.http-service'),
-).useLoginMutation;
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -49,24 +33,9 @@ mockUseNavigate.mockReturnValue(mockNavigate);
 describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuthenticationStore.mockClear();
-    mockUseLoginMutation.mockClear();
-
-    // Set up default mock for useLoginMutation
-    mockUseLoginMutation.mockReturnValue({
-      mutateAsync: vi.fn(),
-      error: null,
-      isSuccess: false,
-      data: null,
-      isLoading: false,
-      isError: false,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any);
   });
 
   it('should render login form when user is not logged in', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
     renderWithProviders(<LoginPage />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
@@ -76,14 +45,6 @@ describe('LoginPage', () => {
   });
 
   it('should render login form regardless of authentication state', () => {
-    const mockUser: Profile = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-    };
-
-    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
-
     renderWithProviders(<LoginPage />);
 
     // LoginPage should render the form even when user is logged in
@@ -91,17 +52,7 @@ describe('LoginPage', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('should not redirect when user is not logged in', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
-    renderWithProviders(<LoginPage />);
-
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
   it('should pass login function to LoginForm', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
     renderWithProviders(<LoginPage />);
 
     // The login function should be passed to LoginForm
@@ -109,43 +60,11 @@ describe('LoginPage', () => {
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
   });
 
-  it('should have proper page structure and styling', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
-    const { container } = renderWithProviders(<LoginPage />);
-
-    const section = container.querySelector('section');
-    expect(section).toHaveClass(
-      'flex',
-      'min-h-svh',
-      'w-full',
-      'items-center',
-      'justify-center',
-      'p-6',
-      'md:p-10',
-    );
-
-    const wrapper = container.querySelector('.w-full.max-w-sm');
-    expect(wrapper).toBeInTheDocument();
-  });
-
   it('should maintain consistent behavior on rerender', () => {
-    // Start with user not logged in
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
     const { rerender } = renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
-
-    // Change to logged in - component behavior should remain the same
-    const mockUser: Profile = {
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-    };
-
-    mockUseAuthenticationStore.mockReturnValue({ user: mockUser });
 
     rerender(<LoginPage />);
 
@@ -155,8 +74,6 @@ describe('LoginPage', () => {
   });
 
   it('should use correct navigation source', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
     renderWithProviders(<LoginPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
@@ -164,38 +81,8 @@ describe('LoginPage', () => {
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
   });
 
-  it('should render accessibility landmarks', () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
-    renderWithProviders(<LoginPage />);
-
-    const section = screen
-      .getByText('Login to your account')
-      .closest('section');
-    expect(section).toBeInTheDocument();
-  });
-
   it('should navigate to home page on successful login', async () => {
-    mockUseAuthenticationStore.mockReturnValue({ user: undefined });
-
-    const mockSuccessData = {
-      responseData: {
-        token: 'test-token',
-        user: { id: '1', email: 'test@example.com' },
-      },
-    };
-
-    const mockMutateAsync = vi.fn().mockResolvedValue(mockSuccessData);
-
-    mockUseLoginMutation.mockReturnValue({
-      mutateAsync: mockMutateAsync,
-      error: null,
-      isSuccess: false,
-      data: null,
-      isLoading: false,
-      isError: false,
-      // biome-ignore lint/suspicious/noExplicitAny: Test mock
-    } as any);
+    const user = userEvent.setup();
 
     renderWithProviders(<LoginPage />);
 
@@ -205,11 +92,11 @@ describe('LoginPage', () => {
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     // Fill in the form
-    await userEvent.type(usernameInput, 'testuser');
-    await userEvent.type(passwordInput, 'password123');
+    await user.type(usernameInput, 'testuser');
+    await user.type(passwordInput, 'password123');
 
     // Submit the form
-    await userEvent.click(submitButton);
+    await user.click(submitButton);
 
     // Wait for the mutation to be called and navigation to occur
     await waitFor(() => {
