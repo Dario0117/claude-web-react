@@ -14,6 +14,7 @@
       "Bash(pnpm format-and-lint:check)",
       "Bash(pnpm open-api)",
       "Bash(pnpm storybook)",
+      "Bash(pnpm build-storybook:*)",
       "Bash(cat:*)",
       "Bash(pkill:*)",
       "Bash(kill:*)",
