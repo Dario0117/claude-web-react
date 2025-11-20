@@ -181,29 +181,6 @@ export const WithError: Story = {
   },
 };
 
-export const NetworkError: Story = {
-  args: {
-    loginMutation: {
-      mutateAsync: async ({
-        body,
-      }: {
-        body: { username: string; password: string };
-      }) => mockHandleLoginNetworkError(body.username, body.password),
-      error: null,
-    } as unknown as useLoginMutationType,
-    handleSuccess: (data) => {
-      console.log('Login successful:', data);
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Login form handling network connectivity issues.',
-      },
-    },
-  },
-};
-
 export const Interactive: Story = {
   args: {
     loginMutation: {

@@ -1,9 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ThemeProvider } from '@/context/theme.provider';
 import { ThemeSwitch } from './theme-switch';
 
 const meta = {
   title: 'Components/ThemeSwitch',
   component: ThemeSwitch,
+  decorators: [
+    (Story) => (
+      <ThemeProvider>
+        <Story />
+      </ThemeProvider>
+    ),
+  ],
   parameters: {
     docs: {
       description: {

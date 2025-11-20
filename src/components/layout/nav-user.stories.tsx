@@ -1,6 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { NavUser } from './nav-user';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 const meta = {
   title: 'Layout/NavUser',
@@ -11,11 +20,13 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <SidebarProvider>
-        <div className="w-[280px]">
-          <Story />
-        </div>
-      </SidebarProvider>
+      <QueryClientProvider client={queryClient}>
+        <SidebarProvider>
+          <div className="w-[280px]">
+            <Story />
+          </div>
+        </SidebarProvider>
+      </QueryClientProvider>
     ),
   ],
 } satisfies Meta<typeof NavUser>;

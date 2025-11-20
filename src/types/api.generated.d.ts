@@ -153,7 +153,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Authenticate user and receive access token */
+        /**
+         * Login
+         * @description Authenticate user and receive access token
+         */
         post: operations["v1UsersLoginCreate"];
         delete?: never;
         options?: never;
@@ -170,7 +173,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Logout current user and invalidate current token */
+        /**
+         * Logout
+         * @description Logout current user and invalidate current token
+         */
         post: operations["v1UsersLogoutCreate"];
         delete?: never;
         options?: never;
@@ -187,7 +193,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Logout user from all devices and invalidate all tokens */
+        /**
+         * Logout all
+         * @description Logout user from all devices and invalidate all tokens
+         */
         post: operations["v1UsersLogoutallCreate"];
         delete?: never;
         options?: never;
@@ -293,6 +302,7 @@ export interface components {
             responseErrors: components["schemas"]["ResponseErrorsRequestUpdatePasswordUserSerializer"];
         };
         Login: {
+            /** @description Enter your username below to login to your account */
             username: string;
             password: string;
         };
@@ -389,6 +399,7 @@ export interface components {
         ResponseErrorsLoginSerializer: {
             /** @description Non-field errors */
             nonFieldErrors: string[] | null;
+            /** @description Enter your username below to login to your account */
             username: string[] | null;
             password: string[] | null;
         };

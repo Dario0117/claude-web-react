@@ -2,11 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Prerequisites
+
+- **Node.js**: 22.14.0 (exact version required)
+- **pnpm**: 10.13.1 (exact version required)
+
 ## Development Commands
 
 ### Core Development
 
-- `pnpm dev` - Start development server
+- `pnpm dev` - Start development server (runs Vite and OpenAPI generation concurrently)
 - `pnpm dev:debug` - Start development server with VSCode debugging support (disables code splitting)
 - `pnpm build` - Build for production (runs TypeScript compilation + Vite build)
 - `pnpm preview` - Preview production build
@@ -20,8 +25,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 
-- `pnpm test` - Run tests with Vitest
-- `pnpm coverage` - Run tests with coverage report (outputs to `/coverage`)
+- `pnpm test` - Run tests with Vitest in watch mode
+- `pnpm coverage` - Run tests with coverage report (outputs to `/coverage`, runs tests once without watch mode)
 
 ### Storybook
 
@@ -49,34 +54,69 @@ This is a React frontend template using modern tooling and patterns:
 
 - `/src/components/` - Reusable components organized by domain
   - `/ui/` - Base UI components from shadcn (Button, Input, Card, etc.)
+  - `/layout/` - Layout-specific components (sidebar, header, nav)
+    - `/data/` - Navigation and layout configuration data
   - `/org/` - Organization-specific components with subfolders:
     - `/forms/` - Form components with hooks and validation
+      - `/components/` - Form-specific reusable components (AppFormField, etc.)
+      - `/hooks/` - Form-specific custom hooks (use-login-form, etc.)
+      - `/validation/` - Zod validation schemas
     - `/pages/` - Page-level components
+  - Root-level components: command-menu, confirm-dialog, profile-dropdown, sign-out-dialog, skip-to-main, theme-switch
 - `/src/routes/` - File-based routing with TanStack Router
-  - `/app/` - Main application routes
-    - `(authenticated)/` - Routes requiring authentication (includes `/d/` subdirectory)
-    - `(unauthenticated)/` - Public routes (login, register, reset-password, etc.)
-  - Root-level routes: `index.tsx`, `about.tsx`, `posts.index.tsx`
-- `/src/stores/` - Zustand stores for global state
-- `/src/hooks/` - Custom React hooks
-- `/src/services/` - API service layers
-- `/src/types/` - TypeScript type definitions
-- `/src/lib/` - Utility functions and configurations (utils, http-client, version)
+  - `__root.tsx` - Root layout component
+  - `(authenticated)/` - Protected routes group with route.tsx layout
+    - Routes: index, projects, drafts, queued-sessions, devices, api
+  - `(unauthenticated)/` - Public routes group with route.tsx layout
+    - Routes: login, register, reset-password, update-password.$token
+- `/src/context/` - React context providers (theme, layout, search, query)
+- `/src/stores/` - Zustand stores for global state (authentication)
+- `/src/hooks/` - Custom React hooks (use-dialog-state, use-mobile)
+- `/src/services/` - API service layers with MSW handlers
+  - Pattern: `[domain].http-service.ts` + `[domain].http-service.handlers.ts`
+- `/src/types/` - Global TypeScript type definitions
+  - `api.generated.d.ts` (auto-generated, do not edit)
+  - `router.d.ts` (router context types)
+- `/src/lib/` - Utility functions (utils, cookies, logger, version, test utilities)
 - `/src/assets/` - Static assets (images, icons, etc.)
 
 ### Key Patterns
 
-**Authentication**: Uses Zustand store (`authentication.store.ts`) with router context for protected routes. Authentication state includes `isLoggedIn`, `wasProfileChecked`, and `user` data.
+**Authentication**: Uses Zustand store (`authentication.store.ts`) with SessionCheckMiddleware component in route groups. HTTP middleware configured in `http-service-setup.ts` handles 401 redirects. Cookie-based sessions.
 
-**Routing**: TanStack Router with file-based routing. Route groups use parentheses for organization without affecting URLs. Router context provides authentication state to all routes.
+**Routing**: TanStack Router with file-based routing. Route groups use parentheses `(authenticated)` and `(unauthenticated)` for organization without affecting URLs. Each group has a `route.tsx` wrapper for layout and middleware. Dynamic routes use `$param` syntax (e.g., `update-password.$token.tsx`). Router context defined in `/types/router.d.ts`.
 
-**Forms**: Uses TanStack Form with Zod validation. Form components are in `/src/components/org/forms/` with corresponding validation schemas.
+**Forms**: Sophisticated architecture using TanStack Form with Zod validation. Each form has:
+  - Form component (`*.form.tsx`) - Presentation layer
+  - Custom hook (`use-*-form.ts`) - Business logic
+  - Validation schema (`*-form.schema.ts`) - Zod schemas
+  - Type definitions (`*.d.ts`)
+  - Custom form system in `app-form.ts` creates TanStack Forms with custom field components
 
-**Testing**: Vitest with React Testing Library. Test files use `.test.ts` suffix and are co-located with source files. Storybook stories use `.stories.tsx` suffix.
+**Context Providers**: Four providers for cross-cutting concerns:
+  - `theme.provider.tsx` - Dark/light/system theme with localStorage
+  - `layout.provider.tsx` - Sidebar state with cookie persistence
+  - `search.provider.tsx` - Global search (Cmd+K) with CommandMenu
+  - `query.provider.tsx` - TanStack Query wrapper
+  - Each exports a custom hook that throws if used outside provider
 
-**Styling**: Tailwind CSS v4 with CSS variables for theming. Components use `class-variance-authority` for variant management and `tailwind-merge` for conditional classes.
+**API Services**: Pattern-based organization:
+  - Service file: `[domain].http-service.ts` exports custom hooks using `$api.useMutation()` or `$api.useQuery()`
+  - Handler file: `[domain].http-service.handlers.ts` contains MSW handlers for testing
+  - Type exports: Each hook exports its return type (e.g., `useLoginMutationType`)
+  - Central setup: `http-service-setup.ts` configures openapi-fetch client with middleware
 
-**State Management**: Zustand with Immer middleware for immutable updates. TanStack Query handles server state with React Query DevTools in development.
+**Testing**: Vitest with React Testing Library. Test files use `.test.ts` or `.test.tsx` suffix and are co-located with source files. MSW for HTTP mocking. Testing utilities in `/lib/test-wrappers.utils.tsx` provide provider wrappers. Global setup in `testsSetup.ts`. Storybook stories use `.stories.tsx` suffix.
+
+**Styling**: Tailwind CSS v4 with CSS variables for theming. Uses OKLCH color space for light/dark modes. Components use `class-variance-authority` for variant management and `tailwind-merge` for conditional classes via `cn()` utility.
+
+**State Management**: Zustand with Immer middleware for immutable updates. Pattern: `[name].store.ts` + `.d.ts` + `.test.ts`. TanStack Query handles server state with React Query DevTools in development.
+
+**File Co-location**: Related files stay together:
+  - Types: `[filename].d.ts` alongside source
+  - Tests: `[filename].test.tsx` alongside source
+  - Stories: `[filename].stories.tsx` alongside source
+  - Constants: `[filename].constants.ts` alongside source (or global `/constants` if shared)
 
 ### Alias Configuration
 
@@ -84,10 +124,13 @@ This is a React frontend template using modern tooling and patterns:
 
 ### Development Notes
 
-- Auto-generated route tree at `/src/routeTree.gen.ts` (excluded from linting)
-- TypeScript strict mode enabled with multiple tsconfig files for different contexts
+- Auto-generated files (never edit): `/src/routeTree.gen.ts` (TanStack Router), `/src/types/api.generated.d.ts` (OpenAPI)
+- TypeScript strict mode enabled with multiple tsconfig files (app, node, base)
 - Biome configured with strict rules including no `console` statements (except `console.log`)
-- Coverage reports generated to `/coverage` directory with HTML output
+- Vitest globals enabled (describe, test, it, expect, etc. - no imports needed)
+- Coverage reports generated to `/coverage` directory with HTML and JSON output
+- Testing utilities: `renderWithProviders()` and `createQueryThemeWrapper()` in `/lib/test-wrappers.utils.tsx`
+- MSW handlers aggregated in `/lib/test.utils.ts` for centralized test setup
 
 ###  Development checklist
 
@@ -107,6 +150,7 @@ This is a React frontend template using modern tooling and patterns:
 
 - Only a single component per file
 - Component-first thinking - reusable, composable UI pieces
+- Naming convention: kebab-case.tsx (e.g., `login-form.tsx`, `command-menu.tsx`)
 - Semantic HTML structure
 - Proper ARIA attributes when needed
 - Keyboard navigation support
@@ -119,7 +163,9 @@ This is a React frontend template using modern tooling and patterns:
 
 ### Style methodologies
 
-- Tailwind CSS for utility-first development
+- Tailwind CSS v4 for utility-first development
+- CSS variables for theming (defined in `src/main.css`)
+- OKLCH color space for color definitions
 - Mobile-first breakpoint strategy
 - Fluid typography with clamp()
 - Flexible grid systems
@@ -127,6 +173,7 @@ This is a React frontend template using modern tooling and patterns:
 - Viewport meta configuration
 - Responsive images with srcset
 - Orientation change handling
+- Custom variants: `@custom-variant dark` for dark mode
 
 ### State management approach
 
@@ -162,7 +209,15 @@ This is a React frontend template using modern tooling and patterns:
 
 - Storybook is used for component documentation and development
 - Storybook should never be used for writing tests, only for component documentation and interactions
-- All react components must have a story file
+- Configuration in `.storybook/` with addons: docs, a11y, themes
+- All react components must have a story file except:
+  - AuthenticatedLayout
+  - AppSidebar
+  - NavGroup
+  - AppFormField
+  - AppSubscribeErrorButton
+  - AppSubscribeSubmitButton
+  - All `*.page.tsx` files (never create stories for page components)
 
 ### Error handling strategy
 
@@ -180,6 +235,8 @@ This is a React frontend template using modern tooling and patterns:
 - Types must be placed on `[file-name].d.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder. The only exception for this rule are files that match `[name].http-service.ts` naming pattern, these files are placed on `services` folder.
 - Avoid explicitly adding types if they can be inferred from upper levels in the code chain
 - Use generics and utility types for maximum type safety
+- Service hooks export their return types: `export type useLoginMutationType = ReturnType<typeof useLoginMutation>`
+- Zod schemas infer types automatically - don't duplicate type definitions
 
 ### API approach
 
