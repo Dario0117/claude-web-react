@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
     define: {
       // Inject git SHA as environment variable for production builds
       'import.meta.env.VITE_APP_VERSION': JSON.stringify(gitSha),
+      'import.meta.env.BACKEND_BASE_URL': "'http://127.0.0.1:9000'",
     },
     test: {
       globals: true,
@@ -39,7 +40,23 @@ export default defineConfig(({ mode }) => {
       setupFiles: './testsSetup.ts',
       coverage: {
         provider: 'v8',
-        reporter: ['html'],
+        reporter: ['html', 'json'],
+        exclude: [
+          '.storybook/**',
+          '**/*.d.ts',
+          '**/*.stories.tsx',
+          '**/http-service-setup.ts',
+          '**/routeTree.gen.ts',
+          '**/src/app.tsx',
+          '**/src/context/query.provider.tsx',
+          '**/src/main.tsx',
+          '**/src/routes/**',
+          '**/src/types/**',
+          '**/storybook-static/**',
+          '**/vite-env.d.ts',
+          '**/vite.config.ts',
+          'docs/**',
+        ],
       },
     },
     plugins: [

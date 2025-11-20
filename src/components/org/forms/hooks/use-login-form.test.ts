@@ -1,33 +1,23 @@
-import { act, renderHook } from '@testing-library/react';
-import type { CoreHTTPResponse, LoginResponse } from '@/services/users.service';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
+import { useLoginMutation } from '@/services/users.http-service';
 import { useLoginForm } from './use-login-form';
 
 describe('useLoginForm', () => {
-  const mockLoginSuccess: CoreHTTPResponse<LoginResponse> = {
-    data: {
-      success: true,
-      token: 'mock-token',
-      user: {
-        id: 1,
-        username: 'testuser',
-        email: 'test@example.com',
-      },
-    },
-    errors: null,
-  };
-
-  const mockLoginError: CoreHTTPResponse<LoginResponse> = {
-    data: null,
-    errors: {
-      message: 'Invalid credentials',
-      details: null,
-    },
-  };
-
   it('should initialize with empty default values', () => {
-    const mockHandleLogin = vi.fn();
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     expect(result.current.state.values.username).toBe('');
@@ -35,9 +25,16 @@ describe('useLoginForm', () => {
   });
 
   it('should validate required fields', async () => {
-    const mockHandleLogin = vi.fn();
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Try to submit with empty values
@@ -47,13 +44,20 @@ describe('useLoginForm', () => {
 
     // Should have validation errors - TanStack form validates on submit
     // The form should prevent submission with invalid data
-    expect(mockHandleLogin).not.toHaveBeenCalled();
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
-  it('should call handleLogin on successful validation', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginSuccess);
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+  it('should call loginMutation on successful validation', async () => {
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid values
@@ -67,32 +71,42 @@ describe('useLoginForm', () => {
       await result.current.handleSubmit();
     });
 
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'password123');
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        token: 'random-token',
+        expiry: 'random-expiry',
+      });
+    });
   });
 
   it('should handle multiple form submissions', async () => {
-    const mockHandleLogin = vi
-      .fn()
-      .mockResolvedValueOnce(mockLoginError)
-      .mockResolvedValueOnce(mockLoginSuccess);
+    const mockHandleSuccess = vi.fn();
 
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid values
     act(() => {
       result.current.setFieldValue('username', 'testuser');
-      result.current.setFieldValue('password', 'wrongpassword');
+      result.current.setFieldValue('password', 'password123');
     });
 
-    // First submission with error
+    // First submission
     await act(async () => {
       await result.current.handleSubmit();
     });
 
-    // Should have called login once
-    expect(mockHandleLogin).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledTimes(1);
+    });
 
     // The form state should exist
     expect(result.current.state).toBeDefined();
@@ -100,9 +114,31 @@ describe('useLoginForm', () => {
   });
 
   it('should set error map when login fails', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginError);
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/login'), () => {
+        return HttpResponse.json(
+          {
+            responseData: null,
+            responseErrors: {
+              nonFieldErrors: ['Invalid credentials'],
+            },
+          },
+          { status: 400 },
+        );
+      }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid values
@@ -116,17 +152,43 @@ describe('useLoginForm', () => {
       await result.current.handleSubmit();
     });
 
-    // Check that the error was set (may be in different structure)
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'wrongpassword');
-    expect(result.current.state.errorMap.onSubmit).toBeDefined();
+    // Check that the error was set
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe(
+        'Invalid credentials',
+      );
+    });
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle login function throwing an error', async () => {
-    const mockHandleLogin = vi
-      .fn()
-      .mockRejectedValue(new Error('Network error'));
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    // Override the handler to return an error
+    server.use(
+      http.post(buildBackendUrl('/api/v1/users/login'), () => {
+        return HttpResponse.json(
+          {
+            responseData: null,
+            responseErrors: {
+              nonFieldErrors: ['Network error'],
+              username: ['Invalid username'],
+              password: ['Invalid password'],
+            },
+          },
+          { status: 500 },
+        );
+      }),
+    );
+
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid values
@@ -135,18 +197,35 @@ describe('useLoginForm', () => {
       result.current.setFieldValue('password', 'password123');
     });
 
-    // Submit form - should not throw
+    // Submit form - should handle error gracefully
     await act(async () => {
-      await expect(result.current.handleSubmit()).rejects.toThrow(
-        'Network error',
-      );
+      await result.current.handleSubmit();
     });
+
+    // Check that error was processed and set in form state
+    await waitFor(() => {
+      expect(result.current.state.errorMap.onSubmit?.[0]).toBe('Network error');
+    });
+    expect(result.current.state.fieldMeta.username.errorMap.onSubmit?.[0]).toBe(
+      'Invalid username',
+    );
+    expect(result.current.state.fieldMeta.password.errorMap.onSubmit?.[0]).toBe(
+      'Invalid password',
+    );
+    expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should validate username field individually', () => {
-    const mockHandleLogin = vi.fn();
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Should be able to set valid value
@@ -165,9 +244,16 @@ describe('useLoginForm', () => {
   });
 
   it('should validate password field individually', () => {
-    const mockHandleLogin = vi.fn();
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Should be able to set valid value
@@ -186,9 +272,16 @@ describe('useLoginForm', () => {
   });
 
   it('should handle successful login without errors', async () => {
-    const mockHandleLogin = vi.fn().mockResolvedValue(mockLoginSuccess);
-    const { result } = renderHook(() =>
-      useLoginForm({ handleLogin: mockHandleLogin }),
+    const mockHandleSuccess = vi.fn();
+    const { result } = renderHook(
+      () => {
+        const loginMutation = useLoginMutation();
+        return useLoginForm({
+          loginMutation,
+          handleSuccess: mockHandleSuccess,
+        });
+      },
+      { wrapper: createQueryThemeWrapper() },
     );
 
     // Set valid values
@@ -202,8 +295,13 @@ describe('useLoginForm', () => {
       await result.current.handleSubmit();
     });
 
-    // Should have called the login function
-    expect(mockHandleLogin).toHaveBeenCalledTimes(1);
-    expect(mockHandleLogin).toHaveBeenCalledWith('testuser', 'password123');
+    // Should have called handleSuccess
+    await waitFor(() => {
+      expect(mockHandleSuccess).toHaveBeenCalledTimes(1);
+      expect(mockHandleSuccess).toHaveBeenCalledWith({
+        token: 'random-token',
+        expiry: 'random-expiry',
+      });
+    });
   });
 });

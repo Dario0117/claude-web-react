@@ -1,70 +1,54 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPResponse } from '@/services/users.service';
-
+import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { UpdatePasswordForm } from './update-password.form';
 
 // Mock handlers for Storybook
-const mockHandleUpdateSuccess = async (
-  password: string,
-): Promise<CoreHTTPResponse<unknown>> => {
+const mockHandleUpdateSuccess = async (password: string, confirm: string) => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log(
-    'Password update successful for password length:',
-    password.length,
-  );
-  return {
-    data: {
-      success: true,
-      message: 'Password updated successfully',
-    },
-    errors: null,
-  };
+  console.log('Update password request:', { password, confirm });
+  return { responseData: ['Password updated successfully'] };
 };
 
-const mockHandleUpdateError = async (
-  password: string,
-): Promise<CoreHTTPResponse<unknown>> => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+const mockHandleUpdateError = async (password: string, confirm: string) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Password update error for password:', password);
-  return {
-    data: null,
-    errors: {
-      message:
-        'Invalid or expired reset token. Please request a new password reset.',
-      details: null,
+  console.log('Update password request with error:', { password, confirm });
+  const error = new Error('Invalid token or expired link');
+  Object.assign(error, {
+    responseErrors: {
+      nonFieldErrors: [
+        'This password reset link is invalid or has expired. Please request a new one.',
+      ],
     },
-  };
+  });
+  throw error;
 };
 
 const mockHandleUpdateWeakPassword = async (
   password: string,
-): Promise<CoreHTTPResponse<unknown>> => {
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  confirm: string,
+) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Weak password error:', password);
-  return {
-    data: null,
-    errors: {
-      message: 'Password does not meet security requirements.',
-      details: {
-        password: [
-          'Password must be at least 8 characters long',
-          'Password must contain at least one uppercase letter',
-          'Password must contain at least one lowercase letter',
-          'Password must contain at least one number',
-          'Password must contain at least one special character',
-        ],
-      },
+  console.log('Update password request with weak password:', {
+    password,
+    confirm,
+  });
+  const error = new Error('Weak password');
+  Object.assign(error, {
+    responseErrors: {
+      password: [
+        'Password is too weak. Please include uppercase, lowercase, numbers, and special characters.',
+      ],
     },
-  };
+  });
+  throw error;
 };
 
 const mockHandleSuccess = () => {
   console.log('Password updated successfully!');
-  alert('Password updated! You can now log in with your new password.');
 };
 
 const meta = {
@@ -88,21 +72,35 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleSubmit: mockHandleUpdateSuccess,
+    updatePasswordMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { password: string; confirm: string };
+      }) => mockHandleUpdateSuccess(body.password, body.confirm),
+      error: null,
+    } as unknown as useUpdatePasswordMutationType,
     handleSuccess: mockHandleSuccess,
   },
 };
 
 export const InvalidToken: Story = {
   args: {
-    handleSubmit: mockHandleUpdateError,
+    updatePasswordMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { password: string; confirm: string };
+      }) => mockHandleUpdateError(body.password, body.confirm),
+      error: null,
+    } as unknown as useUpdatePasswordMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Password update form showing error when the reset token is invalid or expired.',
+          'Password update form showing error when reset token is invalid or expired.',
       },
     },
   },
@@ -110,14 +108,21 @@ export const InvalidToken: Story = {
 
 export const WeakPassword: Story = {
   args: {
-    handleSubmit: mockHandleUpdateWeakPassword,
+    updatePasswordMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { password: string; confirm: string };
+      }) => mockHandleUpdateWeakPassword(body.password, body.confirm),
+      error: null,
+    } as unknown as useUpdatePasswordMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Password update form showing validation errors for weak passwords.',
+          'Password update form showing error when password does not meet security requirements.',
       },
     },
   },
@@ -125,45 +130,39 @@ export const WeakPassword: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleSubmit: async (password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    updatePasswordMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: { password: string; confirm: string };
+      }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Simulate different responses based on password strength
-      if (password === 'invalid-token') {
-        return mockHandleUpdateError(password);
-      }
+        const password = body.password;
 
-      // Check password strength
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasNumber = /\d/.test(password);
-      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
-        password,
-      );
-      const isLongEnough = password.length >= 8;
+        // Simulate different responses based on password
+        if (password === 'weak') {
+          return mockHandleUpdateWeakPassword(body.password, body.confirm);
+        }
 
-      if (
-        !isLongEnough ||
-        !hasUpperCase ||
-        !hasLowerCase ||
-        !hasNumber ||
-        !hasSpecialChar
-      ) {
-        return mockHandleUpdateWeakPassword(password);
-      }
+        if (password === 'invalid-token') {
+          return mockHandleUpdateError(body.password, body.confirm);
+        }
 
-      return mockHandleUpdateSuccess(password);
-    },
+        return mockHandleUpdateSuccess(body.password, body.confirm);
+      },
+      error: null,
+    } as unknown as useUpdatePasswordMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
     docs: {
       description: {
         story: `Interactive password update form with different behaviors:
-        - Password "invalid-token" will show token error
-        - Weak passwords (missing uppercase, lowercase, number, special char, or <8 chars) will show validation errors
-        - Strong passwords will succeed
-        - Try: "Password123!" for success, "weak" for validation error`,
+        - "weak" as password will show weak password error
+        - "invalid-token" as password will show invalid token error
+        - Mismatched passwords will show validation error
+        - Other valid passwords will succeed`,
       },
     },
   },

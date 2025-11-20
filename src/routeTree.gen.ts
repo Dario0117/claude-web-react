@@ -9,238 +9,297 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as PostsIndexRouteImport } from './routes/posts.index'
-import { Route as AppunauthenticatedRouteRouteImport } from './routes/app/(unauthenticated)/route'
-import { Route as AppunauthenticatedResetPasswordRouteImport } from './routes/app/(unauthenticated)/reset-password'
-import { Route as AppunauthenticatedRegisterRouteImport } from './routes/app/(unauthenticated)/register'
-import { Route as AppunauthenticatedLoginRouteImport } from './routes/app/(unauthenticated)/login'
-import { Route as AppauthenticatedDRouteRouteImport } from './routes/app/(authenticated)/d/route'
-import { Route as AppunauthenticatedUpdatePasswordTokenRouteImport } from './routes/app/(unauthenticated)/update-password.$token'
+import { Route as unauthenticatedRouteRouteImport } from './routes/(unauthenticated)/route'
+import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
+import { Route as authenticatedIndexRouteImport } from './routes/(authenticated)/index'
+import { Route as unauthenticatedResetPasswordRouteImport } from './routes/(unauthenticated)/reset-password'
+import { Route as unauthenticatedRegisterRouteImport } from './routes/(unauthenticated)/register'
+import { Route as unauthenticatedLoginRouteImport } from './routes/(unauthenticated)/login'
+import { Route as authenticatedQueuedSessionsRouteImport } from './routes/(authenticated)/queued-sessions'
+import { Route as authenticatedProjectsRouteImport } from './routes/(authenticated)/projects'
+import { Route as authenticatedDraftsRouteImport } from './routes/(authenticated)/drafts'
+import { Route as authenticatedDevicesRouteImport } from './routes/(authenticated)/devices'
+import { Route as authenticatedApiRouteImport } from './routes/(authenticated)/api'
+import { Route as unauthenticatedUpdatePasswordTokenRouteImport } from './routes/(unauthenticated)/update-password.$token'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
+  id: '/(unauthenticated)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
+  id: '/(authenticated)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authenticatedIndexRoute = authenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authenticatedRouteRoute,
 } as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/posts/',
-  path: '/posts/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppunauthenticatedRouteRoute = AppunauthenticatedRouteRouteImport.update({
-  id: '/app/(unauthenticated)',
-  path: '/app/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppunauthenticatedResetPasswordRoute =
-  AppunauthenticatedResetPasswordRouteImport.update({
+const unauthenticatedResetPasswordRoute =
+  unauthenticatedResetPasswordRouteImport.update({
     id: '/reset-password',
     path: '/reset-password',
-    getParentRoute: () => AppunauthenticatedRouteRoute,
+    getParentRoute: () => unauthenticatedRouteRoute,
   } as any)
-const AppunauthenticatedRegisterRoute =
-  AppunauthenticatedRegisterRouteImport.update({
-    id: '/register',
-    path: '/register',
-    getParentRoute: () => AppunauthenticatedRouteRoute,
-  } as any)
-const AppunauthenticatedLoginRoute = AppunauthenticatedLoginRouteImport.update({
+const unauthenticatedRegisterRoute = unauthenticatedRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => unauthenticatedRouteRoute,
+} as any)
+const unauthenticatedLoginRoute = unauthenticatedLoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => AppunauthenticatedRouteRoute,
+  getParentRoute: () => unauthenticatedRouteRoute,
 } as any)
-const AppauthenticatedDRouteRoute = AppauthenticatedDRouteRouteImport.update({
-  id: '/app/(authenticated)/d',
-  path: '/app/d',
-  getParentRoute: () => rootRouteImport,
+const authenticatedQueuedSessionsRoute =
+  authenticatedQueuedSessionsRouteImport.update({
+    id: '/queued-sessions',
+    path: '/queued-sessions',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedProjectsRoute = authenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => authenticatedRouteRoute,
 } as any)
-const AppunauthenticatedUpdatePasswordTokenRoute =
-  AppunauthenticatedUpdatePasswordTokenRouteImport.update({
+const authenticatedDraftsRoute = authenticatedDraftsRouteImport.update({
+  id: '/drafts',
+  path: '/drafts',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedDevicesRoute = authenticatedDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedApiRoute = authenticatedApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const unauthenticatedUpdatePasswordTokenRoute =
+  unauthenticatedUpdatePasswordTokenRouteImport.update({
     id: '/update-password/$token',
     path: '/update-password/$token',
-    getParentRoute: () => AppunauthenticatedRouteRoute,
+    getParentRoute: () => unauthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/app': typeof AppunauthenticatedRouteRouteWithChildren
-  '/posts': typeof PostsIndexRoute
-  '/app/d': typeof AppauthenticatedDRouteRoute
-  '/app/login': typeof AppunauthenticatedLoginRoute
-  '/app/register': typeof AppunauthenticatedRegisterRoute
-  '/app/reset-password': typeof AppunauthenticatedResetPasswordRoute
-  '/app/update-password/$token': typeof AppunauthenticatedUpdatePasswordTokenRoute
+  '/': typeof authenticatedIndexRoute
+  '/api': typeof authenticatedApiRoute
+  '/devices': typeof authenticatedDevicesRoute
+  '/drafts': typeof authenticatedDraftsRoute
+  '/projects': typeof authenticatedProjectsRoute
+  '/queued-sessions': typeof authenticatedQueuedSessionsRoute
+  '/login': typeof unauthenticatedLoginRoute
+  '/register': typeof unauthenticatedRegisterRoute
+  '/reset-password': typeof unauthenticatedResetPasswordRoute
+  '/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/app': typeof AppunauthenticatedRouteRouteWithChildren
-  '/posts': typeof PostsIndexRoute
-  '/app/d': typeof AppauthenticatedDRouteRoute
-  '/app/login': typeof AppunauthenticatedLoginRoute
-  '/app/register': typeof AppunauthenticatedRegisterRoute
-  '/app/reset-password': typeof AppunauthenticatedResetPasswordRoute
-  '/app/update-password/$token': typeof AppunauthenticatedUpdatePasswordTokenRoute
+  '/': typeof authenticatedIndexRoute
+  '/api': typeof authenticatedApiRoute
+  '/devices': typeof authenticatedDevicesRoute
+  '/drafts': typeof authenticatedDraftsRoute
+  '/projects': typeof authenticatedProjectsRoute
+  '/queued-sessions': typeof authenticatedQueuedSessionsRoute
+  '/login': typeof unauthenticatedLoginRoute
+  '/register': typeof unauthenticatedRegisterRoute
+  '/reset-password': typeof unauthenticatedResetPasswordRoute
+  '/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/app/(unauthenticated)': typeof AppunauthenticatedRouteRouteWithChildren
-  '/posts/': typeof PostsIndexRoute
-  '/app/(authenticated)/d': typeof AppauthenticatedDRouteRoute
-  '/app/(unauthenticated)/login': typeof AppunauthenticatedLoginRoute
-  '/app/(unauthenticated)/register': typeof AppunauthenticatedRegisterRoute
-  '/app/(unauthenticated)/reset-password': typeof AppunauthenticatedResetPasswordRoute
-  '/app/(unauthenticated)/update-password/$token': typeof AppunauthenticatedUpdatePasswordTokenRoute
+  '/(authenticated)': typeof authenticatedRouteRouteWithChildren
+  '/(unauthenticated)': typeof unauthenticatedRouteRouteWithChildren
+  '/(authenticated)/api': typeof authenticatedApiRoute
+  '/(authenticated)/devices': typeof authenticatedDevicesRoute
+  '/(authenticated)/drafts': typeof authenticatedDraftsRoute
+  '/(authenticated)/projects': typeof authenticatedProjectsRoute
+  '/(authenticated)/queued-sessions': typeof authenticatedQueuedSessionsRoute
+  '/(unauthenticated)/login': typeof unauthenticatedLoginRoute
+  '/(unauthenticated)/register': typeof unauthenticatedRegisterRoute
+  '/(unauthenticated)/reset-password': typeof unauthenticatedResetPasswordRoute
+  '/(authenticated)/': typeof authenticatedIndexRoute
+  '/(unauthenticated)/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/app'
-    | '/posts'
-    | '/app/d'
-    | '/app/login'
-    | '/app/register'
-    | '/app/reset-password'
-    | '/app/update-password/$token'
+    | '/api'
+    | '/devices'
+    | '/drafts'
+    | '/projects'
+    | '/queued-sessions'
+    | '/login'
+    | '/register'
+    | '/reset-password'
+    | '/update-password/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/app'
-    | '/posts'
-    | '/app/d'
-    | '/app/login'
-    | '/app/register'
-    | '/app/reset-password'
-    | '/app/update-password/$token'
+    | '/api'
+    | '/devices'
+    | '/drafts'
+    | '/projects'
+    | '/queued-sessions'
+    | '/login'
+    | '/register'
+    | '/reset-password'
+    | '/update-password/$token'
   id:
     | '__root__'
-    | '/'
-    | '/about'
-    | '/app/(unauthenticated)'
-    | '/posts/'
-    | '/app/(authenticated)/d'
-    | '/app/(unauthenticated)/login'
-    | '/app/(unauthenticated)/register'
-    | '/app/(unauthenticated)/reset-password'
-    | '/app/(unauthenticated)/update-password/$token'
+    | '/(authenticated)'
+    | '/(unauthenticated)'
+    | '/(authenticated)/api'
+    | '/(authenticated)/devices'
+    | '/(authenticated)/drafts'
+    | '/(authenticated)/projects'
+    | '/(authenticated)/queued-sessions'
+    | '/(unauthenticated)/login'
+    | '/(unauthenticated)/register'
+    | '/(unauthenticated)/reset-password'
+    | '/(authenticated)/'
+    | '/(unauthenticated)/update-password/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  AppunauthenticatedRouteRoute: typeof AppunauthenticatedRouteRouteWithChildren
-  PostsIndexRoute: typeof PostsIndexRoute
-  AppauthenticatedDRouteRoute: typeof AppauthenticatedDRouteRoute
+  authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
+  unauthenticatedRouteRoute: typeof unauthenticatedRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/(unauthenticated)': {
+      id: '/(unauthenticated)'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof unauthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexRouteImport
+    '/(authenticated)': {
+      id: '/(authenticated)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/(unauthenticated)': {
-      id: '/app/(unauthenticated)'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppunauthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(authenticated)/': {
+      id: '/(authenticated)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authenticatedIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
     }
-    '/app/(unauthenticated)/reset-password': {
-      id: '/app/(unauthenticated)/reset-password'
+    '/(unauthenticated)/reset-password': {
+      id: '/(unauthenticated)/reset-password'
       path: '/reset-password'
-      fullPath: '/app/reset-password'
-      preLoaderRoute: typeof AppunauthenticatedResetPasswordRouteImport
-      parentRoute: typeof AppunauthenticatedRouteRoute
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof unauthenticatedResetPasswordRouteImport
+      parentRoute: typeof unauthenticatedRouteRoute
     }
-    '/app/(unauthenticated)/register': {
-      id: '/app/(unauthenticated)/register'
+    '/(unauthenticated)/register': {
+      id: '/(unauthenticated)/register'
       path: '/register'
-      fullPath: '/app/register'
-      preLoaderRoute: typeof AppunauthenticatedRegisterRouteImport
-      parentRoute: typeof AppunauthenticatedRouteRoute
+      fullPath: '/register'
+      preLoaderRoute: typeof unauthenticatedRegisterRouteImport
+      parentRoute: typeof unauthenticatedRouteRoute
     }
-    '/app/(unauthenticated)/login': {
-      id: '/app/(unauthenticated)/login'
+    '/(unauthenticated)/login': {
+      id: '/(unauthenticated)/login'
       path: '/login'
-      fullPath: '/app/login'
-      preLoaderRoute: typeof AppunauthenticatedLoginRouteImport
-      parentRoute: typeof AppunauthenticatedRouteRoute
+      fullPath: '/login'
+      preLoaderRoute: typeof unauthenticatedLoginRouteImport
+      parentRoute: typeof unauthenticatedRouteRoute
     }
-    '/app/(authenticated)/d': {
-      id: '/app/(authenticated)/d'
-      path: '/app/d'
-      fullPath: '/app/d'
-      preLoaderRoute: typeof AppauthenticatedDRouteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/(authenticated)/queued-sessions': {
+      id: '/(authenticated)/queued-sessions'
+      path: '/queued-sessions'
+      fullPath: '/queued-sessions'
+      preLoaderRoute: typeof authenticatedQueuedSessionsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
     }
-    '/app/(unauthenticated)/update-password/$token': {
-      id: '/app/(unauthenticated)/update-password/$token'
+    '/(authenticated)/projects': {
+      id: '/(authenticated)/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof authenticatedProjectsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/drafts': {
+      id: '/(authenticated)/drafts'
+      path: '/drafts'
+      fullPath: '/drafts'
+      preLoaderRoute: typeof authenticatedDraftsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/devices': {
+      id: '/(authenticated)/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof authenticatedDevicesRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/api': {
+      id: '/(authenticated)/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof authenticatedApiRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(unauthenticated)/update-password/$token': {
+      id: '/(unauthenticated)/update-password/$token'
       path: '/update-password/$token'
-      fullPath: '/app/update-password/$token'
-      preLoaderRoute: typeof AppunauthenticatedUpdatePasswordTokenRouteImport
-      parentRoute: typeof AppunauthenticatedRouteRoute
+      fullPath: '/update-password/$token'
+      preLoaderRoute: typeof unauthenticatedUpdatePasswordTokenRouteImport
+      parentRoute: typeof unauthenticatedRouteRoute
     }
   }
 }
 
-interface AppunauthenticatedRouteRouteChildren {
-  AppunauthenticatedLoginRoute: typeof AppunauthenticatedLoginRoute
-  AppunauthenticatedRegisterRoute: typeof AppunauthenticatedRegisterRoute
-  AppunauthenticatedResetPasswordRoute: typeof AppunauthenticatedResetPasswordRoute
-  AppunauthenticatedUpdatePasswordTokenRoute: typeof AppunauthenticatedUpdatePasswordTokenRoute
+interface authenticatedRouteRouteChildren {
+  authenticatedApiRoute: typeof authenticatedApiRoute
+  authenticatedDevicesRoute: typeof authenticatedDevicesRoute
+  authenticatedDraftsRoute: typeof authenticatedDraftsRoute
+  authenticatedProjectsRoute: typeof authenticatedProjectsRoute
+  authenticatedQueuedSessionsRoute: typeof authenticatedQueuedSessionsRoute
+  authenticatedIndexRoute: typeof authenticatedIndexRoute
 }
 
-const AppunauthenticatedRouteRouteChildren: AppunauthenticatedRouteRouteChildren =
-  {
-    AppunauthenticatedLoginRoute: AppunauthenticatedLoginRoute,
-    AppunauthenticatedRegisterRoute: AppunauthenticatedRegisterRoute,
-    AppunauthenticatedResetPasswordRoute: AppunauthenticatedResetPasswordRoute,
-    AppunauthenticatedUpdatePasswordTokenRoute:
-      AppunauthenticatedUpdatePasswordTokenRoute,
-  }
+const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedApiRoute: authenticatedApiRoute,
+  authenticatedDevicesRoute: authenticatedDevicesRoute,
+  authenticatedDraftsRoute: authenticatedDraftsRoute,
+  authenticatedProjectsRoute: authenticatedProjectsRoute,
+  authenticatedQueuedSessionsRoute: authenticatedQueuedSessionsRoute,
+  authenticatedIndexRoute: authenticatedIndexRoute,
+}
 
-const AppunauthenticatedRouteRouteWithChildren =
-  AppunauthenticatedRouteRoute._addFileChildren(
-    AppunauthenticatedRouteRouteChildren,
-  )
+const authenticatedRouteRouteWithChildren =
+  authenticatedRouteRoute._addFileChildren(authenticatedRouteRouteChildren)
+
+interface unauthenticatedRouteRouteChildren {
+  unauthenticatedLoginRoute: typeof unauthenticatedLoginRoute
+  unauthenticatedRegisterRoute: typeof unauthenticatedRegisterRoute
+  unauthenticatedResetPasswordRoute: typeof unauthenticatedResetPasswordRoute
+  unauthenticatedUpdatePasswordTokenRoute: typeof unauthenticatedUpdatePasswordTokenRoute
+}
+
+const unauthenticatedRouteRouteChildren: unauthenticatedRouteRouteChildren = {
+  unauthenticatedLoginRoute: unauthenticatedLoginRoute,
+  unauthenticatedRegisterRoute: unauthenticatedRegisterRoute,
+  unauthenticatedResetPasswordRoute: unauthenticatedResetPasswordRoute,
+  unauthenticatedUpdatePasswordTokenRoute:
+    unauthenticatedUpdatePasswordTokenRoute,
+}
+
+const unauthenticatedRouteRouteWithChildren =
+  unauthenticatedRouteRoute._addFileChildren(unauthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  AppunauthenticatedRouteRoute: AppunauthenticatedRouteRouteWithChildren,
-  PostsIndexRoute: PostsIndexRoute,
-  AppauthenticatedDRouteRoute: AppauthenticatedDRouteRoute,
+  authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
+  unauthenticatedRouteRoute: unauthenticatedRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

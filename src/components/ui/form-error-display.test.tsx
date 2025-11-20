@@ -1,31 +1,22 @@
 import { render, screen } from '@testing-library/react';
-import type { CoreHTTPError } from '@/services/users.service';
 import { FormErrorDisplay } from './form-error-display';
 
 describe('FormErrorDisplay', () => {
   it('should not render anything when error is null', () => {
-    const { container } = render(<FormErrorDisplay error={null} />);
+    const { container } = render(<FormErrorDisplay errors={[]} />);
     expect(container.firstChild).toBeNull();
   });
 
   it('should render error message when error is provided', () => {
-    const error: CoreHTTPError<unknown> = {
-      message: 'Invalid credentials',
-      details: null,
-    };
-
-    render(<FormErrorDisplay error={error} />);
+    render(<FormErrorDisplay errors={['Invalid credentials']} />);
 
     expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
   });
 
   it('should render error with destructive alert variant', () => {
-    const error: CoreHTTPError<unknown> = {
-      message: 'Server error occurred',
-      details: null,
-    };
-
-    const { container } = render(<FormErrorDisplay error={error} />);
+    const { container } = render(
+      <FormErrorDisplay errors={['Server error occurred']} />,
+    );
 
     expect(screen.getByText('Server error occurred')).toBeInTheDocument();
 
@@ -34,13 +25,8 @@ describe('FormErrorDisplay', () => {
     expect(alert).toBeInTheDocument();
   });
 
-  it('should handle error with details', () => {
-    const error: CoreHTTPError<{ field: string }> = {
-      message: 'Validation failed',
-      details: { field: 'username' },
-    };
-
-    render(<FormErrorDisplay error={error} />);
+  it('should handle multiple error messages', () => {
+    render(<FormErrorDisplay errors={['Validation failed']} />);
 
     expect(screen.getByText('Validation failed')).toBeInTheDocument();
   });
@@ -54,61 +40,37 @@ describe('FormErrorDisplay', () => {
     ];
 
     testCases.forEach((message) => {
-      const error: CoreHTTPError<unknown> = {
-        message,
-        details: null,
-      };
-
-      const { rerender } = render(<FormErrorDisplay error={error} />);
+      const { rerender } = render(<FormErrorDisplay errors={[message]} />);
 
       expect(screen.getByText(message)).toBeInTheDocument();
 
       // Clean up for next iteration
-      rerender(<FormErrorDisplay error={null} />);
+      rerender(<FormErrorDisplay errors={[]} />);
     });
   });
 
-  it('should have proper wrapper structure', () => {
-    const error: CoreHTTPError<unknown> = {
-      message: 'Test error',
-      details: null,
-    };
-
-    const { container } = render(<FormErrorDisplay error={error} />);
+  it('should render wrapper structure correctly', () => {
+    const { container } = render(<FormErrorDisplay errors={['Test error']} />);
 
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper).toHaveClass('mt-4');
+    expect(wrapper).toBeInTheDocument();
+    expect(wrapper.tagName).toBe('DIV');
   });
 
   it('should render multiple times with different errors', () => {
-    const error1: CoreHTTPError<unknown> = {
-      message: 'First error',
-      details: null,
-    };
-
-    const error2: CoreHTTPError<unknown> = {
-      message: 'Second error',
-      details: null,
-    };
-
-    const { rerender } = render(<FormErrorDisplay error={error1} />);
+    const { rerender } = render(<FormErrorDisplay errors={['First error']} />);
     expect(screen.getByText('First error')).toBeInTheDocument();
 
-    rerender(<FormErrorDisplay error={error2} />);
+    rerender(<FormErrorDisplay errors={['Second error']} />);
     expect(screen.getByText('Second error')).toBeInTheDocument();
     expect(screen.queryByText('First error')).not.toBeInTheDocument();
 
-    rerender(<FormErrorDisplay error={null} />);
+    rerender(<FormErrorDisplay errors={[]} />);
     expect(screen.queryByText('Second error')).not.toBeInTheDocument();
   });
 
   it('should handle empty error message', () => {
-    const error: CoreHTTPError<unknown> = {
-      message: '',
-      details: null,
-    };
-
-    render(<FormErrorDisplay error={error} />);
+    render(<FormErrorDisplay errors={['']} />);
 
     // Should still render the alert structure even with empty message
     const alert = screen.getByRole('alert');

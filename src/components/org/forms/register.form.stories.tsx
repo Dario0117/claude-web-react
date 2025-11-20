@@ -1,80 +1,76 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type {
-  CoreHTTPResponse,
-  RegisterResponse,
-} from '@/services/users.service';
-
+import type { useRegisterMutationType } from '@/services/users.http-service';
 import { RegisterForm } from './register.form';
 
 // Mock handlers for Storybook
 const mockHandleRegisterSuccess = async (
   username: string,
-  password: string,
   email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
+  password: string,
+  confirm: string,
+) => {
   // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  console.log('Register attempt:', { username, password, email });
-  return {
-    data: {
-      success: true,
-      message: 'Account created successfully!',
-    },
-    errors: null,
-  };
-};
-
-const mockHandleRegisterError = async (
-  username: string,
-  password: string,
-  email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Register attempt with error:', { username, password, email });
+  console.log('Register attempt:', { username, email, password, confirm });
   return {
-    data: null,
-    errors: {
-      message: 'Registration failed. Username or email already exists.',
-      details: {
-        username: ['This username is already taken'],
-        email: ['An account with this email already exists'],
-      },
-    },
+    responseData: ['Account created successfully!'],
+    responseErrors: null,
   };
 };
 
-const mockHandleRegisterValidationError = async (
+const mockHandleRegisterConflict = async (
   username: string,
-  password: string,
   email: string,
-): Promise<CoreHTTPResponse<RegisterResponse>> => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  password: string,
+  confirm: string,
+) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Register attempt with validation error:', {
+  console.log('Register attempt with conflict:', {
     username,
-    password,
     email,
+    password,
+    confirm,
   });
-  return {
-    data: null,
-    errors: {
-      message: 'Please fix the following validation errors:',
-      details: {
-        username: ['Username must be at least 3 characters long'],
-        password: [
-          'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-        ],
-        email: ['Please enter a valid email address'],
-      },
+  const error = new Error('Username or email already exists');
+  Object.assign(error, {
+    responseErrors: {
+      nonFieldErrors: [
+        'An account with this username or email already exists. Please use a different one.',
+      ],
     },
-  };
+  });
+  throw error;
+};
+
+const mockHandleRegisterWeakPassword = async (
+  username: string,
+  email: string,
+  password: string,
+  confirm: string,
+) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  console.log('Register attempt with weak password:', {
+    username,
+    email,
+    password,
+    confirm,
+  });
+  const error = new Error('Weak password');
+  Object.assign(error, {
+    responseErrors: {
+      password: [
+        'Password is too weak. Please include uppercase, lowercase, numbers, and special characters.',
+      ],
+    },
+  });
+  throw error;
 };
 
 const mockHandleSuccess = () => {
   console.log('Registration successful! Redirecting...');
-  alert('Registration successful! Welcome to our platform.');
 };
 
 const meta = {
@@ -98,14 +94,50 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    handleSubmit: mockHandleRegisterSuccess,
+    registerMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: {
+          username: string;
+          email: string;
+          password: string;
+          confirm: string;
+        };
+      }) =>
+        mockHandleRegisterSuccess(
+          body.username,
+          body.email,
+          body.password,
+          body.confirm,
+        ),
+      error: null,
+    } as unknown as useRegisterMutationType,
     handleSuccess: mockHandleSuccess,
   },
 };
 
-export const WithError: Story = {
+export const UsernameConflict: Story = {
   args: {
-    handleSubmit: mockHandleRegisterError,
+    registerMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: {
+          username: string;
+          email: string;
+          password: string;
+          confirm: string;
+        };
+      }) =>
+        mockHandleRegisterConflict(
+          body.username,
+          body.email,
+          body.password,
+          body.confirm,
+        ),
+      error: null,
+    } as unknown as useRegisterMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -118,15 +150,34 @@ export const WithError: Story = {
   },
 };
 
-export const ValidationError: Story = {
+export const WeakPassword: Story = {
   args: {
-    handleSubmit: mockHandleRegisterValidationError,
+    registerMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: {
+          username: string;
+          email: string;
+          password: string;
+          confirm: string;
+        };
+      }) =>
+        mockHandleRegisterWeakPassword(
+          body.username,
+          body.email,
+          body.password,
+          body.confirm,
+        ),
+      error: null,
+    } as unknown as useRegisterMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
     docs: {
       description: {
-        story: 'Registration form showing validation errors from the server.',
+        story:
+          'Registration form showing error when password does not meet security requirements.',
       },
     },
   },
@@ -134,20 +185,47 @@ export const ValidationError: Story = {
 
 export const Interactive: Story = {
   args: {
-    handleSubmit: async (username: string, password: string, email: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    registerMutation: {
+      mutateAsync: async ({
+        body,
+      }: {
+        body: {
+          username: string;
+          email: string;
+          password: string;
+          confirm: string;
+        };
+      }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Simulate different responses based on input
-      if (username === 'admin' || email === 'admin@example.com') {
-        return mockHandleRegisterError(username, password, email);
-      }
+        // Simulate different responses based on credentials
+        if (body.username === 'admin' || body.email === 'admin@example.com') {
+          return mockHandleRegisterConflict(
+            body.username,
+            body.email,
+            body.password,
+            body.confirm,
+          );
+        }
 
-      if (username.length < 3 || !email.includes('@') || password.length < 6) {
-        return mockHandleRegisterValidationError(username, password, email);
-      }
+        if (body.password === 'weak') {
+          return mockHandleRegisterWeakPassword(
+            body.username,
+            body.email,
+            body.password,
+            body.confirm,
+          );
+        }
 
-      return mockHandleRegisterSuccess(username, password, email);
-    },
+        return mockHandleRegisterSuccess(
+          body.username,
+          body.email,
+          body.password,
+          body.confirm,
+        );
+      },
+      error: null,
+    } as unknown as useRegisterMutationType,
     handleSuccess: mockHandleSuccess,
   },
   parameters: {
@@ -155,7 +233,9 @@ export const Interactive: Story = {
       description: {
         story: `Interactive registration form with different behaviors:
         - Username "admin" or email "admin@example.com" will show conflict error
+        - Password "weak" will show weak password error
         - Short username (<3 chars), invalid email, or short password (<6 chars) will show validation errors
+        - Mismatched passwords will show validation error
         - Other valid inputs will succeed`,
       },
     },

@@ -1,0 +1,111 @@
+import { act, renderHook, screen } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { useAuthenticationStore } from '@/stores/authentication.store';
+import { ProfileDropdown } from './profile-dropdown';
+
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    to,
+    ...props
+  }: {
+    children: React.ReactNode;
+    to: string;
+  }) => (
+    <a
+      href={to}
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+  useNavigate: () => vi.fn(),
+  useLocation: () => ({ href: '/' }),
+  useRouter: () => ({
+    navigate: vi.fn(),
+  }),
+}));
+
+describe('ProfileDropdown', () => {
+  beforeAll(() => {
+    const { result: res } = renderHook(() => useAuthenticationStore());
+    act(() => {
+      res.current.setProfile({
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test@example.com',
+      });
+    });
+  });
+  it('should render profile avatar button', () => {
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+  });
+
+  it('should render avatar fallback', () => {
+    renderWithProviders(<ProfileDropdown />);
+
+    expect(screen.getByText(/tu/i)).toBeInTheDocument();
+  });
+
+  it('should open dropdown menu when avatar is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    await user.click(button);
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+
+  it('should render menu items', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    await user.click(button);
+    expect(screen.getByText('Profile')).toBeInTheDocument();
+    expect(screen.getByText('Billing')).toBeInTheDocument();
+    expect(screen.getByText('Settings')).toBeInTheDocument();
+    expect(screen.getByText('New Team')).toBeInTheDocument();
+    expect(screen.getByText('Sign out')).toBeInTheDocument();
+  });
+
+  it('should render keyboard shortcuts', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    await user.click(button);
+    expect(screen.getByText('⇧⌘P')).toBeInTheDocument();
+    expect(screen.getByText('⌘B')).toBeInTheDocument();
+    expect(screen.getByText('⌘S')).toBeInTheDocument();
+    expect(screen.getByText('⇧⌘Q')).toBeInTheDocument();
+  });
+
+  it('should open sign out dialog when sign out is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    await user.click(button);
+    const signOutItem = screen.getByText('Sign out');
+    await user.click(signOutItem);
+    expect(
+      await screen.findByText('Sign out', {
+        selector: '[data-slot="alert-dialog-title"]',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('should render profile links', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ProfileDropdown />);
+    const button = screen.getByRole('button');
+    await user.click(button);
+    const profileLink = screen.getByText('Profile').closest('a');
+    const billingLink = screen.getByText('Billing').closest('a');
+    const settingsLink = screen.getByText('Settings').closest('a');
+    expect(profileLink).toBeInTheDocument();
+    expect(billingLink).toBeInTheDocument();
+    expect(settingsLink).toBeInTheDocument();
+  });
+});

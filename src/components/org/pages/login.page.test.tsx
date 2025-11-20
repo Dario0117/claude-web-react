@@ -1,4 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { LoginPage } from './login.page';
 
 interface LinkProps {
@@ -6,11 +8,6 @@ interface LinkProps {
   to: string;
   [key: string]: unknown;
 }
-
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
 
 // Mock the navigation hook
 vi.mock('@tanstack/react-router', () => ({
@@ -25,7 +22,6 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
@@ -37,20 +33,10 @@ mockUseNavigate.mockReturnValue(mockNavigate);
 describe('LoginPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuth.mockClear();
   });
 
   it('should render login form when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
@@ -58,148 +44,63 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
 
-  it('should redirect to dashboard when user is already logged in', async () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+  it('should render login form regardless of authentication state', () => {
+    renderWithProviders(<LoginPage />);
 
-    render(<LoginPage />);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
-    });
-  });
-
-  it('should not redirect when user is not logged in', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<LoginPage />);
-
+    // LoginPage should render the form even when user is logged in
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should pass login function to LoginForm', () => {
-    const mockLogin = vi.fn();
-
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: mockLogin,
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The login function should be passed to LoginForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
   });
 
-  it('should have proper page structure and styling', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    const { container } = render(<LoginPage />);
-
-    const section = container.querySelector('section');
-    expect(section).toHaveClass(
-      'flex',
-      'min-h-svh',
-      'w-full',
-      'items-center',
-      'justify-center',
-      'p-6',
-      'md:p-10',
-    );
-
-    const wrapper = container.querySelector('.w-full.max-w-sm');
-    expect(wrapper).toBeInTheDocument();
-  });
-
-  it('should handle isLoggedIn state change', async () => {
-    // Start with user not logged in
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    const { rerender } = render(<LoginPage />);
+  it('should maintain consistent behavior on rerender', () => {
+    const { rerender } = renderWithProviders(<LoginPage />);
 
     expect(mockNavigate).not.toHaveBeenCalled();
-
-    // Change to logged in
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: true,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
 
     rerender(<LoginPage />);
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({ to: '/app/d' });
-    });
+    // Component should still render the form and not navigate
+    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('should use correct navigation source', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<LoginPage />);
+    renderWithProviders(<LoginPage />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     // This is verified by the component rendering without errors
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
   });
 
-  it('should render accessibility landmarks', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
+  it('should navigate to home page on successful login', async () => {
+    const user = userEvent.setup();
+
+    renderWithProviders(<LoginPage />);
+
+    // Get the username and password fields
+    const usernameInput = screen.getByLabelText(/Username/);
+    const passwordInput = screen.getByLabelText(/Password/);
+    const submitButton = screen.getByRole('button', { name: 'Login' });
+
+    // Fill in the form
+    await user.type(usernameInput, 'testuser');
+    await user.type(passwordInput, 'password123');
+
+    // Submit the form
+    await user.click(submitButton);
+
+    // Wait for the mutation to be called and navigation to occur
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
     });
-
-    render(<LoginPage />);
-
-    const section = screen
-      .getByText('Login to your account')
-      .closest('section');
-    expect(section).toBeInTheDocument();
   });
 });

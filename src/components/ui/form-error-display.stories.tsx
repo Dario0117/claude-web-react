@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { CoreHTTPError } from '@/services/users.service';
 
 import { FormErrorDisplay } from './form-error-display';
 
@@ -18,57 +17,41 @@ type Story = StoryObj<typeof meta>;
 
 export const NoError: Story = {
   args: {
-    error: null,
+    errors: [],
   },
 };
 
 export const SimpleError: Story = {
   args: {
-    error: {
-      message: 'Invalid credentials. Please check your username and password.',
-      details: null,
-    } as CoreHTTPError,
+    errors: ['Invalid credentials. Please check your username and password.'],
   },
 };
 
 export const ValidationError: Story = {
   args: {
-    error: {
-      message: 'Validation failed',
-      details: {
-        username: ['Username is required'],
-        password: ['Password must be at least 8 characters'],
-      },
-    } as CoreHTTPError,
+    errors: ['Validation failed'],
   },
 };
 
 export const ServerError: Story = {
   args: {
-    error: {
-      message: 'Internal server error. Please try again later.',
-      details: null,
-    } as CoreHTTPError,
+    errors: ['Internal server error. Please try again later.'],
   },
 };
 
 export const NetworkError: Story = {
   args: {
-    error: {
-      message:
-        'Network error. Please check your internet connection and try again.',
-      details: null,
-    } as CoreHTTPError,
+    errors: [
+      'Network error. Please check your internet connection and try again.',
+    ],
   },
 };
 
 export const LongErrorMessage: Story = {
   args: {
-    error: {
-      message:
-        'Registration failed due to multiple validation errors. Please review all fields and ensure they meet the requirements. Username must be unique, password must be at least 8 characters with uppercase, lowercase, and special characters, and email must be valid.',
-      details: null,
-    } as CoreHTTPError,
+    errors: [
+      'Registration failed due to multiple validation errors. Please review all fields and ensure they meet the requirements. Username must be unique, password must be at least 8 characters with uppercase, lowercase, and special characters, and email must be valid.',
+    ],
   },
 };
 
@@ -115,9 +98,6 @@ export const InFormContext: Story = {
     </div>
   ),
   args: {
-    error: {
-      message: 'Invalid username or password. Please try again.',
-      details: null,
-    } as CoreHTTPError,
+    errors: ['Invalid username or password. Please try again.'],
   },
 };

@@ -1,24 +1,10 @@
 import { Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
 import { FormCard } from '@/components/ui/form-card';
-import { FormErrorDisplay } from '@/components/ui/form-error-display';
-import { FormField } from '@/components/ui/form-field';
-import type {
-  CoreHTTPError,
-  CoreHTTPResponse,
-  LoginResponse,
-} from '@/services/users.service';
 import { useLoginForm } from './hooks/use-login-form';
+import type { LoginFormProps } from './login.form.d';
 
-interface LoginFormProps {
-  handleLogin(
-    username: string,
-    password: string,
-  ): Promise<CoreHTTPResponse<LoginResponse>>;
-}
-
-export function LoginForm({ handleLogin }: LoginFormProps) {
-  const form = useLoginForm({ handleLogin });
+export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
+  const form = useLoginForm({ loginMutation, handleSuccess });
 
   return (
     <FormCard
@@ -33,62 +19,47 @@ export function LoginForm({ handleLogin }: LoginFormProps) {
         }}
       >
         <div className="flex flex-col gap-6">
-          <form.Field name="username">
+          <form.AppField name="username">
             {(field) => (
-              <FormField
-                field={field}
+              <field.AppFormField
                 label="Username"
                 placeholder="johndoe17"
                 required
               />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <form.Field name="password">
+          <form.AppField name="password">
             {(field) => (
-              <FormField
-                field={field}
+              <field.AppFormField
                 label="Password"
                 type="password"
                 placeholder="Password"
                 required
               >
                 <Link
-                  to="/app/reset-password"
+                  to="/reset-password"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
                 </Link>
-              </FormField>
+              </field.AppFormField>
             )}
-          </form.Field>
+          </form.AppField>
 
           <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              className="w-full"
-            >
-              Login
-            </Button>
+            <form.AppForm>
+              <form.AppSubscribeSubmitButton label="Login" />
+            </form.AppForm>
           </div>
         </div>
 
-        <form.Subscribe selector={(state) => state.errorMap.onSubmit}>
-          {(errorMap) => {
-            const error =
-              errorMap && typeof errorMap === 'object' && 'form' in errorMap
-                ? (errorMap as { form: CoreHTTPError<unknown> }).form
-                : null;
-            return (
-              <FormErrorDisplay
-                error={error as CoreHTTPError<unknown> | null}
-              />
-            );
-          }}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.AppSubscribeErrorButton />
+        </form.AppForm>
 
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account? <Link to="/app/register">Register</Link>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
         </div>
       </form>
     </FormCard>

@@ -1,4 +1,6 @@
-import { render } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { RegisterPage } from './register.page';
 
 interface LinkProps {
@@ -6,11 +8,6 @@ interface LinkProps {
   to: string;
   [key: string]: unknown;
 }
-
-// Mock the useAuth hook
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
 
 // Mock the navigation hook
 vi.mock('@tanstack/react-router', () => ({
@@ -25,7 +22,6 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }));
 
-const mockUseAuth = vi.mocked(await import('@/hooks/useAuth')).useAuth;
 const mockUseNavigate = vi.mocked(
   await import('@tanstack/react-router'),
 ).useNavigate;
@@ -36,24 +32,12 @@ mockUseNavigate.mockReturnValue(mockNavigate);
 describe('RegisterPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockUseAuth.mockClear();
   });
 
   it('should render register form', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<RegisterPage />);
+    renderWithProviders(<RegisterPage />);
 
     // Check that the register form is rendered
-    // The exact elements depend on the RegisterForm implementation
-    // Since we're testing the page structure, we check for the section
     const section = document.querySelector('section');
     expect(section).toBeInTheDocument();
     expect(section).toHaveClass(
@@ -68,16 +52,7 @@ describe('RegisterPage', () => {
   });
 
   it('should have proper page structure', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    const { container } = render(<RegisterPage />);
+    const { container } = renderWithProviders(<RegisterPage />);
 
     const section = container.querySelector('section');
     expect(section).toBeInTheDocument();
@@ -86,38 +61,41 @@ describe('RegisterPage', () => {
     expect(wrapper).toBeInTheDocument();
   });
 
-  it('should call register function from useAuth', () => {
-    const mockRegister = vi.fn();
+  it('should render without errors', () => {
+    renderWithProviders(<RegisterPage />);
 
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: mockRegister,
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<RegisterPage />);
-
-    // The register function should be available to the component
-    // We verify this by checking that the component renders without errors
+    // The component should render without errors
     expect(document.querySelector('section')).toBeInTheDocument();
+    expect(screen.getByText('Create your account')).toBeInTheDocument();
   });
 
   it('should have accessibility structure', () => {
-    mockUseAuth.mockReturnValue({
-      isLoggedIn: false,
-      login: vi.fn(),
-      logout: vi.fn(),
-      register: vi.fn(),
-      resetPassword: vi.fn(),
-      updatePassword: vi.fn(),
-    });
-
-    render(<RegisterPage />);
+    renderWithProviders(<RegisterPage />);
 
     const section = document.querySelector('section');
     expect(section).toBeInTheDocument();
+  });
+
+  it('should navigate to login page on successful registration', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<RegisterPage />);
+
+    // Fill in the registration form
+    const usernameInput = screen.getByLabelText(/Username/);
+    const emailInput = screen.getByLabelText(/^Email/);
+    const passwordInput = screen.getByLabelText(/^Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const submitButton = screen.getByRole('button', { name: 'Register' });
+
+    await user.type(usernameInput, 'testuser');
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.type(confirmPasswordInput, 'password123');
+    await user.click(submitButton);
+
+    // Wait for the mutation to complete and navigation to occur
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
+    });
   });
 });

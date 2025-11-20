@@ -1,11 +1,10 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
-import { useAuth } from '@/hooks/useAuth';
 import { routeTree } from './routeTree.gen';
 
 const router = createRouter({
   routeTree,
   // biome-ignore lint/style/noNonNullAssertion: Recommendation from the lib maintainers
-  context: { authentication: undefined! },
+  context: { nothingYet: undefined! },
 });
 
 declare module '@tanstack/react-router' {
@@ -15,14 +14,11 @@ declare module '@tanstack/react-router' {
 }
 
 export default function App() {
-  const { isLoggedIn } = useAuth();
   return (
     <RouterProvider
       router={router}
       context={{
-        authentication: {
-          isLoggedIn,
-        },
+        nothingYet: false,
       }}
     />
   );

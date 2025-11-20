@@ -1,4 +1,3 @@
-import type React from 'react';
 import {
   Card,
   CardContent,
@@ -6,12 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-interface FormCardProps {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}
+import type { FormCardProps } from './form-card.d';
 
 export function FormCard({ title, description, children }: FormCardProps) {
   return (
