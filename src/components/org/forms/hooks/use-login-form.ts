@@ -1,48 +1,28 @@
-import { logError } from '@/lib/logger.utils';
-import type { useLoginMutationType } from '@/services/users.http-service';
+import { authClient } from '@/services/auth.http-service';
 import { loginFormSchema } from '../validation/login-form.schema';
 import { useAppForm } from './app-form';
-import type { UseLoginFormProps } from './use-login-form.d';
+import type { UseLoginFormProps } from './use-login-form.types';
 
-export function useLoginForm({
-  loginMutation,
-  handleSuccess,
-}: UseLoginFormProps) {
+export function useLoginForm({ handleSuccess }: UseLoginFormProps) {
   const form = useAppForm({
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
     },
     validators: {
       onChange: loginFormSchema,
-      async onSubmitAsync({ value, signal }) {
-        try {
-          const results = await loginMutation.mutateAsync({
-            body: {
-              username: value.username,
-              password: value.password,
-            },
-            signal,
-          });
-          handleSuccess(results);
-        } catch (exception: unknown) {
-          const error = exception as useLoginMutationType['error'];
-          if (!error?.responseErrors) {
-            logError({
-              message: 'Unexpected error type',
-              error,
-            });
-            return {
-              form: ['Something went wrong, please try again later.'],
-              fields: {},
-            };
-          }
-          const { nonFieldErrors: form, ...fields } = error.responseErrors;
+      async onSubmitAsync({ value }) {
+        const { data, error } = await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+        });
+        if (error) {
           return {
-            form,
-            fields,
+            form: [error?.message],
+            fields: {},
           };
         }
+        handleSuccess(data);
       },
     },
   });

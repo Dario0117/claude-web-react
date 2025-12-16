@@ -1,23 +1,20 @@
 import { Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { useProfileQuery } from '@/services/users.http-service';
+import { authClient } from '@/services/auth.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import type { SessionCheckMiddlewareProps } from './session-check-middleware.page.d';
 
 export function SessionCheckMiddleware(props: SessionCheckMiddlewareProps) {
-  const { setProfile } = useAuthenticationStore();
-  const { data, isLoading } = useProfileQuery();
+  const { profile, setProfile } = useAuthenticationStore();
   useEffect(() => {
-    if (data?.responseData) {
-      setProfile(data.responseData);
-    }
-  }, [data?.responseData, setProfile]);
-  if (isLoading) {
+    authClient.getSession().then((session) => {
+      setProfile(session.data?.user);
+    });
+  }, [setProfile]);
+  if (!profile) {
     return null;
   }
-  const mustRedirect = props.whenProfileExist
-    ? data?.responseData
-    : !data?.responseData;
+  const mustRedirect = props.whenProfileExist ? profile : !profile;
   if (mustRedirect) {
     return (
       <Navigate

@@ -2,7 +2,7 @@ import * as z from 'zod';
 
 export const registerFormSchema = z
   .object({
-    username: z.string(),
+    name: z.string(),
     password: z.string(),
     confirm: z.string(),
     email: z.email(),

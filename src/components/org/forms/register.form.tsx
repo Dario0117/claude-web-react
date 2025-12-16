@@ -1,12 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRegisterForm } from './hooks/use-register-form';
-import type { RegisterFormProps } from './register.form.d';
+import type { RegisterFormProps } from './register.form.types';
 
-export function RegisterForm({
-  registerMutation,
-  handleSuccess,
-}: RegisterFormProps) {
-  const form = useRegisterForm({ registerMutation, handleSuccess });
+export function RegisterForm({ handleSuccess }: RegisterFormProps) {
+  const form = useRegisterForm({ handleSuccess });
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,11 +20,11 @@ export function RegisterForm({
             }}
           >
             <div className="flex flex-col gap-6">
-              <form.AppField name="username">
+              <form.AppField name="name">
                 {(field) => (
                   <field.AppFormField
-                    label="Username"
-                    placeholder="johndoe17"
+                    label="Name"
+                    placeholder="John Doe"
                     required
                   />
                 )}

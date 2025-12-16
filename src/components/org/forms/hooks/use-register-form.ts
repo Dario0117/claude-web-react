@@ -1,51 +1,31 @@
-import { logError } from '@/lib/logger.utils';
-import type { useRegisterMutationType } from '@/services/users.http-service';
+import { authClient } from '@/services/auth.http-service';
 import { registerFormSchema } from '../validation/register-form.schema';
 import { useAppForm } from './app-form';
-import type { UseRegisterFormProps } from './use-register-form.d';
+import type { UseRegisterFormProps } from './use-register-form.types';
 
-export function useRegisterForm({
-  registerMutation,
-  handleSuccess,
-}: UseRegisterFormProps) {
+export function useRegisterForm({ handleSuccess }: UseRegisterFormProps) {
   const form = useAppForm({
     defaultValues: {
-      username: '',
+      name: '',
       password: '',
       confirm: '',
       email: '',
     },
     validators: {
       onChange: registerFormSchema,
-      async onSubmitAsync({ value, signal }) {
-        try {
-          const results = await registerMutation.mutateAsync({
-            body: {
-              username: value.username,
-              password: value.password,
-              email: value.email,
-            },
-            signal,
-          });
-          handleSuccess(results);
-        } catch (exception: unknown) {
-          const error = exception as useRegisterMutationType['error'];
-          if (!error?.responseErrors) {
-            logError({
-              message: 'Unexpected error type',
-              error,
-            });
-            return {
-              form: ['Something went wrong, please try again later.'],
-              fields: {},
-            };
-          }
-          const { nonFieldErrors: form, ...fields } = error.responseErrors;
+      async onSubmitAsync({ value }) {
+        const { data, error } = await authClient.signUp.email({
+          name: value.name,
+          email: value.email,
+          password: value.password,
+        });
+        if (error) {
           return {
-            form,
-            fields,
+            form: [error?.message],
+            fields: {},
           };
         }
+        handleSuccess(data);
       },
     },
   });

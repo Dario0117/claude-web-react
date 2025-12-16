@@ -3,8 +3,8 @@ import { FormCard } from '@/components/ui/form-card';
 import { useLoginForm } from './hooks/use-login-form';
 import type { LoginFormProps } from './login.form.d';
 
-export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
-  const form = useLoginForm({ loginMutation, handleSuccess });
+export function LoginForm({ handleSuccess }: LoginFormProps) {
+  const form = useLoginForm({ handleSuccess });
 
   return (
     <FormCard
@@ -19,11 +19,11 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
         }}
       >
         <div className="flex flex-col gap-6">
-          <form.AppField name="username">
+          <form.AppField name="email">
             {(field) => (
               <field.AppFormField
                 label="Username"
-                placeholder="johndoe17"
+                placeholder="johndoe17@mail.com"
                 required
               />
             )}
