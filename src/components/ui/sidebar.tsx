@@ -37,7 +37,7 @@ import {
   SIDEBAR_WIDTH_ICON,
   SIDEBAR_WIDTH_MOBILE,
 } from './sidebar.constants';
-import type { SidebarContextProps } from './sidebar.d';
+import type { SidebarContextProps } from './sidebar.types';
 
 const SidebarContext = createContext<SidebarContextProps | null>(null);
 

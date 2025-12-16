@@ -31,7 +31,7 @@ import type {
   NavGroup as NavGroupProps,
   NavItem,
   NavLink,
-} from './nav-group.d';
+} from './nav-group.types';
 
 export function NavGroup({ title, items }: NavGroupProps) {
   const { state, isMobile } = useSidebar();

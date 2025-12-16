@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import type { TeamSwitcherProps } from './team-switcher.d';
+import type { TeamSwitcherProps } from './team-switcher.types';
 
 export function TeamSwitcher({ teams }: TeamSwitcherProps) {
   const { isMobile } = useSidebar();

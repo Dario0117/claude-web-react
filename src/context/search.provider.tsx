@@ -3,7 +3,7 @@ import { CommandMenu } from '@/components/command-menu';
 import type {
   SearchContextType,
   SearchProviderProps,
-} from './search.provider.d';
+} from './search.provider.types';
 
 const SearchContext = createContext<SearchContextType | null>(null);
 

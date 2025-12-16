@@ -1,4 +1,4 @@
-import type { Collapsible, Variant } from './layout.provider.d';
+import type { Collapsible, Variant } from './layout.provider.types';
 
 // Cookie constants following the pattern from sidebar.tsx
 export const LAYOUT_COLLAPSIBLE_COOKIE_NAME = 'layout_collapsible';

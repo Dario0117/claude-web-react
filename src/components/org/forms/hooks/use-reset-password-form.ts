@@ -2,7 +2,7 @@ import { logError } from '@/lib/logger.utils';
 import type { useResetPasswordMutationType } from '@/services/users.http-service';
 import { resetPasswordFormSchema } from '../validation/reset-password-form.schema';
 import { useAppForm } from './app-form';
-import type { UseResetPasswordFormProps } from './use-reset-password-form.d';
+import type { UseResetPasswordFormProps } from './use-reset-password-form.types';
 
 export function useResetPasswordForm({
   resetPasswordMutation,

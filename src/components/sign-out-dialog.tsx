@@ -1,7 +1,7 @@
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { authClient } from '@/services/auth.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { SignOutDialogProps } from './sign-out-dialog.d';
+import type { SignOutDialogProps } from './sign-out-dialog.types';
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
   const { setProfile } = useAuthenticationStore();

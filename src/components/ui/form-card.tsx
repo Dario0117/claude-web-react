@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { FormCardProps } from './form-card.d';
+import type { FormCardProps } from './form-card.types';
 
 export function FormCard({ title, description, children }: FormCardProps) {
   return (

@@ -25,7 +25,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import useDialogState from '@/hooks/use-dialog-state';
-import type { NavUserProps } from './nav-user.d';
+import type { NavUserProps } from './nav-user.types';
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();

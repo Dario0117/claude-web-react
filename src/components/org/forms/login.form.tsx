@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { FormCard } from '@/components/ui/form-card';
 import { useLoginForm } from './hooks/use-login-form';
-import type { LoginFormProps } from './login.form.d';
+import type { LoginFormProps } from './login.form.types';
 
 export function LoginForm({ handleSuccess }: LoginFormProps) {
   const form = useLoginForm({ handleSuccess });

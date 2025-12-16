@@ -75,8 +75,8 @@ This is a React frontend template using modern tooling and patterns:
 - `/src/services/` - API service layers with MSW handlers
   - Pattern: `[domain].http-service.ts` + `[domain].http-service.handlers.ts`
 - `/src/types/` - Global TypeScript type definitions
-  - `api.generated.d.ts` (auto-generated, do not edit)
-  - `router.d.ts` (router context types)
+  - `api.generated.types.ts` (auto-generated, do not edit)
+  - `router.types.ts` (router context types)
 - `/src/lib/` - Utility functions (utils, cookies, logger, version, test utilities)
 - `/src/assets/` - Static assets (images, icons, etc.)
 
@@ -84,13 +84,13 @@ This is a React frontend template using modern tooling and patterns:
 
 **Authentication**: Uses Zustand store (`authentication.store.ts`) with SessionCheckMiddleware component in route groups. HTTP middleware configured in `http-service-setup.ts` handles 401 redirects. Cookie-based sessions.
 
-**Routing**: TanStack Router with file-based routing. Route groups use parentheses `(authenticated)` and `(unauthenticated)` for organization without affecting URLs. Each group has a `route.tsx` wrapper for layout and middleware. Dynamic routes use `$param` syntax (e.g., `update-password.$token.tsx`). Router context defined in `/types/router.d.ts`.
+**Routing**: TanStack Router with file-based routing. Route groups use parentheses `(authenticated)` and `(unauthenticated)` for organization without affecting URLs. Each group has a `route.tsx` wrapper for layout and middleware. Dynamic routes use `$param` syntax (e.g., `update-password.$token.tsx`). Router context defined in `/types/router.types.ts`.
 
 **Forms**: Sophisticated architecture using TanStack Form with Zod validation. Each form has:
   - Form component (`*.form.tsx`) - Presentation layer
   - Custom hook (`use-*-form.ts`) - Business logic
   - Validation schema (`*-form.schema.ts`) - Zod schemas
-  - Type definitions (`*.d.ts`)
+  - Type definitions (`*.types.ts`)
   - Custom form system in `app-form.ts` creates TanStack Forms with custom field components
 
 **Context Providers**: Four providers for cross-cutting concerns:
@@ -110,10 +110,10 @@ This is a React frontend template using modern tooling and patterns:
 
 **Styling**: Tailwind CSS v4 with CSS variables for theming. Uses OKLCH color space for light/dark modes. Components use `class-variance-authority` for variant management and `tailwind-merge` for conditional classes via `cn()` utility.
 
-**State Management**: Zustand with Immer middleware for immutable updates. Pattern: `[name].store.ts` + `.d.ts` + `.test.ts`. TanStack Query handles server state with React Query DevTools in development.
+**State Management**: Zustand with Immer middleware for immutable updates. Pattern: `[name].store.ts` + `.types.ts` + `.test.ts`. TanStack Query handles server state with React Query DevTools in development.
 
 **File Co-location**: Related files stay together:
-  - Types: `[filename].d.ts` alongside source
+  - Types: `[filename].types.ts` alongside source
   - Tests: `[filename].test.tsx` alongside source
   - Stories: `[filename].stories.tsx` alongside source
   - Constants: `[filename].constants.ts` alongside source (or global `/constants` if shared)
@@ -124,7 +124,7 @@ This is a React frontend template using modern tooling and patterns:
 
 ### Development Notes
 
-- Auto-generated files (never edit): `/src/routeTree.gen.ts` (TanStack Router), `/src/types/api.generated.d.ts` (OpenAPI)
+- Auto-generated files (never edit): `/src/routeTree.gen.ts` (TanStack Router), `/src/types/api.generated.types.ts` (OpenAPI)
 - TypeScript strict mode enabled with multiple tsconfig files (app, node, base)
 - Biome configured with strict rules including no `console` statements (except `console.log`)
 - Vitest globals enabled (describe, test, it, expect, etc. - no imports needed)
@@ -232,7 +232,7 @@ This is a React frontend template using modern tooling and patterns:
 
 - Strongly-typed TypeScript with comprehensive interfaces
 - Generic functions and classes with proper constraints
-- Types must be placed on `[file-name].d.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.d.ts` file placed on a global `types` folder. The only exception for this rule are files that match `[name].http-service.ts` naming pattern, these files are placed on `services` folder.
+- Types must be placed on `[file-name].types.ts` files alongside the file they are used in, if they are being used in multiple files, place them in a separate `*.types.ts` file placed on a global `types` folder. The only exception for this rule are files that match `[name].http-service.ts` naming pattern, these files are placed on `services` folder.
 - Avoid explicitly adding types if they can be inferred from upper levels in the code chain
 - Use generics and utility types for maximum type safety
 - Service hooks export their return types: `export type useLoginMutationType = ReturnType<typeof useLoginMutation>`
@@ -240,7 +240,7 @@ This is a React frontend template using modern tooling and patterns:
 
 ### API approach
 
-- All paths defined in the `paths` interface located in `src/types/api.generated.d.ts` file must be defined in the `src/services/[next-path-after-api-version].http-service.ts` file and they must have a corresponding MSW handler inside of `src/services/[next-path-after-api-version].http-service.handlers.ts` file.
+- All paths defined in the `paths` interface located in `src/types/api.generated.types.ts` file must be defined in the `src/services/[next-path-after-api-version].http-service.ts` file and they must have a corresponding MSW handler inside of `src/services/[next-path-after-api-version].http-service.handlers.ts` file.
 - All endpoints must be defined inside of `src/services/[next-path-after-api-version].http-service.ts` file and they must have a corresponding MSW handler inside of `src/services/[next-path-after-api-version].http-service.handlers.ts` file.
 - Only write tests for the http service if it has custom logic outside of invalidating queries, if it only exposes the query and mutation functions, don't write tests for it, create a test file and add a comment saying that no meaningful logic is implemented in the source file, so there's no need to test it.
 
@@ -255,7 +255,7 @@ This is a React frontend template using modern tooling and patterns:
 - If there's a design system, always use it, if not you can use Tailwind CSS to build new components that match the style pattern of the existing components
 - Don't try to analyze code from the installed dependencies
 - Don't add unsafe modifications from biome
-- Never delete or update auto generated files (src/types/api.generated.d.ts, src/routes/routeTree.gen.ts)
+- Never delete or update auto generated files (src/types/api.generated.types.ts, src/routes/routeTree.gen.ts)
 - Never re-export things from another files, refactor the code on the dependant file to use the new location of the thing you want to re-export
 - When asked to fix tests or add tests or fix typescript issues, don't change the tested code, accommodate the tests to comply with the code
 - When asked to fix typescript issues, don't create new types even if they were deleted from the code, it was deleted intentionally, only add new interfaces or types to existing ones unless the type is necessary for the code to work

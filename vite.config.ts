@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
         reporter: ['html', 'json'],
         exclude: [
           '.storybook/**',
-          '**/*.d.ts',
+          '**/*.types.ts',
           '**/*.stories.tsx',
           '**/http-service-setup.ts',
           '**/routeTree.gen.ts',

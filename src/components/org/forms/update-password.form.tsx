@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUpdatePasswordForm } from './hooks/use-update-password-form';
-import type { UpdatePasswordFormProps } from './update-password.form.d';
+import type { UpdatePasswordFormProps } from './update-password.form.types';
 
 export function UpdatePasswordForm({
   updatePasswordMutation,

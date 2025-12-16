@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from '@/context/theme.provider';
-import type { ProviderWrapperOptions } from './test-wrappers.utils.d';
+import type { ProviderWrapperOptions } from './test-wrappers.utils.types';
 
 // Mock matchMedia
 export const matchMediaMock = vi.fn().mockImplementation((query) => ({

@@ -12,7 +12,7 @@ import type {
   LayoutContextType,
   LayoutProviderProps,
   Variant,
-} from './layout.provider.d';
+} from './layout.provider.types';
 
 const LayoutContext = createContext<LayoutContextType | null>(null);
 

@@ -5,7 +5,7 @@ import { FormErrorDisplay } from '@/components/ui/form-error-display';
 import { FormField } from '@/components/ui/form-field';
 import type { useLoginMutationType } from '@/services/users.http-service';
 import { useLoginForm } from './hooks/use-login-form';
-import type { LoginFormProps } from './login.form.d';
+import type { LoginFormProps } from './login.form.types';
 
 // Mock LoginForm component to avoid router context dependencies
 function MockLoginForm({ loginMutation, handleSuccess }: LoginFormProps) {

@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { FormFieldProps } from './form-field.d';
+import type { FormFieldProps } from './form-field.types';
 
 export function FormField({
   field,

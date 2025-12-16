@@ -3,7 +3,7 @@ import type {
   Theme,
   ThemeProviderProps,
   ThemeProviderState,
-} from './theme.provider.d';
+} from './theme.provider.types';
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
   undefined,

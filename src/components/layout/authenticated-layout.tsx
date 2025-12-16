@@ -8,7 +8,7 @@ import { LayoutProvider } from '@/context/layout.provider';
 import { SearchProvider } from '@/context/search.provider';
 import { getCookie } from '@/lib/cookies.utils';
 import { cn } from '@/lib/utils';
-import type { AuthenticatedLayoutProps } from './authenticated-layout.d';
+import type { AuthenticatedLayoutProps } from './authenticated-layout.types';
 import { Header } from './header';
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {

@@ -9,7 +9,7 @@ import {
   Layers,
   MonitorSmartphone,
 } from 'lucide-react';
-import type { SidebarData } from './sidebar-data.d';
+import type { SidebarData } from './sidebar-data.types';
 
 export const sidebarData: SidebarData = {
   teams: [

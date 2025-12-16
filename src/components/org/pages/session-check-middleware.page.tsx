@@ -2,7 +2,7 @@ import { Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { authClient } from '@/services/auth.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
-import type { SessionCheckMiddlewareProps } from './session-check-middleware.page.d';
+import type { SessionCheckMiddlewareProps } from './session-check-middleware.page.types';
 
 export function SessionCheckMiddleware(props: SessionCheckMiddlewareProps) {
   const { profile, setProfile } = useAuthenticationStore();
