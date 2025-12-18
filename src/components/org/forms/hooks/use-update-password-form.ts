@@ -1,4 +1,3 @@
-import { useParams } from '@tanstack/react-router';
 import { logError } from '@/lib/logger.utils';
 import type { useUpdatePasswordMutationType } from '@/services/users.http-service';
 import { updatePasswordFormSchema } from '../validation/update-password-form.schema';
@@ -9,9 +8,6 @@ export function useUpdatePasswordForm({
   updatePasswordMutation,
   handleSuccess,
 }: UseUpdatePasswordFormProps) {
-  const { token } = useParams({
-    from: '/(unauthenticated)/update-password/$token',
-  });
   const form = useAppForm({
     defaultValues: {
       password: '',
@@ -19,19 +15,18 @@ export function useUpdatePasswordForm({
     },
     validators: {
       onChange: updatePasswordFormSchema,
-      async onSubmitAsync({ value, signal }) {
+      async onSubmitAsync({ value }) {
         try {
           const results = await updatePasswordMutation.mutateAsync({
-            body: {
-              token: token,
-              password: value.password,
-            },
-            signal,
+            password: value.password,
           });
-          handleSuccess(results);
+          if (results.error) {
+            throw results.error;
+          }
+          handleSuccess(results.data);
         } catch (exception: unknown) {
           const error = exception as useUpdatePasswordMutationType['error'];
-          if (!error?.responseErrors) {
+          if (!error?.message) {
             logError({
               message: 'Unexpected error type',
               error,
@@ -41,10 +36,9 @@ export function useUpdatePasswordForm({
               fields: {},
             };
           }
-          const { nonFieldErrors: form, ...fields } = error.responseErrors;
           return {
-            form,
-            fields,
+            form: [error.message],
+            fields: {},
           };
         }
       },

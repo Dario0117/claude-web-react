@@ -14,18 +14,18 @@ export function useResetPasswordForm({
     },
     validators: {
       onChange: resetPasswordFormSchema,
-      async onSubmitAsync({ value, signal }) {
+      async onSubmitAsync({ value }) {
         try {
           const results = await resetPasswordMutation.mutateAsync({
-            body: {
-              email: value.email,
-            },
-            signal,
+            email: value.email,
           });
-          handleSuccess(results);
+          if (results.error) {
+            throw results.error;
+          }
+          handleSuccess(results.data);
         } catch (exception: unknown) {
           const error = exception as useResetPasswordMutationType['error'];
-          if (!error?.responseErrors) {
+          if (!error?.message) {
             logError({
               message: 'Unexpected error type',
               error,
@@ -35,10 +35,9 @@ export function useResetPasswordForm({
               fields: {},
             };
           }
-          const { nonFieldErrors: form, ...fields } = error.responseErrors;
           return {
-            form,
-            fields,
+            form: [error.message],
+            fields: {},
           };
         }
       },

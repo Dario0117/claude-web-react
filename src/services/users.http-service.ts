@@ -1,6 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { LoginFormData } from '@/components/org/forms/validation/login-form.schema';
 import type { RegisterFormData } from '@/components/org/forms/validation/register-form.schema';
+import type { ResetPasswordFormData } from '@/components/org/forms/validation/reset-password-form.schema';
+import type { UpdatePasswordFormData } from '@/components/org/forms/validation/update-password-form.schema';
+import { queryClient } from '@/context/query.provider';
 import { authClient } from './auth.http-service';
 
 export function useProfileQuery() {
@@ -30,22 +33,28 @@ export function useLoginMutation() {
 
 export type useLoginMutationType = ReturnType<typeof useLoginMutation>;
 
-// export function useLogoutMutation({
-//   handleSuccess,
-// }: {
-//   handleSuccess: () => void;
-// }) {
-//   return $api.useMutation('post', '/api/v1/users/logout', {
-//     onSuccess: () => {
-//       handleSuccess();
-//       queryClient.invalidateQueries({
-//         queryKey: ['get', '/api/v1/users/profile'],
-//       });
-//     },
-//   });
-// }
+export function useLogoutMutation({
+  handleSuccess,
+}: {
+  handleSuccess: () => void;
+}) {
+  return useMutation({
+    mutationFn: () => {
+      return authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            handleSuccess();
+            queryClient.invalidateQueries({
+              queryKey: ['profile'],
+            });
+          },
+        },
+      });
+    },
+  });
+}
 
-// export type useLogoutMutationType = ReturnType<typeof useLogoutMutation>;
+export type useLogoutMutationType = ReturnType<typeof useLogoutMutation>;
 
 export function useRegisterMutation() {
   return useMutation({
@@ -65,35 +74,54 @@ export function useRegisterMutation() {
 
 export type useRegisterMutationType = ReturnType<typeof useRegisterMutation>;
 
-// export function useResetPasswordMutation() {
-//   return $api.useMutation('post', '/api/v1/users/reset-password');
-// }
+export function useResetPasswordMutation() {
+  return useMutation({
+    mutationFn: ({ email }: ResetPasswordFormData) => {
+      return authClient.requestPasswordReset({
+        email,
+        redirectTo: '/update-password',
+      });
+    },
+  });
+}
 
-// export type useResetPasswordMutationType = ReturnType<
-//   typeof useResetPasswordMutation
-// >;
+export type useResetPasswordMutationType = ReturnType<
+  typeof useResetPasswordMutation
+>;
 
-// export function useUpdatePasswordMutation() {
-//   return $api.useMutation('post', '/api/v1/users/update-password');
-// }
+export function useUpdatePasswordMutation() {
+  return useMutation({
+    mutationFn: ({ password }: Omit<UpdatePasswordFormData, 'confirm'>) => {
+      return authClient.resetPassword({
+        newPassword: password,
+      });
+    },
+  });
+}
 
-// export type useUpdatePasswordMutationType = ReturnType<
-//   typeof useUpdatePasswordMutation
-// >;
+export type useUpdatePasswordMutationType = ReturnType<
+  typeof useUpdatePasswordMutation
+>;
 
-// export function useLogoutAllMutation({
-//   handleSuccess,
-// }: {
-//   handleSuccess: () => void;
-// }) {
-//   return $api.useMutation('post', '/api/v1/users/logoutall', {
-//     onSuccess: () => {
-//       handleSuccess();
-//       queryClient.invalidateQueries({
-//         queryKey: ['get', '/api/v1/users/profile'],
-//       });
-//     },
-//   });
-// }
+export function useLogoutAllMutation({
+  handleSuccess,
+}: {
+  handleSuccess: () => void;
+}) {
+  return useMutation({
+    mutationFn: () => {
+      return authClient.revokeSessions({
+        fetchOptions: {
+          onSuccess: () => {
+            handleSuccess();
+            queryClient.invalidateQueries({
+              queryKey: ['profile'],
+            });
+          },
+        },
+      });
+    },
+  });
+}
 
-// export type useLogoutAllMutationType = ReturnType<typeof useLogoutAllMutation>;
+export type useLogoutAllMutationType = ReturnType<typeof useLogoutAllMutation>;

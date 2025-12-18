@@ -15,7 +15,7 @@ export function SessionCheckMiddleware(props: SessionCheckMiddlewareProps) {
   if (isLoading) {
     return null;
   }
-  const mustRedirect = props.whenProfileExist ? profile : !profile;
+  const mustRedirect = props.whenProfileExist ? !!profile : !profile;
   if (mustRedirect) {
     return (
       <Navigate
