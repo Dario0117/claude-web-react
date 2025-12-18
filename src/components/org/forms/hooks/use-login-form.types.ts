@@ -1,5 +1,6 @@
-import type { signInWithEmailAndPasswordReturnType } from '@/services/users.http-service';
+import type { useLoginMutationType } from '@/services/users.http-service';
 
 export interface UseLoginFormProps {
-  handleSuccess(data: signInWithEmailAndPasswordReturnType): void;
+  loginMutation: useLoginMutationType;
+  handleSuccess(data: useLoginMutationType['data']): void;
 }

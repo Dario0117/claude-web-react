@@ -3,8 +3,8 @@ import { FormCard } from '@/components/ui/form-card';
 import { useLoginForm } from './hooks/use-login-form';
 import type { LoginFormProps } from './login.form.types';
 
-export function LoginForm({ handleSuccess }: LoginFormProps) {
-  const form = useLoginForm({ handleSuccess });
+export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
+  const form = useLoginForm({ loginMutation, handleSuccess });
 
   return (
     <FormCard

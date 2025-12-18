@@ -1,7 +1,6 @@
-import type { paths } from '@/types/api.generated.types';
+import type { useProfileQueryReturnType } from '@/services/users.http-service';
 
-export type Profile =
-  paths['/api/v1/get-session']['get']['responses']['200']['content']['application/json']['user'];
+type Profile = NonNullable<useProfileQueryReturnType['data']>;
 
 export interface AuthState {
   profile?: Profile;

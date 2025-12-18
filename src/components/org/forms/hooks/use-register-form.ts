@@ -1,9 +1,13 @@
-import { authClient } from '@/services/auth.http-service';
+import { logError } from '@/lib/logger.utils';
+import type { useRegisterMutationType } from '@/services/users.http-service';
 import { registerFormSchema } from '../validation/register-form.schema';
 import { useAppForm } from './app-form';
 import type { UseRegisterFormProps } from './use-register-form.types';
 
-export function useRegisterForm({ handleSuccess }: UseRegisterFormProps) {
+export function useRegisterForm({
+  registerMutation,
+  handleSuccess,
+}: UseRegisterFormProps) {
   const form = useAppForm({
     defaultValues: {
       name: '',
@@ -14,18 +18,33 @@ export function useRegisterForm({ handleSuccess }: UseRegisterFormProps) {
     validators: {
       onChange: registerFormSchema,
       async onSubmitAsync({ value }) {
-        const { data, error } = await authClient.signUp.email({
-          name: value.name,
-          email: value.email,
-          password: value.password,
-        });
-        if (error) {
+        try {
+          const results = await registerMutation.mutateAsync({
+            name: value.name,
+            password: value.password,
+            email: value.email,
+          });
+          if (results.error) {
+            throw results.error;
+          }
+          handleSuccess(results.data);
+        } catch (exception: unknown) {
+          const error = exception as useRegisterMutationType['error'];
+          if (!error?.message) {
+            logError({
+              message: 'Unexpected error type',
+              error,
+            });
+            return {
+              form: ['Something went wrong, please try again later.'],
+              fields: {},
+            };
+          }
           return {
-            form: [error?.message],
+            form: [error.message],
             fields: {},
           };
         }
-        handleSuccess(data);
       },
     },
   });
