@@ -11,7 +11,10 @@ export function useProfileQuery() {
     queryKey: ['profile'],
     queryFn: async () => {
       const session = await authClient.getSession();
-      return session.data?.user;
+      if (session.data?.user) {
+        return session.data.user;
+      }
+      throw new Error('No user found');
     },
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,
@@ -79,7 +82,7 @@ export function useResetPasswordMutation() {
     mutationFn: ({ email }: ResetPasswordFormData) => {
       return authClient.requestPasswordReset({
         email,
-        redirectTo: '/update-password',
+        redirectTo: 'http://localhost:5173/update-password',
       });
     },
   });
@@ -89,11 +92,12 @@ export type useResetPasswordMutationType = ReturnType<
   typeof useResetPasswordMutation
 >;
 
-export function useUpdatePasswordMutation() {
+export function useUpdatePasswordMutation(token: string) {
   return useMutation({
     mutationFn: ({ password }: Omit<UpdatePasswordFormData, 'confirm'>) => {
       return authClient.resetPassword({
         newPassword: password,
+        token,
       });
     },
   });

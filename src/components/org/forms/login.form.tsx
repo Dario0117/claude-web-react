@@ -9,7 +9,7 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
   return (
     <FormCard
       title="Login to your account"
-      description="Enter your username below to login to your account"
+      description="Enter your email below to login to your account"
     >
       <form
         onSubmit={(e) => {
@@ -22,7 +22,7 @@ export function LoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
           <form.AppField name="email">
             {(field) => (
               <field.AppFormField
-                label="Username"
+                label="Email"
                 placeholder="johndoe17@mail.com"
                 required
               />

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as unauthenticatedRouteRouteImport } from './routes/(unauthenticated)/route'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as authenticatedIndexRouteImport } from './routes/(authenticated)/index'
+import { Route as unauthenticatedUpdatePasswordRouteImport } from './routes/(unauthenticated)/update-password'
 import { Route as unauthenticatedResetPasswordRouteImport } from './routes/(unauthenticated)/reset-password'
 import { Route as unauthenticatedRegisterRouteImport } from './routes/(unauthenticated)/register'
 import { Route as unauthenticatedLoginRouteImport } from './routes/(unauthenticated)/login'
@@ -20,7 +21,6 @@ import { Route as authenticatedProjectsRouteImport } from './routes/(authenticat
 import { Route as authenticatedDraftsRouteImport } from './routes/(authenticated)/drafts'
 import { Route as authenticatedDevicesRouteImport } from './routes/(authenticated)/devices'
 import { Route as authenticatedApiRouteImport } from './routes/(authenticated)/api'
-import { Route as unauthenticatedUpdatePasswordTokenRouteImport } from './routes/(unauthenticated)/update-password.$token'
 
 const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
   id: '/(unauthenticated)',
@@ -35,6 +35,12 @@ const authenticatedIndexRoute = authenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => authenticatedRouteRoute,
 } as any)
+const unauthenticatedUpdatePasswordRoute =
+  unauthenticatedUpdatePasswordRouteImport.update({
+    id: '/update-password',
+    path: '/update-password',
+    getParentRoute: () => unauthenticatedRouteRoute,
+  } as any)
 const unauthenticatedResetPasswordRoute =
   unauthenticatedResetPasswordRouteImport.update({
     id: '/reset-password',
@@ -77,12 +83,6 @@ const authenticatedApiRoute = authenticatedApiRouteImport.update({
   path: '/api',
   getParentRoute: () => authenticatedRouteRoute,
 } as any)
-const unauthenticatedUpdatePasswordTokenRoute =
-  unauthenticatedUpdatePasswordTokenRouteImport.update({
-    id: '/update-password/$token',
-    path: '/update-password/$token',
-    getParentRoute: () => unauthenticatedRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof authenticatedIndexRoute
@@ -94,7 +94,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof unauthenticatedLoginRoute
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
-  '/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
+  '/update-password': typeof unauthenticatedUpdatePasswordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authenticatedIndexRoute
@@ -106,7 +106,7 @@ export interface FileRoutesByTo {
   '/login': typeof unauthenticatedLoginRoute
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
-  '/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
+  '/update-password': typeof unauthenticatedUpdatePasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,8 +120,8 @@ export interface FileRoutesById {
   '/(unauthenticated)/login': typeof unauthenticatedLoginRoute
   '/(unauthenticated)/register': typeof unauthenticatedRegisterRoute
   '/(unauthenticated)/reset-password': typeof unauthenticatedResetPasswordRoute
+  '/(unauthenticated)/update-password': typeof unauthenticatedUpdatePasswordRoute
   '/(authenticated)/': typeof authenticatedIndexRoute
-  '/(unauthenticated)/update-password/$token': typeof unauthenticatedUpdatePasswordTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,7 +135,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/update-password/$token'
+    | '/update-password'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -147,7 +147,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/update-password/$token'
+    | '/update-password'
   id:
     | '__root__'
     | '/(authenticated)'
@@ -160,8 +160,8 @@ export interface FileRouteTypes {
     | '/(unauthenticated)/login'
     | '/(unauthenticated)/register'
     | '/(unauthenticated)/reset-password'
+    | '/(unauthenticated)/update-password'
     | '/(authenticated)/'
-    | '/(unauthenticated)/update-password/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +191,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof authenticatedIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(unauthenticated)/update-password': {
+      id: '/(unauthenticated)/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof unauthenticatedUpdatePasswordRouteImport
+      parentRoute: typeof unauthenticatedRouteRoute
     }
     '/(unauthenticated)/reset-password': {
       id: '/(unauthenticated)/reset-password'
@@ -248,13 +255,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedApiRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
-    '/(unauthenticated)/update-password/$token': {
-      id: '/(unauthenticated)/update-password/$token'
-      path: '/update-password/$token'
-      fullPath: '/update-password/$token'
-      preLoaderRoute: typeof unauthenticatedUpdatePasswordTokenRouteImport
-      parentRoute: typeof unauthenticatedRouteRoute
-    }
   }
 }
 
@@ -283,15 +283,14 @@ interface unauthenticatedRouteRouteChildren {
   unauthenticatedLoginRoute: typeof unauthenticatedLoginRoute
   unauthenticatedRegisterRoute: typeof unauthenticatedRegisterRoute
   unauthenticatedResetPasswordRoute: typeof unauthenticatedResetPasswordRoute
-  unauthenticatedUpdatePasswordTokenRoute: typeof unauthenticatedUpdatePasswordTokenRoute
+  unauthenticatedUpdatePasswordRoute: typeof unauthenticatedUpdatePasswordRoute
 }
 
 const unauthenticatedRouteRouteChildren: unauthenticatedRouteRouteChildren = {
   unauthenticatedLoginRoute: unauthenticatedLoginRoute,
   unauthenticatedRegisterRoute: unauthenticatedRegisterRoute,
   unauthenticatedResetPasswordRoute: unauthenticatedResetPasswordRoute,
-  unauthenticatedUpdatePasswordTokenRoute:
-    unauthenticatedUpdatePasswordTokenRoute,
+  unauthenticatedUpdatePasswordRoute: unauthenticatedUpdatePasswordRoute,
 }
 
 const unauthenticatedRouteRouteWithChildren =
