@@ -29,11 +29,11 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should render update password form', () => {
-    renderWithProviders(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage token="test-token-123" />);
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
-    expect(screen.getByLabelText(/^Password/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/New password/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Confirm new password/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Update password' }),
     ).toBeInTheDocument();
@@ -41,10 +41,10 @@ describe('UpdatePasswordPage', () => {
 
   it('should navigate to login page on successful password update', async () => {
     const user = userEvent.setup();
-    renderWithProviders(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage token="test-token-123" />);
 
-    const passwordInput = screen.getByLabelText(/^Password/);
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const passwordInput = screen.getByLabelText(/New password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
@@ -60,7 +60,7 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should pass updatePassword function to UpdatePasswordForm', () => {
-    renderWithProviders(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage token="test-token-123" />);
 
     // The updatePassword function should be passed to UpdatePasswordForm
     // We can verify this by checking that the form is rendered (which means props were passed correctly)
@@ -68,16 +68,16 @@ describe('UpdatePasswordPage', () => {
   });
 
   it('should use correct navigation source', () => {
-    renderWithProviders(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage token="test-token-123" />);
 
     // The useNavigate hook should be called with the correct 'from' parameter
     expect(mockUseNavigate).toHaveBeenCalledWith({
-      from: '/update-password/$token',
+      from: '/update-password',
     });
   });
 
   it('should render accessibility landmarks', () => {
-    renderWithProviders(<UpdatePasswordPage />);
+    renderWithProviders(<UpdatePasswordPage token="test-token-123" />);
 
     const section = screen.getByText('Update your password').closest('section');
     expect(section).toBeInTheDocument();

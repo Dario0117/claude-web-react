@@ -81,13 +81,13 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
 
     // Fill in the registration form
-    const usernameInput = screen.getByLabelText(/Username/);
-    const emailInput = screen.getByLabelText(/^Email/);
-    const passwordInput = screen.getByLabelText(/^Password/);
+    const nameInput = screen.getByLabelText(/Name/);
+    const emailInput = screen.getByLabelText(/Email/);
+    const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'testuser');
+    await user.type(nameInput, 'Test User');
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
     await user.type(confirmPasswordInput, 'password123');

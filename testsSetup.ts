@@ -4,16 +4,24 @@ import '@testing-library/jest-dom/vitest';
 import { setupServer } from 'msw/node';
 import { MSWSuccessHandlers } from './src/lib/test.utils';
 
+// // Configure React's act() for the test environment
+// // @ts-expect-error - Setting React act environment flag
+// global.IS_REACT_ACT_ENVIRONMENT = true;
+
+// Set up MSW server and start listening BEFORE any modules import the auth client
 export const server = setupServer(...MSWSuccessHandlers());
 
+// Start MSW immediately - this must happen before better-auth client is created
+server.listen({
+  onUnhandledRequest: (request) => {
+    throw new Error(
+      `No request handler found for ${request.method} ${request.url}`,
+    );
+  },
+});
+
 beforeAll(() => {
-  server.listen({
-    onUnhandledRequest: (request) => {
-      throw new Error(
-        `No request handler found for ${request.method} ${request.url}`,
-      );
-    },
-  });
+  // MSW is already listening
 });
 
 afterEach(() => {

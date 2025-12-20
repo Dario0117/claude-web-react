@@ -14,7 +14,7 @@ export function useProfileQuery() {
       if (session.data?.user) {
         return session.data.user;
       }
-      throw new Error('No user found');
+      throw new Error(session.error?.message ?? 'No user found');
     },
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,
@@ -47,7 +47,7 @@ export function useLogoutMutation({
         fetchOptions: {
           onSuccess: () => {
             handleSuccess();
-            queryClient.invalidateQueries({
+            queryClient.removeQueries({
               queryKey: ['profile'],
             });
           },
@@ -118,7 +118,7 @@ export function useLogoutAllMutation({
         fetchOptions: {
           onSuccess: () => {
             handleSuccess();
-            queryClient.invalidateQueries({
+            queryClient.removeQueries({
               queryKey: ['profile'],
             });
           },

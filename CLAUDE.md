@@ -4,34 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Prerequisites
 
-- **Node.js**: 22.14.0 (exact version required)
-- **pnpm**: 10.13.1 (exact version required)
+- **Bun**: Latest version (works as both runtime and package manager)
 
 ## Development Commands
 
 ### Core Development
 
-- `pnpm dev` - Start development server (runs Vite and OpenAPI generation concurrently)
-- `pnpm dev:debug` - Start development server with VSCode debugging support (disables code splitting)
-- `pnpm build` - Build for production (runs TypeScript compilation + Vite build)
-- `pnpm preview` - Preview production build
+- `bun dev` - Start development server (runs Vite and OpenAPI generation concurrently)
+- `bun dev:debug` - Start development server with VSCode debugging support (disables code splitting)
+- `bun build` - Build for production (runs TypeScript compilation + Vite build)
+- `bun preview` - Preview production build
 
 ### Code Quality
 
-- `pnpm format-and-lint:fix` - Format and lint code (auto-fix issues)
-- `pnpm format-and-lint:check` - Check formatting and linting without fixing
-- `pnpm check-ts` - TypeScript type checking without emitting files
-- `pnpm open-api` - Generate OpenAPI schema for API
+- `bun format-and-lint:fix` - Format and lint code (auto-fix issues)
+- `bun format-and-lint:check` - Check formatting and linting without fixing
+- `bun check-ts` - TypeScript type checking without emitting files
+- `bun open-api` - Generate OpenAPI schema for API
 
 ### Testing
 
-- `pnpm test` - Run tests with Vitest in watch mode
-- `pnpm coverage` - Run tests with coverage report (outputs to `/coverage`, runs tests once without watch mode)
+- `bun run test` - Run tests with Vitest in watch mode
+- `bun run coverage` - Run tests with coverage report (outputs to `/coverage`, runs tests once without watch mode)
 
 ### Storybook
 
-- `pnpm storybook` - Start Storybook development server on port 6006
-- `pnpm build-storybook` - Build Storybook for production
+- `bun storybook` - Start Storybook development server on port 6006
+- `bun build-storybook` - Build Storybook for production
 
 ## Architecture Overview
 
@@ -144,7 +143,7 @@ This is a React frontend template using modern tooling and patterns:
 - Performance optimized (lazy loading, code splitting)
 - Cross-browser compatibility verified
 - Storybook documentation for each react component, this file must be placed alongside the component file
-- When finished with the code, run `pnpm format-and-lint:fix`, `pnpm check-ts` and `pnpm test` to ensure all tests pass and code is formatted correctly, execute this commands until no errors or issues are found.
+- When finished with the code, run `bun format-and-lint:fix`, `bun check-ts` and `bun run test` to ensure all tests pass and code is formatted correctly, execute this commands until no errors or issues are found.
 
 ### Component requirements
 
@@ -186,7 +185,7 @@ This is a React frontend template using modern tooling and patterns:
 
 - Unit tests for all new code
 - All test files follow the naming convention of `[file_tested_name].test.ts` or `[file_tested_name].test.tsx` and must be placed alongside the file being tested
-- Comprehensive test coverage (>85%) on each component but aim for 100% if possible. To get all untested files, run `pnpm coverage` and when it finishes and all tests are passing, run `jq -r 'first(to_entries[] | select(any(.value.s[]; . == 0)) | .value)' coverage/coverage-final.json` to get one file that doesn't have enough coverage and add tests to them. Once that single file is done, run `pnpm coverage` again and check if there are any untested files left.
+- Comprehensive test coverage (>85%) on each component but aim for 100% if possible. To get all untested files, run `bun run coverage` and when it finishes and all tests are passing, run `jq -r 'first(to_entries[] | select(any(.value.s[]; . == 0)) | .value)' coverage/coverage-final.json` to get one file that doesn't have enough coverage and add tests to them. Once that single file is done, run `bun run coverage` again and check if there are any untested files left.
 - Don't write end to end tests, only unit and integration tests
 - Don't use mocks, stubs, or fakes, always use the real implementation, only mock external http requests using MSW, no component or function should be mocked, only external dependencies and requests.
 - Test components in isolation: each component should have its own test file. Focus on testing the component's behavior and user interactions, not implementation details. When testing composed components, verify the overall behavior rather than testing individual child components. For example, on `login.page.tsx`, there's no other logic other than the `LoginForm` component, so it's enough to test the `LoginForm` component in isolation. In this case we still need to create the test file, but add a comment saying that this component is a wrapper and the internal components are tested in isolation. Constantly check if this is still the case and if not, add more tests and remove the comment.
@@ -246,9 +245,9 @@ This is a React frontend template using modern tooling and patterns:
 
 ##  STRICT RULES, DON'T BREAK THEM, ASK FIRST
 
-- Before starting any work, first execute `pnpm open-api` to generate the latest OpenAPI schema for API
+- Before starting any work, first execute `bun open-api` to generate the latest OpenAPI schema for API
 - Don't install any new dependencies, respect the Tech Stack, ask first if you need to add a new library and explain why
-- Only use pnpm scripts to run checks and tests, if you need to add a new script, ask first and explain why
+- Only use bun scripts to run checks and tests, if you need to add a new script, ask first and explain why
 - Always write unit tests for any piece of code, even if it's a simple function or class
 - Always follow the project's architecture and conventions, if you need to change something, ask first
 - Always follow SOLID principles

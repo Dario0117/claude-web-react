@@ -20,9 +20,13 @@ describe('authentication.store', () => {
 
   describe('setUser action', () => {
     const mockUser: Profile = {
-      firstName: 'Test',
-      lastName: 'User',
+      id: 'test-user-id',
+      createdAt: new Date(),
+      updatedAt: new Date(),
       email: 'test@example.com',
+      emailVerified: true,
+      name: 'Test User',
+      image: null,
     };
 
     it('should set user', () => {
@@ -39,15 +43,23 @@ describe('authentication.store', () => {
       const { result } = renderHook(() => useAuthenticationStore());
 
       const firstUser: Profile = {
-        firstName: 'First',
-        lastName: 'User',
+        id: 'first-user-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         email: 'first@example.com',
+        emailVerified: true,
+        name: 'First User',
+        image: null,
       };
 
       const secondUser: Profile = {
-        firstName: 'Second',
-        lastName: 'User',
+        id: 'second-user-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         email: 'second@example.com',
+        emailVerified: true,
+        name: 'Second User',
+        image: null,
       };
 
       act(() => {

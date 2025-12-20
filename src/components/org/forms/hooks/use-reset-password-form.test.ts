@@ -70,7 +70,8 @@ describe('useResetPasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password reset email sent.'],
+        status: true,
+        message: 'Password reset email sent',
       });
     });
   });
@@ -100,7 +101,8 @@ describe('useResetPasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password reset email sent.'],
+        status: true,
+        message: 'Password reset email sent',
       });
     });
   });
@@ -108,15 +110,9 @@ describe('useResetPasswordForm', () => {
   it('should set error map when reset password fails with responseErrors', async () => {
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
+      http.post(buildBackendUrl('/api/v1/request-password-reset'), () => {
         return HttpResponse.json(
-          {
-            responseData: null,
-            responseErrors: {
-              nonFieldErrors: ['Email not found'],
-              email: ['This email address is not registered'],
-            },
-          },
+          { message: 'Email not found' },
           { status: 400 },
         );
       }),
@@ -150,17 +146,14 @@ describe('useResetPasswordForm', () => {
         'Email not found',
       );
     });
-    expect(result.current.state.fieldMeta.email.errorMap.onSubmit?.[0]).toBe(
-      'This email address is not registered',
-    );
     expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected error without responseErrors', async () => {
-    // Override the handler to return an error without responseErrors
+    // Override the handler to return an error without message
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
-        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
+      http.post(buildBackendUrl('/api/v1/request-password-reset'), () => {
+        return HttpResponse.json({}, { status: 500 });
       }),
     );
 

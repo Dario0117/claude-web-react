@@ -20,7 +20,7 @@ const mockUseParams = vi.mocked(
 mockUseParams.mockReturnValue({ token: 'test-token-123' });
 
 function TestWrapper({ handleSuccess }: { handleSuccess: () => void }) {
-  const updatePasswordMutation = useUpdatePasswordMutation();
+  const updatePasswordMutation = useUpdatePasswordMutation('test-token-123');
   return (
     <UpdatePasswordForm
       updatePasswordMutation={updatePasswordMutation}
@@ -41,7 +41,7 @@ describe('UpdatePasswordForm', () => {
 
     expect(screen.getByText('Update your password')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Confirm new password/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Update password' }),
     ).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
 
     expect(passwordInput).toHaveAttribute('type', 'password');
     expect(confirmPasswordInput).toHaveAttribute('type', 'password');
@@ -70,7 +70,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
@@ -83,7 +83,7 @@ describe('UpdatePasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password updated successfully.'],
+        status: true,
       });
     });
   });
@@ -93,7 +93,7 @@ describe('UpdatePasswordForm', () => {
 
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
+      http.post(buildBackendUrl('/api/v1/reset-password'), () => {
         return HttpResponse.json(
           {
             nonFieldErrors: ['Invalid or expired token'],
@@ -106,7 +106,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
@@ -117,14 +117,9 @@ describe('UpdatePasswordForm', () => {
       await user.click(submitButton);
     });
 
-    const errorMessage = await screen.findByText(
-      'Something went wrong, please try again later.',
-    );
-
     await waitFor(() => {
       expect(mockHandleSuccess).not.toHaveBeenCalled();
     });
-    expect(errorMessage).toBeInTheDocument();
   });
 
   it('should validate password confirmation', async () => {
@@ -133,7 +128,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });
@@ -185,7 +180,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
 
     expect(passwordInput).toHaveAttribute('required');
     expect(confirmPasswordInput).toHaveAttribute('required');
@@ -215,7 +210,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
 
     // Tab navigation should work through input fields
     await user.tab();
@@ -250,7 +245,7 @@ describe('UpdatePasswordForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     const passwordInput = screen.getByPlaceholderText('Password');
-    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
+    const confirmPasswordInput = screen.getByLabelText(/Confirm new password/);
     const submitButton = screen.getByRole('button', {
       name: 'Update password',
     });

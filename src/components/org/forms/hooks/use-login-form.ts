@@ -24,7 +24,11 @@ export function useLoginForm({
           if (results.error) {
             throw results.error;
           }
-          handleSuccess(results.data);
+          if (results.data) {
+            handleSuccess(
+              results.data as unknown as useLoginMutationType['data'],
+            );
+          }
         } catch (exception: unknown) {
           const error = exception as useLoginMutationType['error'];
           if (!error?.message) {

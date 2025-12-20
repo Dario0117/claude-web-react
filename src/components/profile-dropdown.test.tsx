@@ -32,9 +32,13 @@ describe('ProfileDropdown', () => {
     const { result: res } = renderHook(() => useAuthenticationStore());
     act(() => {
       res.current.setProfile({
-        firstName: 'Test',
-        lastName: 'User',
+        id: 'test-user-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         email: 'test@example.com',
+        emailVerified: true,
+        name: 'Test User',
+        image: null,
       });
     });
   });
@@ -47,7 +51,7 @@ describe('ProfileDropdown', () => {
   it('should render avatar fallback', () => {
     renderWithProviders(<ProfileDropdown />);
 
-    expect(screen.getByText(/tu/i)).toBeInTheDocument();
+    expect(screen.getByText('T')).toBeInTheDocument();
   });
 
   it('should open dropdown menu when avatar is clicked', async () => {

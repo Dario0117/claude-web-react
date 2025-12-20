@@ -22,7 +22,11 @@ export function useResetPasswordForm({
           if (results.error) {
             throw results.error;
           }
-          handleSuccess(results.data);
+          if (results.data) {
+            handleSuccess(
+              results.data as unknown as useResetPasswordMutationType['data'],
+            );
+          }
         } catch (exception: unknown) {
           const error = exception as useResetPasswordMutationType['error'];
           if (!error?.message) {

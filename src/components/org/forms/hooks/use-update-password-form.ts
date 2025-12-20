@@ -23,7 +23,11 @@ export function useUpdatePasswordForm({
           if (results.error) {
             throw results.error;
           }
-          handleSuccess(results.data);
+          if (results.data) {
+            handleSuccess(
+              results.data as unknown as useUpdatePasswordMutationType['data'],
+            );
+          }
         } catch (exception: unknown) {
           const error = exception as useUpdatePasswordMutationType['error'];
           if (!error?.message) {

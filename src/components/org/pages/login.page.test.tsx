@@ -39,7 +39,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
@@ -86,13 +86,13 @@ describe('LoginPage', () => {
 
     renderWithProviders(<LoginPage />);
 
-    // Get the username and password fields
-    const usernameInput = screen.getByLabelText(/Username/);
+    // Get the email and password fields
+    const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByLabelText(/Password/);
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     // Fill in the form
-    await user.type(usernameInput, 'testuser');
+    await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
 
     // Submit the form

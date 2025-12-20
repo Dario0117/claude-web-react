@@ -16,7 +16,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -33,7 +34,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -56,7 +58,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -78,7 +81,7 @@ describe('useUpdatePasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password updated successfully.'],
+        status: true,
       });
     });
   });
@@ -87,7 +90,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -109,7 +113,7 @@ describe('useUpdatePasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password updated successfully.'],
+        status: true,
       });
     });
   });
@@ -117,16 +121,9 @@ describe('useUpdatePasswordForm', () => {
   it('should set error map when update password fails with responseErrors', async () => {
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
+      http.post(buildBackendUrl('/api/v1/reset-password'), () => {
         return HttpResponse.json(
-          {
-            responseData: null,
-            responseErrors: {
-              nonFieldErrors: ['Invalid or expired token'],
-              password: ['Password must be at least 12 characters'],
-              confirm: ['Passwords do not match'],
-            },
-          },
+          { message: 'Invalid or expired token' },
           { status: 400 },
         );
       }),
@@ -135,7 +132,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -161,27 +159,22 @@ describe('useUpdatePasswordForm', () => {
         'Invalid or expired token',
       );
     });
-    expect(result.current.state.fieldMeta.password.errorMap.onSubmit?.[0]).toBe(
-      'Password must be at least 12 characters',
-    );
-    expect(result.current.state.fieldMeta.confirm.errorMap.onSubmit?.[0]).toBe(
-      'Passwords do not match',
-    );
     expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected error without responseErrors', async () => {
-    // Override the handler to return an error without responseErrors
+    // Override the handler to return an error without message
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/update-password'), () => {
-        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
+      http.post(buildBackendUrl('/api/v1/reset-password'), () => {
+        return HttpResponse.json({}, { status: 500 });
       }),
     );
 
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -214,7 +207,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,
@@ -242,7 +236,8 @@ describe('useUpdatePasswordForm', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
-        const updatePasswordMutation = useUpdatePasswordMutation();
+        const updatePasswordMutation =
+          useUpdatePasswordMutation('test-token-123');
         return useUpdatePasswordForm({
           updatePasswordMutation,
           handleSuccess: mockHandleSuccess,

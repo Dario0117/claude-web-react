@@ -8,7 +8,7 @@ describe('useLogoutMutation', () => {
     const { result } = renderHook(() => useLogoutMutation({ handleSuccess }), {
       wrapper: createQueryThemeWrapper(),
     });
-    result.current.mutate({});
+    result.current.mutate();
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(handleSuccess).toHaveBeenCalled();

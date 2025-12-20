@@ -28,7 +28,7 @@ describe('RegisterForm', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
     expect(screen.getByText('Create your account')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Name/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByLabelText(/Confirm Password/)).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('RegisterForm', () => {
   it('should have proper input placeholders', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    expect(screen.getByPlaceholderText('johndoe17')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('John Doe')).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText('johndoe17@mail.com'),
     ).toBeInTheDocument();
@@ -63,22 +63,29 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'testuser');
+    await user.type(nameInput, 'testuser');
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'testpassword');
     await user.type(confirmPasswordInput, 'testpassword');
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['User registered successfully.'],
-      });
+      expect(mockHandleSuccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          token: null,
+          user: expect.objectContaining({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+          }),
+        }),
+      );
     });
   });
 
@@ -87,22 +94,29 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'testuser');
+    await user.type(nameInput, 'testuser');
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'testpassword');
     await user.type(confirmPasswordInput, 'testpassword');
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['User registered successfully.'],
-      });
+      expect(mockHandleSuccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          token: null,
+          user: expect.objectContaining({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+          }),
+        }),
+      );
     });
   });
 
@@ -111,10 +125,10 @@ describe('RegisterForm', () => {
 
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+      http.post(buildBackendUrl('/api/v1/sign-up/email'), () => {
         return HttpResponse.json(
           {
-            nonFieldErrors: ['Username already exists'],
+            nonFieldErrors: ['Email already exists'],
           },
           { status: 400 },
         );
@@ -123,13 +137,13 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'existinguser');
+    await user.type(nameInput, 'existinguser');
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'testpassword');
     await user.type(confirmPasswordInput, 'testpassword');
@@ -146,13 +160,13 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'testuser');
+    await user.type(nameInput, 'testuser');
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
     await user.type(confirmPasswordInput, 'differentpassword');
@@ -195,12 +209,12 @@ describe('RegisterForm', () => {
   it('should have required attributes on form fields', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
-    expect(usernameInput).toHaveAttribute('required');
+    expect(nameInput).toHaveAttribute('required');
     expect(emailInput).toHaveAttribute('required');
     expect(passwordInput).toHaveAttribute('required');
     expect(confirmPasswordInput).toHaveAttribute('required');
@@ -223,13 +237,13 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
     const submitButton = screen.getByRole('button', { name: 'Register' });
 
-    await user.type(usernameInput, 'testuser');
+    await user.type(nameInput, 'testuser');
     await user.type(emailInput, 'invalid-email');
     await user.type(passwordInput, 'testpassword');
     await user.type(confirmPasswordInput, 'testpassword');
@@ -249,14 +263,14 @@ describe('RegisterForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const nameInput = screen.getByLabelText(/Name/);
     const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByPlaceholderText('Password');
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/);
 
     // Tab navigation should work through input fields
     await user.tab();
-    expect(usernameInput).toHaveFocus();
+    expect(nameInput).toHaveFocus();
 
     await user.tab();
     expect(emailInput).toHaveFocus();
@@ -268,8 +282,8 @@ describe('RegisterForm', () => {
     expect(confirmPasswordInput).toHaveFocus();
 
     // Fill in the form to enable the submit button
-    await user.click(usernameInput);
-    await user.type(usernameInput, 'testuser');
+    await user.click(nameInput);
+    await user.type(nameInput, 'testuser');
     await user.click(emailInput);
     await user.type(emailInput, 'test@example.com');
     await user.click(passwordInput);

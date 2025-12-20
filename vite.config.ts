@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
     define: {
       // Inject git SHA as environment variable for production builds
       'import.meta.env.VITE_APP_VERSION': JSON.stringify(gitSha),
-      'import.meta.env.BACKEND_BASE_URL': "'http://127.0.0.1:9000'",
+      'import.meta.env.BACKEND_BASE_URL': "'http://localhost:9000'",
     },
     test: {
       globals: true,

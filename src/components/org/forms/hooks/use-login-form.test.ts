@@ -20,7 +20,7 @@ describe('useLoginForm', () => {
       { wrapper: createQueryThemeWrapper() },
     );
 
-    expect(result.current.state.values.username).toBe('');
+    expect(result.current.state.values.email).toBe('');
     expect(result.current.state.values.password).toBe('');
   });
 
@@ -62,7 +62,7 @@ describe('useLoginForm', () => {
 
     // Set valid values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
     });
 
@@ -73,8 +73,13 @@ describe('useLoginForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
+        redirect: false,
         token: 'random-token',
-        expiry: 'random-expiry',
+        user: expect.objectContaining({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
       });
     });
   });
@@ -95,7 +100,7 @@ describe('useLoginForm', () => {
 
     // Set valid values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
     });
 
@@ -110,20 +115,15 @@ describe('useLoginForm', () => {
 
     // The form state should exist
     expect(result.current.state).toBeDefined();
-    expect(result.current.state.values.username).toBe('testuser');
+    expect(result.current.state.values.email).toBe('test@example.com');
   });
 
   it('should set error map when login fails', async () => {
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/login'), () => {
+      http.post(buildBackendUrl('/api/v1/sign-in/email'), () => {
         return HttpResponse.json(
-          {
-            responseData: null,
-            responseErrors: {
-              nonFieldErrors: ['Invalid credentials'],
-            },
-          },
+          { message: 'Invalid credentials' },
           { status: 400 },
         );
       }),
@@ -143,7 +143,7 @@ describe('useLoginForm', () => {
 
     // Set valid values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'wrongpassword');
     });
 
@@ -164,18 +164,8 @@ describe('useLoginForm', () => {
   it('should handle login function throwing an error', async () => {
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/login'), () => {
-        return HttpResponse.json(
-          {
-            responseData: null,
-            responseErrors: {
-              nonFieldErrors: ['Network error'],
-              username: ['Invalid username'],
-              password: ['Invalid password'],
-            },
-          },
-          { status: 500 },
-        );
+      http.post(buildBackendUrl('/api/v1/sign-in/email'), () => {
+        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
       }),
     );
 
@@ -193,7 +183,7 @@ describe('useLoginForm', () => {
 
     // Set valid values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
     });
 
@@ -206,16 +196,10 @@ describe('useLoginForm', () => {
     await waitFor(() => {
       expect(result.current.state.errorMap.onSubmit?.[0]).toBe('Network error');
     });
-    expect(result.current.state.fieldMeta.username.errorMap.onSubmit?.[0]).toBe(
-      'Invalid username',
-    );
-    expect(result.current.state.fieldMeta.password.errorMap.onSubmit?.[0]).toBe(
-      'Invalid password',
-    );
     expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
-  it('should validate username field individually', () => {
+  it('should validate email field individually', () => {
     const mockHandleSuccess = vi.fn();
     const { result } = renderHook(
       () => {
@@ -230,17 +214,17 @@ describe('useLoginForm', () => {
 
     // Should be able to set valid value
     act(() => {
-      result.current.setFieldValue('username', 'validuser');
+      result.current.setFieldValue('email', 'valid@example.com');
     });
 
-    expect(result.current.state.values.username).toBe('validuser');
+    expect(result.current.state.values.email).toBe('valid@example.com');
 
     // Should be able to set empty value
     act(() => {
-      result.current.setFieldValue('username', '');
+      result.current.setFieldValue('email', '');
     });
 
-    expect(result.current.state.values.username).toBe('');
+    expect(result.current.state.values.email).toBe('');
   });
 
   it('should validate password field individually', () => {
@@ -286,7 +270,7 @@ describe('useLoginForm', () => {
 
     // Set valid values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
     });
 
@@ -299,8 +283,13 @@ describe('useLoginForm', () => {
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledTimes(1);
       expect(mockHandleSuccess).toHaveBeenCalledWith({
+        redirect: false,
         token: 'random-token',
-        expiry: 'random-expiry',
+        user: expect.objectContaining({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
       });
     });
   });

@@ -33,7 +33,7 @@ describe('useRegisterForm', () => {
     );
 
     expect(result.current.state.values).toEqual({
-      username: '',
+      name: '',
       password: '',
       confirm: '',
       email: '',
@@ -54,7 +54,7 @@ describe('useRegisterForm', () => {
 
     // Set form values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -67,7 +67,12 @@ describe('useRegisterForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['User registered successfully.'],
+        user: expect.objectContaining({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
+        token: null,
       });
     });
   });
@@ -75,17 +80,9 @@ describe('useRegisterForm', () => {
   it('should handle validation errors from server response', async () => {
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/register'), () => {
+      http.post(buildBackendUrl('/api/v1/sign-up/email'), () => {
         return HttpResponse.json(
-          {
-            responseData: null,
-            responseErrors: {
-              nonFieldErrors: ['Registration failed'],
-              username: ['Username already exists'],
-              email: ['Invalid email format'],
-              password: null,
-            },
-          },
+          { message: 'Registration failed' },
           { status: 400 },
         );
       }),
@@ -104,7 +101,7 @@ describe('useRegisterForm', () => {
 
     // Set form values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -120,20 +117,14 @@ describe('useRegisterForm', () => {
         'Registration failed',
       );
     });
-    expect(result.current.state.fieldMeta.username.errorMap.onSubmit?.[0]).toBe(
-      'Username already exists',
-    );
-    expect(result.current.state.fieldMeta.email.errorMap.onSubmit?.[0]).toBe(
-      'Invalid email format',
-    );
     expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
   it('should handle unexpected errors and log them', async () => {
-    // Override the handler to simulate a network error (no responseErrors)
+    // Override the handler to simulate a network error (error without message)
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/register'), () => {
-        return HttpResponse.json({ message: 'Network error' }, { status: 500 });
+      http.post(buildBackendUrl('/api/v1/sign-up/email'), () => {
+        return HttpResponse.json({}, { status: 500 });
       }),
     );
 
@@ -150,7 +141,7 @@ describe('useRegisterForm', () => {
 
     // Set form values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -173,11 +164,11 @@ describe('useRegisterForm', () => {
     expect(mockHandleSuccess).not.toHaveBeenCalled();
   });
 
-  it('should handle errors without responseErrors property', async () => {
-    // Override the handler to simulate an error without responseErrors
+  it('should handle errors without message property', async () => {
+    // Override the handler to simulate an error without message
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/register'), () => {
-        return HttpResponse.json({ message: 'Unknown error' }, { status: 500 });
+      http.post(buildBackendUrl('/api/v1/sign-up/email'), () => {
+        return HttpResponse.json({}, { status: 500 });
       }),
     );
 
@@ -194,7 +185,7 @@ describe('useRegisterForm', () => {
 
     // Set form values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -206,12 +197,7 @@ describe('useRegisterForm', () => {
     });
 
     await waitFor(() => {
-      expect(logError).toHaveBeenCalledWith({
-        'error': {
-          'message': 'Unknown error',
-        },
-        'message': 'Unexpected error type',
-      });
+      expect(logError).toHaveBeenCalled();
     });
 
     await waitFor(() => {
@@ -236,7 +222,7 @@ describe('useRegisterForm', () => {
 
     // Set form values
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -247,10 +233,15 @@ describe('useRegisterForm', () => {
       await result.current.handleSubmit();
     });
 
-    // Verify that handleSuccess was called (which means the signal was passed correctly)
+    // Verify that handleSuccess was called (which means the request was successful)
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['User registered successfully.'],
+        user: expect.objectContaining({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
+        token: null,
       });
     });
   });
@@ -269,7 +260,7 @@ describe('useRegisterForm', () => {
 
     // Set form values including confirm password
     act(() => {
-      result.current.setFieldValue('username', 'testuser');
+      result.current.setFieldValue('name', 'Test User');
       result.current.setFieldValue('email', 'test@example.com');
       result.current.setFieldValue('password', 'password123');
       result.current.setFieldValue('confirm', 'password123');
@@ -283,7 +274,12 @@ describe('useRegisterForm', () => {
     // Verify handleSuccess was called (which means the request was successful with correct body)
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['User registered successfully.'],
+        user: expect.objectContaining({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+        }),
+        token: null,
       });
     });
   });

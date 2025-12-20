@@ -38,9 +38,13 @@ describe('SignOutDialog', () => {
   it('should trigger logout when sign out button is clicked', async () => {
     const { result: res } = renderHook(() => useAuthenticationStore());
     const profile = {
-      firstName: 'Test',
-      lastName: 'User',
+      id: 'test-user-id',
+      createdAt: new Date(),
+      updatedAt: new Date(),
       email: 'test@example.com',
+      emailVerified: true,
+      name: 'Test User',
+      image: null,
     };
     act(() => {
       res.current.setProfile(profile);

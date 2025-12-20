@@ -59,7 +59,8 @@ describe('ResetPasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password reset email sent.'],
+        status: true,
+        message: 'Password reset email sent',
       });
     });
   });
@@ -81,7 +82,8 @@ describe('ResetPasswordForm', () => {
 
     await waitFor(() => {
       expect(mockHandleSuccess).toHaveBeenCalledWith({
-        responseData: ['Password reset email sent.'],
+        status: true,
+        message: 'Password reset email sent',
       });
     });
   });
@@ -91,7 +93,7 @@ describe('ResetPasswordForm', () => {
 
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/reset-password'), () => {
+      http.post(buildBackendUrl('/api/v1/request-password-reset'), () => {
         return HttpResponse.json(
           {
             nonFieldErrors: ['Email not found'],
@@ -258,7 +260,8 @@ describe('ResetPasswordForm', () => {
 
       await waitFor(() => {
         expect(mockHandleSuccess).toHaveBeenCalledWith({
-          responseData: ['Password reset email sent.'],
+          status: true,
+          message: 'Password reset email sent',
         });
       });
 

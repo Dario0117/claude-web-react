@@ -47,9 +47,9 @@ describe('LoginForm', () => {
 
     expect(screen.getByText('Login to your account')).toBeInTheDocument();
     expect(
-      screen.getByText('Enter your username below to login to your account'),
+      screen.getByText('Enter your email below to login to your account'),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Username/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
@@ -76,7 +76,9 @@ describe('LoginForm', () => {
   it('should have proper input placeholders', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    expect(screen.getByPlaceholderText('johndoe17')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('johndoe17@mail.com'),
+    ).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
   });
 
@@ -92,21 +94,28 @@ describe('LoginForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByLabelText(/Password/);
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     await act(async () => {
-      await user.type(usernameInput, 'testuser');
+      await user.type(emailInput, 'test@example.com');
       await user.type(passwordInput, 'testpassword');
       await user.click(submitButton);
     });
 
     await waitFor(() => {
-      expect(mockHandleSuccess).toHaveBeenCalledWith({
-        token: 'random-token',
-        expiry: 'random-expiry',
-      });
+      expect(mockHandleSuccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          redirect: false,
+          token: 'random-token',
+          user: expect.objectContaining({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+          }),
+        }),
+      );
     });
   });
 
@@ -151,7 +160,7 @@ describe('LoginForm', () => {
 
     // Override the handler to return an error
     server.use(
-      http.post(buildBackendUrl('/api/v1/users/login'), () => {
+      http.post(buildBackendUrl('/api/v1/sign-in/email'), () => {
         return HttpResponse.json(
           {
             nonFieldErrors: ['Invalid credentials'],
@@ -163,12 +172,12 @@ describe('LoginForm', () => {
 
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByLabelText(/Password/);
     const submitButton = screen.getByRole('button', { name: 'Login' });
 
     await act(async () => {
-      await user.type(usernameInput, 'testuser');
+      await user.type(emailInput, 'test@example.com');
       await user.type(passwordInput, 'wrongpassword');
       await user.click(submitButton);
     });
@@ -181,10 +190,10 @@ describe('LoginForm', () => {
   it('should have required attributes on form fields', () => {
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByLabelText(/Password/);
 
-    expect(usernameInput).toHaveAttribute('required');
+    expect(emailInput).toHaveAttribute('required');
     expect(passwordInput).toHaveAttribute('required');
   });
 
@@ -192,7 +201,7 @@ describe('LoginForm', () => {
     const user = userEvent.setup();
     renderWithProviders(<TestWrapper handleSuccess={mockHandleSuccess} />);
 
-    const usernameInput = screen.getByLabelText(/Username/);
+    const emailInput = screen.getByLabelText(/Email/);
     const passwordInput = screen.getByLabelText(/Password/);
     const forgotPasswordLink = screen.getByRole('link', {
       name: 'Forgot your password?',
@@ -200,7 +209,7 @@ describe('LoginForm', () => {
 
     // Tab navigation should work
     await user.tab();
-    expect(usernameInput).toHaveFocus();
+    expect(emailInput).toHaveFocus();
 
     await user.tab();
     expect(forgotPasswordLink).toHaveFocus();

@@ -14,7 +14,7 @@ function MockLoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
   return (
     <FormCard
       title="Login to your account"
-      description="Enter your username below to login to your account"
+      description="Enter your email below to login to your account"
     >
       <form
         onSubmit={(e) => {
@@ -24,12 +24,13 @@ function MockLoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
         }}
       >
         <div className="flex flex-col gap-6">
-          <form.Field name="username">
+          <form.Field name="email">
             {(field) => (
               <FormField
                 field={field}
-                label="Username"
-                placeholder="johndoe17"
+                label="Email"
+                placeholder="john@example.com"
+                type="email"
                 required
               />
             )}
@@ -90,33 +91,42 @@ function MockLoginForm({ loginMutation, handleSuccess }: LoginFormProps) {
 }
 
 // Mock handlers for Storybook
-const mockHandleLoginSuccess = async (username: string, password: string) => {
+const mockHandleLoginSuccess = async (email: string, password: string) => {
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Login attempt:', { username, password });
+  console.log('Login attempt:', { email, password });
   return {
-    token: 'mock-token-123',
-    expiry: '2025-12-31T23:59:59Z',
+    data: {
+      redirect: false,
+      token: 'mock-token-123',
+      user: {
+        id: 'mock-user-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        email,
+        emailVerified: true,
+        name: 'Mock User',
+        image: null,
+      },
+    },
+    error: null,
   };
 };
 
-const mockHandleLoginError = async (username: string, password: string) => {
+const mockHandleLoginError = async (email: string, password: string) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log('Login attempt with error:', { username, password });
+  console.log('Login attempt with error:', { email, password });
   throw new Error(
-    'Invalid username or password. Please check your credentials and try again.',
+    'Invalid email or password. Please check your credentials and try again.',
   );
 };
 
-const mockHandleLoginNetworkError = async (
-  username: string,
-  password: string,
-) => {
+const mockHandleLoginNetworkError = async (email: string, password: string) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  console.log('Login attempt with network error:', { username, password });
+  console.log('Login attempt with network error:', { email, password });
   throw new Error(
     'Network error. Please check your internet connection and try again.',
   );
@@ -130,7 +140,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Login form component with username/password fields and error handling.',
+          'Login form component with email/password fields and error handling.',
       },
     },
   },
@@ -145,10 +155,12 @@ export const Default: Story = {
   args: {
     loginMutation: {
       mutateAsync: async ({
-        body,
+        email,
+        password,
       }: {
-        body: { username: string; password: string };
-      }) => mockHandleLoginSuccess(body.username, body.password),
+        email: string;
+        password: string;
+      }) => mockHandleLoginSuccess(email, password),
       error: null,
     } as useLoginMutationType,
     handleSuccess: (data) => {
@@ -161,10 +173,12 @@ export const WithError: Story = {
   args: {
     loginMutation: {
       mutateAsync: async ({
-        body,
+        email,
+        password,
       }: {
-        body: { username: string; password: string };
-      }) => mockHandleLoginError(body.username, body.password),
+        email: string;
+        password: string;
+      }) => mockHandleLoginError(email, password),
       error: null,
     } as unknown as useLoginMutationType,
     handleSuccess: (data) => {
@@ -185,25 +199,27 @@ export const Interactive: Story = {
   args: {
     loginMutation: {
       mutateAsync: async ({
-        body,
+        email,
+        password,
       }: {
-        body: { username: string; password: string };
+        email: string;
+        password: string;
       }) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Simulate different responses based on credentials
-        if (body.username === 'admin' && body.password === 'password') {
-          return mockHandleLoginSuccess(body.username, body.password);
+        if (email === 'admin@example.com' && password === 'password') {
+          return mockHandleLoginSuccess(email, password);
         }
 
-        if (body.username === 'network-error') {
-          return mockHandleLoginNetworkError(body.username, body.password);
+        if (email === 'network-error@example.com') {
+          return mockHandleLoginNetworkError(email, password);
         }
 
-        return mockHandleLoginError(body.username, body.password);
+        return mockHandleLoginError(email, password);
       },
       error: null,
-    } as useLoginMutationType,
+    } as unknown as useLoginMutationType,
     handleSuccess: (data) => {
       console.log('Login successful:', data);
     },
@@ -212,8 +228,8 @@ export const Interactive: Story = {
     docs: {
       description: {
         story: `Interactive login form with different behaviors:
-        - Use "admin" / "password" for successful login
-        - Use "network-error" / any password for network error
+        - Use "admin@example.com" / "password" for successful login
+        - Use "network-error@example.com" / any password for network error
         - Any other credentials will show invalid credentials error`,
       },
     },
