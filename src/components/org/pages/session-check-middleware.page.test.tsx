@@ -3,38 +3,26 @@ import { HttpResponse, http } from 'msw';
 import { server } from '@/../testsSetup';
 import { buildBackendUrl } from '@/lib/test.utils';
 import { renderWithProviders } from '@/lib/test-wrappers.utils';
-import type { useProfileQueryReturnType } from '@/services/users.http-service';
 import { useAuthenticationStore } from '@/stores/authentication.store';
 import { SessionCheckMiddleware } from './session-check-middleware.page';
-
-// Mock the authentication store
-vi.mock('@/stores/authentication.store', () => ({
-  useAuthenticationStore: vi.fn(),
-}));
 
 // Mock the navigation component
 vi.mock('@tanstack/react-router', () => ({
   Navigate: ({ to }: { to: string }) => <div data-testid="navigate">{to}</div>,
 }));
 
-const mockUseAuthenticationStore = vi.mocked(useAuthenticationStore);
-
 describe('SessionCheckMiddleware', () => {
-  const mockSetProfile = vi.fn();
-
   beforeEach(() => {
-    mockSetProfile.mockClear();
-    mockUseAuthenticationStore.mockReturnValue({
-      setProfile: mockSetProfile,
-    });
+    // Reset the store before each test
+    useAuthenticationStore.setState({ profile: undefined });
   });
 
   describe('Loading state', () => {
     it('should render null when loading', () => {
-      // Mock the profile endpoint to delay response to simulate loading
+      // Mock the get-session endpoint to delay response to simulate loading
       server.use(
         http.get(
-          buildBackendUrl('/api/v1/users/profile'),
+          buildBackendUrl('/api/v1/get-session'),
           async () =>
             new Promise(() => {
               // Never resolves to keep loading state
@@ -95,13 +83,10 @@ describe('SessionCheckMiddleware', () => {
 
   describe('When profile does not exist - redirect scenario', () => {
     it('should redirect when profile does not exist and whenProfileExist is false', async () => {
-      // Override MSW handler to return undefined profile
+      // Override MSW handler to return no user (unauthenticated)
       server.use(
-        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
-          const data = {
-            responseData: undefined,
-          } as unknown as useProfileQueryReturnType['data'];
-          return HttpResponse.json(data);
+        http.get(buildBackendUrl('/api/v1/get-session'), () => {
+          return HttpResponse.json({ user: null, session: null });
         }),
       );
 
@@ -121,13 +106,10 @@ describe('SessionCheckMiddleware', () => {
     });
 
     it('should render children when profile does not exist and whenProfileExist is true', async () => {
-      // Override MSW handler to return undefined profile
+      // Override MSW handler to return no user (unauthenticated)
       server.use(
-        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
-          const data = {
-            responseData: undefined,
-          } as unknown as useProfileQueryReturnType['data'];
-          return HttpResponse.json(data);
+        http.get(buildBackendUrl('/api/v1/get-session'), () => {
+          return HttpResponse.json({ user: null, session: null });
         }),
       );
 
@@ -148,7 +130,7 @@ describe('SessionCheckMiddleware', () => {
   });
 
   describe('Profile setting', () => {
-    it('should call setProfile when profile data is available', async () => {
+    it('should update store profile when profile data is available', async () => {
       // Use default MSW handler which returns a profile
       renderWithProviders(
         <SessionCheckMiddleware
@@ -160,21 +142,22 @@ describe('SessionCheckMiddleware', () => {
       );
 
       await waitFor(() => {
-        expect(mockSetProfile).toHaveBeenCalledWith({
-          firstName: 'test',
-          lastName: 'test2',
-          email: 't@t.com',
-        });
+        const profile = useAuthenticationStore.getState().profile;
+        expect(profile).toEqual(
+          expect.objectContaining({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            name: 'Test User',
+            emailVerified: true,
+          }),
+        );
       });
     });
 
-    it('should not call setProfile when profile data is undefined', async () => {
+    it('should not update store profile when profile data is undefined', async () => {
       server.use(
-        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
-          const data = {
-            responseData: undefined,
-          } as unknown as useProfileQueryReturnType['data'];
-          return HttpResponse.json(data);
+        http.get(buildBackendUrl('/api/v1/get-session'), () => {
+          return HttpResponse.json({ user: null, session: null });
         }),
       );
 
@@ -192,15 +175,15 @@ describe('SessionCheckMiddleware', () => {
         expect(screen.getByTestId('navigate')).toBeInTheDocument();
       });
 
-      expect(mockSetProfile).not.toHaveBeenCalled();
+      expect(useAuthenticationStore.getState().profile).toBeUndefined();
     });
   });
 
   describe('Edge cases', () => {
-    it('should handle data without responseData property', async () => {
+    it('should handle data without user property', async () => {
       server.use(
-        http.get(buildBackendUrl('/api/v1/users/profile'), () => {
-          // Return empty object (no responseData property)
+        http.get(buildBackendUrl('/api/v1/get-session'), () => {
+          // Return empty object (no user property)
           return HttpResponse.json({});
         }),
       );
