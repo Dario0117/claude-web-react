@@ -27,6 +27,7 @@ export function useResetPasswordForm({
               results.data as unknown as useResetPasswordMutationType['data'],
             );
           }
+          throw results; // Rethrow to handle error
         } catch (exception: unknown) {
           const error = exception as useResetPasswordMutationType['error'];
           if (!error?.message) {

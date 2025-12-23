@@ -1,0 +1,90 @@
+import { screen, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
+import { describe, expect, it } from 'vitest';
+import { server } from '@/../testsSetup';
+import { buildBackendUrl } from '@/lib/test.utils';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
+import { OrganizationCheckWrapper } from '../layout/organization-check-wrapper';
+
+describe('OrganizationCheckWrapper', () => {
+  it('should show loading state while fetching organizations', () => {
+    // Delay the response to ensure loading state is visible
+    server.use(
+      http.get(buildBackendUrl('/api/v1/organization/list'), async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return HttpResponse.json([]);
+      }),
+    );
+
+    renderWithProviders(
+      <OrganizationCheckWrapper>
+        <div>Child Content</div>
+      </OrganizationCheckWrapper>,
+    );
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.queryByText('Child Content')).not.toBeInTheDocument();
+  });
+
+  it('should render children when user has organizations', async () => {
+    // Default handler already returns an organization, so no need to override
+
+    renderWithProviders(
+      <OrganizationCheckWrapper>
+        <div>Child Content</div>
+      </OrganizationCheckWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Child Content')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Welcome!')).not.toBeInTheDocument();
+  });
+
+  it('should show modal when user has no organizations', async () => {
+    server.use(
+      http.get(buildBackendUrl('/api/v1/organization/list'), () => {
+        return HttpResponse.json([]);
+      }),
+    );
+
+    renderWithProviders(
+      <OrganizationCheckWrapper>
+        <div>Child Content</div>
+      </OrganizationCheckWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome!')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(
+        /Before you can continue, you need to create an organization/,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should handle null data by treating it as empty organizations', async () => {
+    server.use(
+      http.get(buildBackendUrl('/api/v1/organization/list'), () => {
+        return HttpResponse.json(null);
+      }),
+    );
+
+    renderWithProviders(
+      <OrganizationCheckWrapper>
+        <div>Child Content</div>
+      </OrganizationCheckWrapper>,
+    );
+
+    // When API returns null, service converts it to [], which triggers the modal
+    await waitFor(() => {
+      expect(screen.getByText('Welcome!')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(
+        /Before you can continue, you need to create an organization/,
+      ),
+    ).toBeInTheDocument();
+  });
+});

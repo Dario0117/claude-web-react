@@ -1,3 +1,5 @@
+import type { QueryClient } from '@tanstack/react-query';
+
 export interface RouterContext {
-  nothingYet: boolean | undefined;
+  queryClient: QueryClient;
 }

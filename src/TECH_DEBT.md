@@ -9,3 +9,8 @@
 - [ ] On the login form, the TAB navigation is weird, it jumps from email to forgot password and then to password. It should be email -> password -> submit -> forgot password -> register.
 - [ ] Update CI to use bun instead of pnpm
 - [ ] Add claude code commands for common actions (test, fix-ts, add new endpoint, etc)
+- [ ] Update to shadcn v2
+- [ ] Implement git hooks for formatting (no linting, no ts checking, no tests)
+- [ ] Add "reveal password" option to password inputs
+- [ ] Show org and teams in sidebar
+- [ ] Add an option to create an org and a team in the sidebar

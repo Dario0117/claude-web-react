@@ -1,5 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { OrganizationCheckWrapper } from '@/components/layout/organization-check-wrapper';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { SkipToMain } from '@/components/skip-to-main';
 import { ThemeSwitch } from '@/components/theme-switch';
@@ -16,32 +17,34 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <SearchProvider>
       <LayoutProvider>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <SkipToMain />
-          <AppSidebar />
-          <SidebarInset
-            className={cn(
-              // Set content container, so we can use container queries
-              '@container/content',
+        <OrganizationCheckWrapper>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <SkipToMain />
+            <AppSidebar />
+            <SidebarInset
+              className={cn(
+                // Set content container, so we can use container queries
+                '@container/content',
 
-              // If layout is fixed, set the height
-              // to 100svh to prevent overflow
-              'has-[[data-layout=fixed]]:h-svh',
+                // If layout is fixed, set the height
+                // to 100svh to prevent overflow
+                'has-[[data-layout=fixed]]:h-svh',
 
-              // If layout is fixed and sidebar is inset,
-              // set the height to 100svh - spacing (total margins) to prevent overflow
-              'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]',
-            )}
-          >
-            <Header fixed>
-              <div className="ms-auto flex items-center space-x-4">
-                <ThemeSwitch />
-                <ProfileDropdown />
-              </div>
-            </Header>
-            {children ?? <Outlet />}
-          </SidebarInset>
-        </SidebarProvider>
+                // If layout is fixed and sidebar is inset,
+                // set the height to 100svh - spacing (total margins) to prevent overflow
+                'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]',
+              )}
+            >
+              <Header fixed>
+                <div className="ms-auto flex items-center space-x-4">
+                  <ThemeSwitch />
+                  <ProfileDropdown />
+                </div>
+              </Header>
+              {children ?? <Outlet />}
+            </SidebarInset>
+          </SidebarProvider>
+        </OrganizationCheckWrapper>
       </LayoutProvider>
     </SearchProvider>
   );

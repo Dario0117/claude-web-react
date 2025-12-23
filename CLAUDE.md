@@ -260,3 +260,5 @@ This is a React frontend template using modern tooling and patterns:
 - When asked to fix typescript issues, don't create new types even if they were deleted from the code, it was deleted intentionally, only add new interfaces or types to existing ones unless the type is necessary for the code to work
 - Never run biome on unsafe mode to fix issues
 - Never create storybook stories for `*.page.tsx` files
+- Never use enums, they aren't standard, prefer using an object with a string key or a constant variable to define the keys
+- Never create wrappers on tests, use the ones already exist in `test-wrappers.utils`, update them if needed

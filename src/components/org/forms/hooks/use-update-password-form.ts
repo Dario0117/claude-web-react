@@ -28,6 +28,7 @@ export function useUpdatePasswordForm({
               results.data as unknown as useUpdatePasswordMutationType['data'],
             );
           }
+          throw results; // Rethrow to handle error
         } catch (exception: unknown) {
           const error = exception as useUpdatePasswordMutationType['error'];
           if (!error?.message) {

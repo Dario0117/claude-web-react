@@ -1,7 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useFormContext } from '../hooks/app-form';
 
-export function AppSubscribeSubmitButton({ label }: { label: string }) {
+export function AppSubscribeSubmitButton({
+  label,
+  disabled = false,
+}: {
+  label: string;
+  disabled?: boolean;
+}) {
   const form = useFormContext();
   return (
     <form.Subscribe selector={(state) => state.isValid && !state.isPristine}>
@@ -9,7 +15,7 @@ export function AppSubscribeSubmitButton({ label }: { label: string }) {
         <Button
           type="submit"
           className="w-full"
-          disabled={!canSubmit}
+          disabled={!canSubmit || disabled}
         >
           {label}
         </Button>

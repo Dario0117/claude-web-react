@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { AuthenticatedLayout } from './authenticated-layout';
 
@@ -47,43 +47,50 @@ vi.mock('@tanstack/react-router', () => ({
   Outlet: () => <div data-testid="outlet">Outlet</div>,
 }));
 
-function renderAuthenticatedLayout(children?: React.ReactNode) {
-  return renderWithProviders(
+async function renderAuthenticatedLayout(children?: React.ReactNode) {
+  const result = renderWithProviders(
     <AuthenticatedLayout>
       {children || <div data-testid="child-content">Child Content</div>}
     </AuthenticatedLayout>,
   );
+
+  // Wait for organizations to load (OrganizationCheckWrapper loading state to complete)
+  await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+
+  return result;
 }
 
 describe('AuthenticatedLayout', () => {
-  it('should render children', () => {
-    renderAuthenticatedLayout();
+  it('should render children', async () => {
+    await renderAuthenticatedLayout();
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
   });
 
-  it('should render app sidebar', () => {
-    renderAuthenticatedLayout();
+  it('should render app sidebar', async () => {
+    await renderAuthenticatedLayout();
 
     expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
   });
 
-  it('should render header with theme switch', () => {
-    renderAuthenticatedLayout();
+  it('should render header with theme switch', async () => {
+    await renderAuthenticatedLayout();
 
     const themeButton = screen.getByRole('button', { name: /toggle theme/i });
     expect(themeButton).toBeInTheDocument();
   });
 
-  it('should render profile dropdown', () => {
-    const { container } = renderAuthenticatedLayout();
+  it('should render profile dropdown', async () => {
+    const { container } = await renderAuthenticatedLayout();
 
     const header = container.querySelector('header');
     expect(header).toBeInTheDocument();
   });
 
-  it('should render skip to main link', () => {
-    renderAuthenticatedLayout();
+  it('should render skip to main link', async () => {
+    await renderAuthenticatedLayout();
 
     const skipLink = screen.getByRole('link', {
       name: /skip to main/i,
@@ -91,8 +98,8 @@ describe('AuthenticatedLayout', () => {
     expect(skipLink).toBeInTheDocument();
   });
 
-  it('should provide sidebar context', () => {
-    const { container } = renderAuthenticatedLayout();
+  it('should provide sidebar context', async () => {
+    const { container } = await renderAuthenticatedLayout();
 
     const sidebarWrapper = container.querySelector(
       '[data-slot="sidebar-wrapper"]',
@@ -100,28 +107,28 @@ describe('AuthenticatedLayout', () => {
     expect(sidebarWrapper).toBeInTheDocument();
   });
 
-  it('should provide layout context', () => {
-    renderAuthenticatedLayout();
+  it('should provide layout context', async () => {
+    await renderAuthenticatedLayout();
 
     expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
   });
 
-  it('should provide search context', () => {
-    renderAuthenticatedLayout();
+  it('should provide search context', async () => {
+    await renderAuthenticatedLayout();
 
     const layout = screen.getByTestId('child-content').parentElement;
     expect(layout).toBeInTheDocument();
   });
 
-  it('should render sidebar inset with correct classes', () => {
-    const { container } = renderAuthenticatedLayout();
+  it('should render sidebar inset with correct classes', async () => {
+    const { container } = await renderAuthenticatedLayout();
 
     const sidebarInset = container.querySelector('[data-slot="sidebar-inset"]');
     expect(sidebarInset).toBeInTheDocument();
     expect(sidebarInset).toHaveClass('@container/content');
   });
 
-  it('should render with custom children', () => {
+  it('should render with custom children', async () => {
     const customContent = (
       <div data-testid="custom-content">
         <h1>Custom Page Title</h1>
@@ -129,15 +136,15 @@ describe('AuthenticatedLayout', () => {
       </div>
     );
 
-    renderAuthenticatedLayout(customContent);
+    await renderAuthenticatedLayout(customContent);
 
     expect(screen.getByTestId('custom-content')).toBeInTheDocument();
     expect(screen.getByText('Custom Page Title')).toBeInTheDocument();
     expect(screen.getByText('Custom page content')).toBeInTheDocument();
   });
 
-  it('should have correct header structure with actions', () => {
-    const { container } = renderAuthenticatedLayout();
+  it('should have correct header structure with actions', async () => {
+    const { container } = await renderAuthenticatedLayout();
 
     const header = container.querySelector('header');
     expect(header).toBeInTheDocument();
@@ -146,15 +153,15 @@ describe('AuthenticatedLayout', () => {
     expect(actionsContainer).toBeInTheDocument();
   });
 
-  it('should render navigation groups in sidebar', () => {
-    renderAuthenticatedLayout();
+  it('should render navigation groups in sidebar', async () => {
+    await renderAuthenticatedLayout();
 
     expect(screen.getByText('General')).toBeInTheDocument();
     expect(screen.getByText('Integrations')).toBeInTheDocument();
   });
 
-  it('should apply default open state from cookie', () => {
-    const { container } = renderAuthenticatedLayout();
+  it('should apply default open state from cookie', async () => {
+    const { container } = await renderAuthenticatedLayout();
 
     const sidebarWrapper = container.querySelector(
       '[data-slot="sidebar-wrapper"]',

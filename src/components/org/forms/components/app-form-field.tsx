@@ -7,8 +7,10 @@ export function AppFormField({
   label,
   placeholder,
   type = 'text',
+  helperText,
   required = false,
   children,
+  onChange,
 }: FormFieldProps) {
   const field = useFieldContext<string | number>();
   const hasError = field.state.meta.errors?.length > 0;
@@ -30,12 +32,20 @@ export function AppFormField({
         type={type}
         value={field.state.value}
         onBlur={field.handleBlur}
-        onChange={(e) => field.handleChange(e.target.value)}
+        onChange={(e) => {
+          field.handleChange(e.target.value);
+          if (onChange) {
+            onChange(e);
+          }
+        }}
         placeholder={placeholder}
         required={required}
         aria-invalid={hasError}
         aria-describedby={hasError ? `${field.name}-error` : undefined}
       />
+      {helperText && (
+        <p className="text-sm text-muted-foreground">{helperText}</p>
+      )}
       {hasError && (
         <p
           id={`${field.name}-error`}

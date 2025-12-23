@@ -32,6 +32,7 @@ export function useRegisterForm({
               results.data as unknown as useRegisterMutationType['data'],
             );
           }
+          throw results; // Rethrow to handle error
         } catch (exception: unknown) {
           const error = exception as useRegisterMutationType['error'];
           if (!error?.message) {

@@ -1,4 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  type UseQueryOptions,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
+import type { User } from 'better-auth';
 import type { LoginFormData } from '@/components/org/forms/validation/login-form.schema';
 import type { RegisterFormData } from '@/components/org/forms/validation/register-form.schema';
 import type { ResetPasswordFormData } from '@/components/org/forms/validation/reset-password-form.schema';
@@ -6,19 +11,21 @@ import type { UpdatePasswordFormData } from '@/components/org/forms/validation/u
 import { queryClient } from '@/context/query.provider';
 import { authClient } from './auth.http-service';
 
+export const profileQueryOptions: UseQueryOptions<User> = {
+  queryKey: ['profile'],
+  queryFn: async () => {
+    const session = await authClient.getSession();
+    if (session.data?.user) {
+      return session.data.user;
+    }
+    throw new Error(session.error?.message ?? 'No user found');
+  },
+  staleTime: Number.POSITIVE_INFINITY,
+  retry: false,
+};
+
 export function useProfileQuery() {
-  return useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const session = await authClient.getSession();
-      if (session.data?.user) {
-        return session.data.user;
-      }
-      throw new Error(session.error?.message ?? 'No user found');
-    },
-    staleTime: Number.POSITIVE_INFINITY,
-    retry: false,
-  });
+  return useQuery(profileQueryOptions);
 }
 
 export type useProfileQueryReturnType = ReturnType<typeof useProfileQuery>;
