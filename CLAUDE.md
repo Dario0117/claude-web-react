@@ -174,6 +174,82 @@ This is a React frontend template using modern tooling and patterns:
 - Orientation change handling
 - Custom variants: `@custom-variant dark` for dark mode
 
+### Mobile-Responsive Patterns
+
+**Touch Target Standards (WCAG 2.5.5 AAA, Apple HIG):**
+- **Minimum size:** 44px × 44px for all interactive elements
+- **Buttons:** Use `h-11` (44px) for default, `h-12` (48px) for large
+- **Icon buttons:** Use `size-11` (44px minimum)
+- **Inputs:** Use `h-11` (44px) for proper touch targets
+- **Navigation links:** Use `h-11` with padding for tap-friendly areas
+
+**Input Font Size (iOS Auto-Zoom Prevention):**
+- **Mobile:** Use `text-base` (16px) to prevent iOS Safari auto-zoom on focus
+- **Desktop:** Use `md:text-sm` (14px) for optimized UX
+- **Pattern:** `className="text-base md:text-sm"`
+
+**Responsive Layout Patterns:**
+```tsx
+// Forms - Always single column, responsive spacing
+<div className="space-y-4 md:space-y-6">
+  <FormField />
+</div>
+
+// Grid Layouts - Stack on mobile, multi-column on desktop
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <Card />
+</div>
+
+// Flex Layouts - Stack on mobile, row on desktop
+<div className="flex flex-col md:flex-row gap-2">
+  <Button className="w-full md:w-auto" />
+</div>
+
+// Responsive Padding - Tighter on mobile, spacious on desktop
+<section className="p-6 md:p-10">
+  {children}
+</section>
+```
+
+**Breakpoint Strategy (Tailwind v4):**
+- **Mobile:** < 768px (base styles, no prefix)
+- **Tablet:** `md:` (768px+)
+- **Desktop:** `lg:` (1024px+)
+- **Large Desktop:** `xl:` (1280px+)
+
+**Sidebar Responsive Behavior:**
+- Mobile (< 768px): Hidden by default, opens as Sheet (slide-out drawer)
+- Tablet (768px-1024px): Hidden by default, opens as Sheet
+- Desktop (1024px+): Visible sidebar with collapse functionality
+- Pattern: `hidden md:block` on sidebar, mobile trigger uses `lg:hidden`
+
+**3G Network Optimization:**
+- **Code Splitting:** TanStack Router with `autoCodeSplitting: true` (automatic route-based splitting)
+- **Loading States:** Use Skeleton components during TanStack Query `isLoading`
+- **Lazy Loading:** Components load on-demand with Suspense fallbacks
+- **Pattern:**
+  ```tsx
+  if (isLoading) return <DashboardSkeleton />;
+  if (error) return <ErrorAlert />;
+  return <Content data={data} />;
+  ```
+
+**Viewport Testing Utilities:**
+- Location: `src/lib/viewport-test-utils.ts`
+- Functions: `setMobileViewport()`, `setTabletViewport()`, `setDesktopViewport()`
+- Usage in tests:
+  ```tsx
+  import { setMobileViewport } from '@/lib/viewport-test-utils';
+
+  describe('Component - Mobile', () => {
+    beforeEach(() => setMobileViewport());
+
+    it('renders mobile layout', () => {
+      // Test mobile-specific behavior
+    });
+  });
+  ```
+
 ### State management approach
 
 - Zustand for global state
