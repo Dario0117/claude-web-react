@@ -1,46 +1,46 @@
-import { render, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/lib/test-wrappers.utils';
 import { HomePage } from './home.page';
 
 describe('HomePage', () => {
-  it('should render the page content', () => {
-    render(<HomePage />);
+  it('should render loading state initially', () => {
+    const { container } = renderWithProviders(<HomePage />);
 
-    expect(screen.getByText('Home stats for nerds')).toBeInTheDocument();
+    const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it('should have proper page structure and styling', () => {
-    const { container } = render(<HomePage />);
+  it('should render organization dashboard with stats', async () => {
+    renderWithProviders(<HomePage />);
 
-    const section = container.querySelector('section');
-    expect(section).toHaveClass(
-      'flex',
-      'min-h-svh',
-      'w-full',
-      'items-center',
-      'justify-center',
-      'p-6',
-      'md:p-10',
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByText('Welcome to Test Organization'),
+      ).toBeInTheDocument();
+    });
 
-    const contentDiv = container.querySelector('.w-full.max-w-sm');
-    expect(contentDiv).toBeInTheDocument();
-    expect(contentDiv).toHaveTextContent('Home stats for nerds');
+    expect(
+      screen.getByText('Manage your devices and execute remote commands'),
+    ).toBeInTheDocument();
   });
 
-  it('should render accessibility landmarks', () => {
-    render(<HomePage />);
+  it('should render stat cards with correct data', async () => {
+    renderWithProviders(<HomePage />);
 
-    const section = screen.getByText('Home stats for nerds').closest('section');
-    expect(section).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Devices')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Commands (24h)')).toBeInTheDocument();
+    expect(screen.getByText('Tier')).toBeInTheDocument();
+    expect(screen.getByText('Free Tier')).toBeInTheDocument();
   });
 
-  it('should maintain consistent rendering on multiple renders', () => {
-    const { rerender } = render(<HomePage />);
+  it('should render recent activity section', async () => {
+    renderWithProviders(<HomePage />);
 
-    expect(screen.getByText('Home stats for nerds')).toBeInTheDocument();
-
-    rerender(<HomePage />);
-
-    expect(screen.getByText('Home stats for nerds')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Recent Activity')).toBeInTheDocument();
+    });
   });
 });

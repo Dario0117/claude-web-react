@@ -1,5 +1,5 @@
 [install]
-# Only install package versions published at least 3 days ago
-minimumReleaseAge = 259200 # seconds
+# Only install package versions published at least 2 days ago
+minimumReleaseAge = 172800 # seconds
 minimumReleaseAgeExcludes = ["@types/node", "typescript"]
 exact = true

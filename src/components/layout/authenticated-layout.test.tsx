@@ -72,7 +72,7 @@ describe('AuthenticatedLayout', () => {
   it('should render app sidebar', async () => {
     await renderAuthenticatedLayout();
 
-    expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
+    expect(screen.getByText('Dorchestrator')).toBeInTheDocument();
   });
 
   it('should render header with theme switch', async () => {
@@ -110,7 +110,7 @@ describe('AuthenticatedLayout', () => {
   it('should provide layout context', async () => {
     await renderAuthenticatedLayout();
 
-    expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
+    expect(screen.getByText('Dorchestrator')).toBeInTheDocument();
   });
 
   it('should provide search context', async () => {
@@ -157,7 +157,7 @@ describe('AuthenticatedLayout', () => {
     await renderAuthenticatedLayout();
 
     expect(screen.getByText('General')).toBeInTheDocument();
-    expect(screen.getByText('Integrations')).toBeInTheDocument();
+    expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
   it('should apply default open state from cookie', async () => {

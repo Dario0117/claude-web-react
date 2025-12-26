@@ -262,3 +262,5 @@ This is a React frontend template using modern tooling and patterns:
 - Never create storybook stories for `*.page.tsx` files
 - Never use enums, they aren't standard, prefer using an object with a string key or a constant variable to define the keys
 - Never create wrappers on tests, use the ones already exist in `test-wrappers.utils`, update them if needed
+- Never commit changes
+- Never add docstring to the code, unless you are asked to do so

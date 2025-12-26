@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.BACKEND_BASE_URL': "'http://localhost:9000'",
     },
     test: {
+      watch: false,
       globals: true,
       parallel: true,
       environment: 'jsdom',

@@ -1,0 +1,190 @@
+import { AlertCircle, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  useOrganizationDetailsQuery,
+  useUserOrganizationsQuery,
+} from '@/services/organizations.http-service';
+import { useAuthenticationStore } from '@/stores/authentication.store';
+
+export function OrganizationSettingsPage() {
+  const { profile } = useAuthenticationStore();
+  const { data: organizations, isLoading: orgsLoading } =
+    useUserOrganizationsQuery();
+
+  // Get first organization ID (for MVP, user has one org)
+  const organizationId = organizations?.[0]?.id;
+
+  const { data: orgDetails, isLoading: detailsLoading } =
+    useOrganizationDetailsQuery(organizationId ?? '');
+
+  const isLoading = orgsLoading || detailsLoading;
+
+  if (isLoading) {
+    return <SettingsSkeleton />;
+  }
+
+  if (!organizationId || !organizations?.[0]) {
+    return (
+      <section className="p-6 md:p-10">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No organization found. Please contact support.
+          </AlertDescription>
+        </Alert>
+      </section>
+    );
+  }
+
+  const organization = organizations[0];
+  const details = orgDetails?.responseData?.results;
+
+  return (
+    <section className="p-6 md:p-10 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Organization Settings
+        </h1>
+        <p className="text-muted-foreground">
+          View your organization configuration and billing settings
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-1">
+        {/* Organization Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Organization Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="space-y-4">
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Organization Name
+                </dt>
+                <dd className="text-base">{organization.name}</dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Organization ID
+                </dt>
+                <dd className="text-base font-mono">{organization.id}</dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Created
+                </dt>
+                <dd className="text-base">
+                  {details?.createdAt
+                    ? new Date(details.createdAt).toLocaleDateString()
+                    : 'N/A'}
+                </dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
+
+        {/* Subscription & Billing */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Subscription & Billing</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <dl className="space-y-4">
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Current Tier
+                </dt>
+                <dd className="text-base">{details?.tier ?? 'Free Tier'}</dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Device Limit
+                </dt>
+                <dd className="text-base">
+                  {details?.deviceLimit ?? 'Unlimited'}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Devices Registered
+                </dt>
+                <dd className="text-base">{details?.deviceCount ?? 0}</dd>
+              </div>
+            </dl>
+
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Billing tiers and device limits will be enforced in a future
+                release. For now, you can register unlimited devices.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* Members */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Members</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <dl className="space-y-4">
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Member Count
+                </dt>
+                <dd className="text-base">{details?.memberCount ?? 1}</dd>
+              </div>
+
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Current User
+                </dt>
+                <dd className="text-base">{profile?.email ?? 'Unknown'}</dd>
+              </div>
+            </dl>
+
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Member invitations will be available in a future release.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function SettingsSkeleton() {
+  return (
+    <section className="p-6 md:p-10 space-y-6">
+      <div>
+        <Skeleton className="h-9 w-64 mb-2" />
+        <Skeleton className="h-5 w-96" />
+      </div>
+
+      <div className="grid gap-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}

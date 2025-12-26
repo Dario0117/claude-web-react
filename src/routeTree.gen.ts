@@ -21,6 +21,7 @@ import { Route as authenticatedProjectsRouteImport } from './routes/(authenticat
 import { Route as authenticatedDraftsRouteImport } from './routes/(authenticated)/drafts'
 import { Route as authenticatedDevicesRouteImport } from './routes/(authenticated)/devices'
 import { Route as authenticatedApiRouteImport } from './routes/(authenticated)/api'
+import { Route as authenticatedOrganizationSettingsRouteImport } from './routes/(authenticated)/organization/settings'
 
 const unauthenticatedRouteRoute = unauthenticatedRouteRouteImport.update({
   id: '/(unauthenticated)',
@@ -83,6 +84,12 @@ const authenticatedApiRoute = authenticatedApiRouteImport.update({
   path: '/api',
   getParentRoute: () => authenticatedRouteRoute,
 } as any)
+const authenticatedOrganizationSettingsRoute =
+  authenticatedOrganizationSettingsRouteImport.update({
+    id: '/organization/settings',
+    path: '/organization/settings',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof authenticatedIndexRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
   '/update-password': typeof unauthenticatedUpdatePasswordRoute
+  '/organization/settings': typeof authenticatedOrganizationSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authenticatedIndexRoute
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/register': typeof unauthenticatedRegisterRoute
   '/reset-password': typeof unauthenticatedResetPasswordRoute
   '/update-password': typeof unauthenticatedUpdatePasswordRoute
+  '/organization/settings': typeof authenticatedOrganizationSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +131,7 @@ export interface FileRoutesById {
   '/(unauthenticated)/reset-password': typeof unauthenticatedResetPasswordRoute
   '/(unauthenticated)/update-password': typeof unauthenticatedUpdatePasswordRoute
   '/(authenticated)/': typeof authenticatedIndexRoute
+  '/(authenticated)/organization/settings': typeof authenticatedOrganizationSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/update-password'
+    | '/organization/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/update-password'
+    | '/organization/settings'
   id:
     | '__root__'
     | '/(authenticated)'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
     | '/(unauthenticated)/reset-password'
     | '/(unauthenticated)/update-password'
     | '/(authenticated)/'
+    | '/(authenticated)/organization/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -255,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedApiRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
+    '/(authenticated)/organization/settings': {
+      id: '/(authenticated)/organization/settings'
+      path: '/organization/settings'
+      fullPath: '/organization/settings'
+      preLoaderRoute: typeof authenticatedOrganizationSettingsRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
   }
 }
 
@@ -265,6 +285,7 @@ interface authenticatedRouteRouteChildren {
   authenticatedProjectsRoute: typeof authenticatedProjectsRoute
   authenticatedQueuedSessionsRoute: typeof authenticatedQueuedSessionsRoute
   authenticatedIndexRoute: typeof authenticatedIndexRoute
+  authenticatedOrganizationSettingsRoute: typeof authenticatedOrganizationSettingsRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
@@ -274,6 +295,8 @@ const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
   authenticatedProjectsRoute: authenticatedProjectsRoute,
   authenticatedQueuedSessionsRoute: authenticatedQueuedSessionsRoute,
   authenticatedIndexRoute: authenticatedIndexRoute,
+  authenticatedOrganizationSettingsRoute:
+    authenticatedOrganizationSettingsRoute,
 }
 
 const authenticatedRouteRouteWithChildren =

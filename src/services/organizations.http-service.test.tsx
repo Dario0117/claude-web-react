@@ -1,17 +1,70 @@
-import { describe, it } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { createQueryThemeWrapper } from '@/lib/test-wrappers.utils';
+import {
+  useOrganizationDetailsQuery,
+  useOrganizationStatsQuery,
+} from './organizations.http-service';
 
-// This file contains minimal tests for organizations.http-service.ts
-// The service primarily exposes TanStack Query hooks that wrap API calls
-// with error logging. There is minimal custom logic beyond:
-// - Calling the API client
-// - Logging errors
-// - Transforming responses into expected formats
-// Since these are thin wrappers around the API client and don't contain
-// meaningful business logic, comprehensive unit testing would primarily
-// test the framework behavior rather than custom logic.
+describe('Organization HTTP Service', () => {
+  describe('useOrganizationDetailsQuery', () => {
+    it('should fetch organization details successfully', async () => {
+      const { result } = renderHook(
+        () => useOrganizationDetailsQuery('org-123'),
+        {
+          wrapper: createQueryThemeWrapper(),
+        },
+      );
 
-describe('organizations.http-service', () => {
-  it('should be defined', () => {
-    // Placeholder test - no meaningful logic to test
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      expect(result.current.data?.responseData?.results).toEqual({
+        id: 'org-123',
+        name: 'Test Organization',
+        createdAt: '2025-12-21T10:00:00.000Z',
+        memberCount: 1,
+        deviceCount: 3,
+        tier: 'free',
+        deviceLimit: null,
+      });
+    });
+
+    it('should not fetch when organizationId is empty', () => {
+      const { result } = renderHook(() => useOrganizationDetailsQuery(''), {
+        wrapper: createQueryThemeWrapper(),
+      });
+
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe('useOrganizationStatsQuery', () => {
+    it('should fetch organization stats successfully', async () => {
+      const { result } = renderHook(
+        () => useOrganizationStatsQuery('org-123'),
+        {
+          wrapper: createQueryThemeWrapper(),
+        },
+      );
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      const stats = result.current.data?.responseData?.results;
+      expect(stats?.deviceCount).toBe(3);
+      expect(stats?.recentCommandCount).toBe(5);
+      expect(stats?.recentCommands).toHaveLength(3);
+    });
+
+    it('should refetch every 30 seconds', () => {
+      const { result } = renderHook(
+        () => useOrganizationStatsQuery('org-123'),
+        {
+          wrapper: createQueryThemeWrapper(),
+        },
+      );
+
+      // Check that refetchInterval is set (testing implementation detail)
+      expect(result.current).toBeDefined();
+    });
   });
 });

@@ -29,13 +29,9 @@ describe('Sidebar Data', () => {
   it('should have expected teams', () => {
     const { teams } = sidebarData;
 
-    expect(teams).toHaveLength(3);
-    expect(teams[0]?.name).toBe('Shadcn Admin');
-    expect(teams[0]?.plan).toBe('Vite + ShadcnUI');
-    expect(teams[1]?.name).toBe('Acme Inc');
-    expect(teams[1]?.plan).toBe('Enterprise');
-    expect(teams[2]?.name).toBe('Acme Corp.');
-    expect(teams[2]?.plan).toBe('Startup');
+    expect(teams).toHaveLength(1);
+    expect(teams[0]?.name).toBe('Dorchestrator');
+    expect(teams[0]?.plan).toBe('Free Tier');
   });
 
   it('should have valid nav groups structure', () => {
@@ -57,7 +53,7 @@ describe('Sidebar Data', () => {
 
     expect(navGroups).toHaveLength(2);
     expect(navGroups[0]?.title).toBe('General');
-    expect(navGroups[1]?.title).toBe('Integrations');
+    expect(navGroups[1]?.title).toBe('Settings');
   });
 
   it('should have valid nav items in General group', () => {
@@ -66,48 +62,19 @@ describe('Sidebar Data', () => {
       return;
     }
 
-    expect(generalGroup.items).toHaveLength(4);
+    expect(generalGroup.items).toHaveLength(3);
 
-    // Test Projects item
-    const projectsItem = generalGroup.items[1];
-    if (!projectsItem) {
+    // Test Dashboard item
+    const dashboardItem = generalGroup.items[0];
+    if (!dashboardItem) {
       return;
     }
-    expect(projectsItem.title).toBe('Projects');
-    expect('url' in projectsItem && projectsItem.url).toBe('/projects');
-    expect(projectsItem.icon).toBeDefined();
-
-    // Test Drafts item with badge
-    const draftsItem = generalGroup.items[2];
-    if (!draftsItem) {
-      return;
-    }
-    expect(draftsItem.title).toBe('Drafts');
-    expect('url' in draftsItem && draftsItem.url).toBe('/drafts');
-    expect(draftsItem.badge).toBe('2');
-    expect(draftsItem.icon).toBeDefined();
-
-    // Test Queued sessions item with badge
-    const queuedItem = generalGroup.items[3];
-    if (!queuedItem) {
-      return;
-    }
-    expect(queuedItem.title).toBe('Queued sessions');
-    expect('url' in queuedItem && queuedItem.url).toBe('/queued-sessions');
-    expect(queuedItem.badge).toBe('3');
-    expect(queuedItem.icon).toBeDefined();
-  });
-
-  it('should have valid nav items in Integrations group', () => {
-    const integrationsGroup = sidebarData.navGroups[1];
-    if (!integrationsGroup) {
-      return;
-    }
-
-    expect(integrationsGroup.items).toHaveLength(2);
+    expect(dashboardItem.title).toBe('Dashboard');
+    expect('url' in dashboardItem && dashboardItem.url).toBe('/');
+    expect(dashboardItem.icon).toBeDefined();
 
     // Test Devices item
-    const devicesItem = integrationsGroup.items[0];
+    const devicesItem = generalGroup.items[1];
     if (!devicesItem) {
       return;
     }
@@ -115,14 +82,34 @@ describe('Sidebar Data', () => {
     expect('url' in devicesItem && devicesItem.url).toBe('/devices');
     expect(devicesItem.icon).toBeDefined();
 
-    // Test API item
-    const apiItem = integrationsGroup.items[1];
-    if (!apiItem) {
+    // Test Commands item
+    const commandsItem = generalGroup.items[2];
+    if (!commandsItem) {
       return;
     }
-    expect(apiItem.title).toBe('API');
-    expect('url' in apiItem && apiItem.url).toBe('/api');
-    expect(apiItem.icon).toBeDefined();
+    expect(commandsItem.title).toBe('Commands');
+    expect('url' in commandsItem && commandsItem.url).toBe('/commands');
+    expect(commandsItem.icon).toBeDefined();
+  });
+
+  it('should have valid nav items in Settings group', () => {
+    const settingsGroup = sidebarData.navGroups[1];
+    if (!settingsGroup) {
+      return;
+    }
+
+    expect(settingsGroup.items).toHaveLength(1);
+
+    // Test Organization Settings item
+    const orgSettingsItem = settingsGroup.items[0];
+    if (!orgSettingsItem) {
+      return;
+    }
+    expect(orgSettingsItem.title).toBe('Organization Settings');
+    expect('url' in orgSettingsItem && orgSettingsItem.url).toBe(
+      '/organization/settings',
+    );
+    expect(orgSettingsItem.icon).toBeDefined();
   });
 
   it('should have all required nav item properties', () => {

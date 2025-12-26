@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { CreateOrganizationFormData } from '@/components/org/forms/validation/create-organization-form.schema';
+import { $api } from '@/http-service-setup';
 import { logError } from '@/lib/logger.utils';
 import { authClient } from './auth.http-service';
 
@@ -90,4 +91,43 @@ export function useCheckSlugAvailabilityMutation() {
 
 export type useCheckSlugAvailabilityMutationType = ReturnType<
   typeof useCheckSlugAvailabilityMutation
+>;
+
+export function useOrganizationDetailsQuery(organizationId: string) {
+  return $api.useQuery(
+    'get',
+    '/api/v1/{organizationId}/organization',
+    {
+      params: {
+        path: { organizationId },
+      },
+    },
+    {
+      enabled: !!organizationId,
+    },
+  );
+}
+
+export type useOrganizationDetailsQueryReturnType = ReturnType<
+  typeof useOrganizationDetailsQuery
+>;
+
+export function useOrganizationStatsQuery(organizationId: string) {
+  return $api.useQuery(
+    'get',
+    '/api/v1/{organizationId}/organization/stats',
+    {
+      params: {
+        path: { organizationId },
+      },
+    },
+    {
+      enabled: !!organizationId,
+      refetchInterval: 30000, // Refresh every 30 seconds
+    },
+  );
+}
+
+export type useOrganizationStatsQueryReturnType = ReturnType<
+  typeof useOrganizationStatsQuery
 >;

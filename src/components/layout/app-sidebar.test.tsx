@@ -50,36 +50,28 @@ describe('AppSidebar', () => {
   it('should render team switcher', () => {
     renderAppSidebar();
 
-    expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
+    expect(screen.getByText('Dorchestrator')).toBeInTheDocument();
   });
 
   it('should render navigation groups', () => {
     renderAppSidebar();
 
     expect(screen.getByText('General')).toBeInTheDocument();
-    expect(screen.getByText('Integrations')).toBeInTheDocument();
+    expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
   it('should render navigation items from General group', () => {
     renderAppSidebar();
 
-    expect(screen.getByText('Projects')).toBeInTheDocument();
-    expect(screen.getByText('Drafts')).toBeInTheDocument();
-    expect(screen.getByText('Queued sessions')).toBeInTheDocument();
-  });
-
-  it('should render navigation items from Integrations group', () => {
-    renderAppSidebar();
-
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Devices')).toBeInTheDocument();
-    expect(screen.getByText('API')).toBeInTheDocument();
+    expect(screen.getByText('Commands')).toBeInTheDocument();
   });
 
-  it('should render badges on navigation items', () => {
+  it('should render navigation items from Settings group', () => {
     renderAppSidebar();
 
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText('Organization Settings')).toBeInTheDocument();
   });
 
   it('should render sidebar rail', () => {
@@ -92,7 +84,7 @@ describe('AppSidebar', () => {
   it('should render all team options', () => {
     renderAppSidebar();
 
-    expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
+    expect(screen.getByText('Dorchestrator')).toBeInTheDocument();
   });
 
   it('should have correct sidebar structure', () => {

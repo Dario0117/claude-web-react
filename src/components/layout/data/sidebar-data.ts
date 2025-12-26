@@ -1,32 +1,18 @@
 import {
-  AudioWaveform,
-  Code,
-  Command,
-  FilePenLine,
-  FolderKanban,
   GalleryVerticalEnd,
-  House,
-  Layers,
-  MonitorSmartphone,
+  HardDrive,
+  Home,
+  Settings,
+  Terminal,
 } from 'lucide-react';
 import type { SidebarData } from './sidebar-data.types';
 
 export const sidebarData: SidebarData = {
   teams: [
     {
-      name: 'Shadcn Admin',
-      logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Acme Inc',
+      name: 'Dorchestrator',
       logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
+      plan: 'Free Tier',
     },
   ],
   navGroups: [
@@ -34,41 +20,29 @@ export const sidebarData: SidebarData = {
       title: 'General',
       items: [
         {
-          title: 'Home',
+          title: 'Dashboard',
           url: '/',
-          icon: House,
+          icon: Home,
         },
         {
-          title: 'Projects',
-          url: '/projects',
-          icon: FolderKanban,
+          title: 'Devices',
+          url: '/devices',
+          icon: HardDrive,
         },
         {
-          title: 'Drafts',
-          url: '/drafts',
-          badge: '2',
-          icon: FilePenLine,
-        },
-        {
-          title: 'Queued sessions',
-          url: '/queued-sessions',
-          badge: '3',
-          icon: Layers,
+          title: 'Commands',
+          url: '/commands',
+          icon: Terminal,
         },
       ],
     },
     {
-      title: 'Integrations',
+      title: 'Settings',
       items: [
         {
-          title: 'Devices',
-          url: '/devices',
-          icon: MonitorSmartphone,
-        },
-        {
-          title: 'API',
-          url: '/api',
-          icon: Code,
+          title: 'Organization Settings',
+          url: '/organization/settings',
+          icon: Settings,
         },
       ],
     },

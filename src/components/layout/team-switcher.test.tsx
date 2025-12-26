@@ -7,7 +7,7 @@ import { TeamSwitcher } from './team-switcher';
 
 const mockTeams = [
   {
-    name: 'Shadcn Admin',
+    name: 'Dorchestrator',
     logo: Command,
     plan: 'Vite + ShadcnUI',
   },
@@ -35,21 +35,21 @@ describe('TeamSwitcher', () => {
   it('should render the first team as active by default', () => {
     renderTeamSwitcher();
 
-    expect(screen.getByText('Shadcn Admin')).toBeInTheDocument();
+    expect(screen.getByText('Dorchestrator')).toBeInTheDocument();
     expect(screen.getByText('Vite + ShadcnUI')).toBeInTheDocument();
   });
 
   it('should return null when no teams are provided', () => {
     renderTeamSwitcher([]);
 
-    expect(screen.queryByText('Shadcn Admin')).not.toBeInTheDocument();
+    expect(screen.queryByText('Dorchestrator')).not.toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('should display team logo', () => {
     renderTeamSwitcher();
 
-    const button = screen.getByRole('button', { name: /shadcn admin/i });
+    const button = screen.getByRole('button', { name: /dorchestrator/i });
     const logo = button.querySelector('svg.lucide-command');
     expect(logo).toBeInTheDocument();
   });
@@ -58,7 +58,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     expect(screen.getByText('Teams')).toBeInTheDocument();
@@ -68,10 +68,10 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
-    expect(screen.getAllByText('Shadcn Admin')).toHaveLength(2);
+    expect(screen.getAllByText('Dorchestrator')).toHaveLength(2);
     expect(screen.getByText('Acme Inc')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp.')).toBeInTheDocument();
   });
@@ -80,7 +80,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     const acmeInc = screen.getByRole('menuitem', { name: /acme inc/i });
@@ -94,7 +94,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     expect(screen.getByText('⌘1')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     expect(screen.getByText('Add team')).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     const menuItems = screen.getAllByRole('menuitem');
@@ -134,7 +134,7 @@ describe('TeamSwitcher', () => {
     const user = userEvent.setup();
     renderTeamSwitcher();
 
-    const trigger = screen.getByRole('button', { name: /shadcn admin/i });
+    const trigger = screen.getByRole('button', { name: /dorchestrator/i });
     await user.click(trigger);
 
     const acmeCorp = screen.getByRole('menuitem', { name: /acme corp/i });
